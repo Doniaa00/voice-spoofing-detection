@@ -265,6 +265,25 @@ Not yet run in Colab.
 
 **Why it matters:** every claim and citation in the threat model now traces to its source. The one gap, analyst authentication, is stated as a residual risk instead of being implied as covered.
 
+### Entry 12 — Plan review and corrections (2026-10-04)
+
+**Correction to Entry 10:** `docs/threat_model.md` v0.1 was drafted with Claude (AI assistant, chat) from the team's documents and decisions, then committed for team review. **The team has not reviewed it yet.** The audit code in `src/audit/` was likewise written with AI assistance and verified by tests.
+
+**Execution Plan comparison:**
+- **Phase 1:** SRS requirements covered. Threat model in progress. GitHub Issues board not created.
+- **Phase 2:** dataset audit done. Preprocessing, manifests and compute benchmark not started.
+
+**Document discrepancies found [doc, checked against the reference files]** — to fix later, not now:
+- DEEP-VOICE zip is 3.96 GB [verified]; the Execution Plan says ~0.55 GB.
+- The Proposal's architecture figure still shows "ASVspoof + WaveFake" as training data and "baseline + deep model" inside the deployed detector.
+- Proposal §3.2 calls real-time / streaming detection a stretch goal; SRS WH-01 excludes it.
+- The Execution Plan lists six named TTS engines for FoR; this is not determinable from the package (`docs/dataset_audit.md` §2).
+- Execution Plan steps superseded by D2, D3, D6 and D10.
+
+**Stage 6 flag:** the Execution Plan suggests `silero-vad` (a small pretrained model) for voice-activity detection / silence trimming. Choosing it must be an **explicit Stage 6 decision**, not a default. D17 (DEEP-VOICE speech-window filter) depends on the chosen detector.
+
+**Stage 3 rule:** Experimental Protocol v1.0 may be **drafted now** on a stacked branch. It is **frozen only after the Stage 1 sign-off**.
+
 ---
 
 ## Open items
@@ -298,9 +317,27 @@ Not yet run in Colab.
 - [x] Codec-check and FoR ∩ DEEP-VOICE overlap outputs committed to `docs/audit_evidence/` (`for2sec_codec_check.csv/.json`, `cross_dataset_overlap.json`); "not yet archived" notes replaced in `docs/dataset_audit.md`.
 - [x] Log D13, D14, D9, D16, H5, H6 in `docs/decisions.md` and fill in `docs/dataset_audit.md` (done, with D17–D19).
 - [ ] Update Proposal and Execution Plan discrepancies after the audit (e.g., the DEEP-VOICE 628 / 4,425 counts).
+  Also, from Entry 12:
+  - DEEP-VOICE size 3.96 GB (Exec Plan: ~0.55 GB);
+  - the Proposal architecture figure (ASVspoof + WaveFake; "baseline + deep model" in the detector);
+  - Proposal §3.2 streaming as a stretch goal (vs SRS WH-01);
+  - Exec Plan's six named TTS engines (not determinable);
+  - Exec Plan steps superseded by D2, D3, D6, D10.
 
 **Stage 1 gate**
 - [ ] Team sign-off of `docs/dataset_audit.md` §10 (Donia, Iheb, Malak).
+
+**Team meeting (next)**
+- [ ] Collaborator invitations accepted (Iheb, Malak).
+- [ ] Stage 1: `docs/dataset_audit.md` §10 sign-off.
+- [ ] Stage 2: threat model review (§13 open questions, §14 sign-off).
+- [ ] Assign the three tracks (0.9), set up W&B (0.6), confirm compute per person (0.7), set the weekly sync + channel (0.8).
+- [ ] Agree the PR merge order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model`.
+
+**Execution Plan phases (from the Entry 12 comparison)**
+- [ ] Phase 0: compute per person (0.7); weekly sync + async channel (0.8); random-seed policy (0.10).
+- [ ] Phase 1: GitHub Issues board, one issue per upcoming stage, tagged `ml` / `backend` / `frontend`.
+- [ ] Phase 2: compute benchmark before Stage 8. Train the CNN on a small subset and record GPU type, VRAM, batch size and time per epoch.
 
 **Stage 2 gate**
 - [x] Resolve the two v0.1 mismatches from Entry 10 (§3.2 REAL filenames; §10 D20 → D21) → v0.2 (Entry 11).
@@ -311,6 +348,7 @@ Not yet run in Colab.
 - [ ] `configs/robustness.yaml` → Stage 14. `docker-compose.yml` → Stage 17.
 - [ ] Stage 17: verify the ModelBundle checkpoint hash at load (threat model §10, tampering recommendation).
 - [ ] Stage 6: re-run the shortcut screen *after* preprocessing (silence, bandwidth).
+- [ ] Stage 6: decide the silence / voice-activity detector explicitly (energy-based vs `silero-vad`) and record it as a decision; D17 depends on it.
 - [ ] Phase 0 leftovers: confirm ML lead (0.9), W&B project (0.6), pin `requirements.txt` for 3.13 + 3.14 (0.10).
 
 ---
@@ -321,12 +359,13 @@ Not yet run in Colab.
 - Readiness audit and decisions D1–D21; hypotheses H5–H6 pre-registered.
 - Repo scaffold on GitHub.
 - **Stage 1 done — awaiting sign-off/merge.** Both audits run and written up in `docs/dataset_audit.md` and `docs/decisions.md`, with no TBDs and every cited number backed by a file in `docs/audit_evidence/`. Audit notebook ported, pinned, and confirmed in Colab.
-- Stacked branch `stage-2-threat-model` created from `stage-1-audit-run` (Entry 9). **Stage 2 is CURRENT**: threat model **v0.2** (citation fixes, D21), **awaiting team review** (Entries 10–11).
+- Stacked branch `stage-2-threat-model` created from `stage-1-audit-run` (Entry 9). **Stage 2 is CURRENT**: threat model **v0.2** (AI-assisted draft, citation fixes, D21), **not yet reviewed by the team** (Entries 10–12).
+- Plan review against the Execution Plan (Entry 12): Phase 1 Issues board and Phase 2 preprocessing / manifests / compute benchmark not started; document discrepancies listed for a later fix.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
 - One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
-- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
+- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses, pinned by D21. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
 - A reproducible audit notebook that refuses to run on unpinned or changed data; full outputs archived in Drive.
 
 **Branches:**
@@ -339,6 +378,8 @@ Not yet run in Colab.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Team sign-off of `docs/dataset_audit.md` §10 (commit on `stage-1-audit-run`), then PRs merged in order: stage-0 → stage-1 → stage-2.
-2. Stage 2: team review of `docs/threat_model.md` v0.2 → sign-off (§14) → v1.0.
-3. Stage 3: Experimental Protocol v1.0 (also fixes the D17 silence threshold).
+1. Team meeting (see Open items): invitations, Stage 1 §10 sign-off, threat model review, tracks / W&B / compute / weekly sync, merge order.
+2. PRs merged in order: stage-0 → stage-1 → stage-2.
+3. Stage 2: threat model v0.2 → team review → sign-off (§14) → v1.0.
+4. Stage 3: Experimental Protocol v1.0 (also fixes the D17 silence threshold). **It may be drafted now on a stacked branch, but it is frozen only after the Stage 1 sign-off.**
+5. Before Stage 8: compute benchmark. In Stage 6: explicit silence-detector decision.
