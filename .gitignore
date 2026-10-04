@@ -1,0 +1,25 @@
+# Data: nothing but manifests and the README is committed
+data/*
+!data/manifests/
+data/manifests/*
+!data/manifests/.gitkeep
+!data/README.md
+
+# Audio / models / features
+*.wav
+*.flac
+*.mp3
+*.pt
+*.ckpt
+*.npy
+
+# Audit + experiment outputs
+audit_out/
+wandb/
+
+# Python / env
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/

@@ -1,0 +1,20 @@
+# Stage 1 dataset audit — data roots and output dirs.
+#
+# Placeholders only. Per CLAUDE.md, no Colab/Drive path is ever hardcoded in code: fill in
+# the real paths for your session below (local disk, or /content/data/... in Colab) before
+# running the audit notebook or CLI. Nothing here is read except by you and the notebook —
+# src/audit/*.py always takes its root/out/revision from CLI args, never from this file.
+
+for2sec:
+  root: "/content/data/for_2sec"          # copied from Drive raw/for_2sec before running
+  out: "/content/audit_out/for2sec"
+  revision: ""                            # HF commit sha — HfApi().dataset_info("UncovAI/FOR-2sec").sha
+
+deepvoice:
+  root: "/content/data/deep_voice"        # copied from Drive raw/deep_voice before running
+  out: "/content/audit_out/deepvoice"
+  revision: ""                            # Kaggle dataset version number
+
+drive:
+  raw_root: "/content/drive/MyDrive/voice-spoofing-detection/raw"
+  archive_root: "/content/drive/MyDrive/voice-spoofing-detection/processed/metadata/stage1"
