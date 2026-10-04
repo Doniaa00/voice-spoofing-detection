@@ -24,6 +24,7 @@ Execution Plan where they differ. Any change needs a new entry with a reason and
 | D17 | DEEP-VOICE speech-window filter using the frozen silence detector. Its threshold is fixed in Protocol v1.0, before the external run. Filtered (primary) and unfiltered (sensitivity) views are computed in the same single run. Drop counts are reported per class and per speaker. | Approved (2026-10-04) |
 | D18 | Preprocessing averages channels to mono and resamples to 16 kHz, identically everywhere. Stage 6 adds a pipeline-invariance test on FoR clips converted to 40, 44.1 and 48 kHz stereo. Resampler, settings and tolerance are fixed in Stage 6. | Approved (2026-10-04) |
 | D19 | External (DEEP-VOICE) results include a per-speaker table (8 rows) and a speaker average as a secondary summary. | Approved (2026-10-04) |
+| D20 | Permitted DEEP-VOICE accesses before the external run are **only**: download, zip hash, unzip, listing paths / extensions / sizes / byte hashes, and `src/audit/deepvoice_metadata_audit.py`. Nothing reads audio content. Extends D6 to cover the download steps; `CLAUDE.md` hard rule 1 matches. | Approved (2026-10-04) |
 
 ## Pre-registered hypotheses
 

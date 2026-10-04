@@ -147,6 +147,37 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 
 **Why it matters:** the audit document now has no open placeholders, so the team can sign it off as written.
 
+### Entry 7 — Stage 1: audit notebook ported, datasets pinned, D20 (2026-10-04)
+
+**What we did:**
+- **Notebook port** (commit `f8af88a`): rewrote `notebooks/01_stage1_dataset_audit.ipynb` from the working Colab copy. It has 9 code cells, each with a markdown explanation, and outputs stripped:
+  - setup + tests
+  - FoR download + `.tar` backup
+  - DEEP-VOICE download
+  - dry run
+  - full FoR audit
+  - codec check, now saved to `for2sec_codec_check.csv/.json`
+  - DEEP-VOICE metadata audit
+  - FoR ∩ DEEP-VOICE overlap, now saved to `cross_dataset_overlap.json`
+  - archive
+
+  Cells 6 and 8 also run from the Drive archive alone. The Colab copy was used as reference only and deleted, not committed.
+- **Pins** in `configs/audit.yaml`:
+  - `for2sec.revision = ff8c82c7…`; cell 2 stops if it is empty.
+  - `deepvoice.zip_sha256 = 8cb25853…`; cell 3 stops before unzipping if the downloaded zip differs.
+  - The DEEP-VOICE revision label no longer uses a relative date: `kaggle zip-sha256:<hash>, downloaded 2026-10-04`.
+  - Outdated config comments fixed.
+- **D20:** before the external run, the only permitted DEEP-VOICE accesses are download, zip hash, unzip, listing paths / extensions / sizes / byte hashes, and `deepvoice_metadata_audit.py`. Nothing reads audio content. `CLAUDE.md` hard rule 1 now says the same.
+
+**Evidence [verified locally]:**
+- The notebook validates with nbformat, and all 9 code cells compile.
+- A local smoke test with synthetic inventories passed: the empty-revision and zip-mismatch guards raise, and cells 6 and 8 run from an archive-only layout.
+- `pytest -q`: 12 passed.
+
+Not yet run in Colab.
+
+**Why it matters:** the audit can now be re-run from the repo alone, against exactly the same data, and every DEEP-VOICE touch before the external run is written down and limited.
+
 ---
 
 ## Open items
@@ -159,12 +190,12 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 - [ ] Transfer repo ownership to Iheb. Afterwards everyone runs `git remote set-url`, and we update repo URLs in the notebook and docs.
 - [ ] `stage-1-audit-run` → PR + merge at the end of Stage 1.
 
-**Notebook fixes made only in the Colab copy — must be ported to the repo notebook**
+**Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
 - [x] Cell 2: download FoR to local disk (not Drive); print the folder/label structure; back up as one `.tar` + `REVISION.txt` in Drive.
 - [x] Add the dry-run, full-run, and codec-check cells as used in the session.
 - [x] Port Colab cells 1 / 2 / 3 and the run cells (FoR audit, codec check, DEEP-VOICE metadata audit, FoR ∩ DEEP-VOICE overlap check) to `notebooks/01_stage1_dataset_audit.ipynb` (9 cells, outputs stripped; `BRANCH` defaults to `main`; `deepvoice.audit_subdir` added to `configs/audit.yaml`).
-- [ ] Run the ported notebook once in Colab, end to end or at least cells 1, 6, 8 and 9 from the Drive archive, to confirm it works outside local checks.
+- [ ] Run the ported notebook once in Colab, end to end or at least cells 1, 6, 8 and 9 from the Drive archive, to confirm it works outside local checks. Set `BRANCH = "stage-1-audit-run"` until the branch is merged (default is `main`).
 
 **Security**
 - [ ] Regenerate the Kaggle API token.
@@ -192,23 +223,25 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 ## Current status — updated 2026-10-04
 
 **What was done:**
-- Readiness audit and decisions D1–D19; hypotheses H5–H6 pre-registered.
+- Readiness audit and decisions D1–D20; hypotheses H5–H6 pre-registered.
 - Repo scaffold on GitHub.
 - Stage 1 rules pre-registered, then both audits run: full FoR-2sec audit + codec check; DEEP-VOICE metadata-only audit + FoR ∩ DEEP-VOICE overlap check.
 - Stage 1 fully written up in `docs/dataset_audit.md` (no TBDs left) and `docs/decisions.md`. Provenance, licenses and the HF card check recorded. Audit is **awaiting team sign-off (§10)**.
+- Audit notebook ported to the repo, with both datasets pinned in `configs/audit.yaml` (FoR revision, DEEP-VOICE zip sha256). Permitted DEEP-VOICE accesses fixed in D20 and `CLAUDE.md`.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
 - One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
-- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond metadata. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
+- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
 - Full audit outputs archived in Drive (`processed/metadata/stage1/`); summaries in `docs/audit_evidence/`.
+- A reproducible audit notebook that refuses to run on unpinned or changed data.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Team review and sign-off of `docs/dataset_audit.md` §10.
-2. PR `stage-1-audit-run` → 1 approval → merge → Stage 1 closed.
-3. Port the Colab cells to the repo notebook and archive the codec-check and overlap outputs in `docs/audit_evidence/`.
+1. Run the ported notebook in Colab (`BRANCH = "stage-1-audit-run"`): at least cells 1, 6, 8, 9 from the Drive archive. Copy the codec-check and overlap files into `docs/audit_evidence/` and drop the "not yet archived" notes.
+2. Team review and sign-off of `docs/dataset_audit.md` §10.
+3. PR `stage-1-audit-run` → 1 approval → merge → Stage 1 closed.
 4. Stage 2 (threat model) and Stage 3 (Experimental Protocol v1.0, which also fixes the D17 silence threshold).
