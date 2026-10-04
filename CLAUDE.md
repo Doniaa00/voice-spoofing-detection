@@ -68,6 +68,13 @@ fix, and wait for approval.
 - Keep experiment code (`notebooks/`) separate from production inference code (`api/`, `src/`).
 - Small, reviewable changes. Fix the root cause of errors; do not rewrite unrelated code.
 
+## Git workflow
+GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected (PR + 1 approval, no direct pushes).
+- Never commit to `main`. Create one branch per task, named `stage-<N>-<short-name>`
+  (e.g. `stage-1-audit-run`).
+- Small commits with clear messages.
+- Push the branch and tell the team to open a PR. Never merge it yourself.
+
 ## Roadmap and current status
 | # | Stage | Status |
 |---|---|---|
