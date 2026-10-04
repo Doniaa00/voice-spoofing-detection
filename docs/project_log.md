@@ -11,7 +11,8 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 - **This file points; it does not duplicate.** Official decisions live in `docs/decisions.md`. Official audit facts live in `docs/dataset_audit.md`. The log references them by ID (D13, H5, …).
 - **Log entries are append-only.** Never edit an old entry; if something was wrong, add a new entry that corrects it.
 - **At every update:** (1) add a new log entry, (2) tick or add items in **Open items**, (3) rewrite **Current status**.
-- **Evidence labels:** **[verified]** = checked on real data/output · **[doc]** = from documentation · **[hypothesis]** = not yet tested · **[to verify]** = we are not sure it happened.
+- **Evidence labels:** **[verified]** = checked against data or sources (evidence for review, not acceptance) · **[doc]** = from documentation · **[hypothesis]** = not yet tested · **[to verify]** = we are not sure it happened.
+- **Acceptance** = team review, recorded in the sign-off tables (`docs/dataset_audit.md` §10, `docs/threat_model.md` §14). AI-produced work is not accepted until then (`CLAUDE.md`, human in the loop).
 
 ---
 
@@ -284,6 +285,15 @@ Not yet run in Colab.
 
 **Stage 3 rule:** Experimental Protocol v1.0 may be **drafted now** on a stacked branch. It is **frozen only after the Stage 1 sign-off**.
 
+### Entry 13 — Human in the loop; label meaning; Issues board (2026-10-04)
+
+- **Human-in-the-loop rule** added to `CLAUDE.md` "Working mode" (commit `684f7cd`). Every AI-produced artifact (code, documents, analysis) is reviewed by a team member before it is accepted. AI output is never merged, cited or reported as verified without that review. AI assistance is recorded honestly in this log.
+- **Meaning of labels:**
+  - **[verified]** = checked against data or sources. It is evidence for review.
+  - **Acceptance** = team review, recorded in the sign-off tables: `docs/dataset_audit.md` §10 and `docs/threat_model.md` §14.
+  - The evidence-labels line in "How to use this file" is updated to match.
+- **Issues board:** follows the Execution Plan (Phase 1, task 5). One issue per SRS requirement (FR / NFR / PC IDs), grouped under one milestone per stage. **This corrects the wording logged in Entry 12** ("one issue per upcoming stage"); there is no plan deviation. The open item is updated to match.
+
 ---
 
 ## Open items
@@ -336,7 +346,7 @@ Not yet run in Colab.
 
 **Execution Plan phases (from the Entry 12 comparison)**
 - [ ] Phase 0: compute per person (0.7); weekly sync + async channel (0.8); random-seed policy (0.10).
-- [ ] Phase 1: GitHub Issues board, one issue per upcoming stage, tagged `ml` / `backend` / `frontend`.
+- [ ] Phase 1: GitHub Issues board per the Execution Plan (Phase 1, task 5): one issue per SRS requirement (FR / NFR / PC IDs), tagged by track (`ml` / `backend` / `frontend`), grouped under one milestone per stage (Entry 13).
 - [ ] Phase 2: compute benchmark before Stage 8. Train the CNN on a small subset and record GPU type, VRAM, batch size and time per epoch.
 
 **Stage 2 gate**
