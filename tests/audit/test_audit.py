@@ -58,8 +58,9 @@ def test_for_audit_end_to_end(for_root, tmp_path):
     assert set(by_th) == {"0.9", "0.95", "0.98"}
     for st in by_th.values():
         assert {"n_groups", "multi_file_groups", "largest_group", "largest_group_pct",
-                "d14_pass"} <= set(st)
+                "d14_pass", "d14_sanity_pass", "d14_eligible"} <= set(st)
         assert st["n_groups"] <= 27  # 28 files minus the corrupt one
+        assert st["d14_sanity_pass"]  # identical PCM -> identical fingerprint
     # Tiny fixture: the duplicate cluster around file0_real (>= 2 of 27 clips, > 5%) fails D14
     assert rep["near_duplicates"]["d14_selected_threshold"] == "pcm_hash_only"
     assert "D14 selected threshold: pcm_hash_only" in \
@@ -101,9 +102,9 @@ def test_neardup_group_stats_excludes_corrupt():
 
 def test_d14_select_threshold():
     th = fa.Thresholds()
-    def bt(p95, p98):
-        return {"0.9": {"d14_pass": False}, "0.95": {"d14_pass": p95},
-                "0.98": {"d14_pass": p98}}
+    def bt(e95, e98):
+        return {"0.9": {"d14_eligible": False}, "0.95": {"d14_eligible": e95},
+                "0.98": {"d14_eligible": e98}}
     assert fa.d14_select_threshold(bt(True, True), th) == 0.95
     assert fa.d14_select_threshold(bt(False, True), th) == 0.98
     assert fa.d14_select_threshold(bt(False, False), th) == "pcm_hash_only"
@@ -111,6 +112,32 @@ def test_d14_select_threshold():
     st = fa.neardup_group_stats(np.r_[np.zeros(5, int), np.arange(1, 96)],
                                 np.ones(100, bool), th)
     assert st["largest_group_pct"] == 5.0 and st["d14_pass"] is True
+
+
+def test_d14_sanity_failure():
+    assert fa.d14_sanity_failure({"pairs": 0, "min_sim": None}, 0.98) is None  # no pairs = pass
+    assert fa.d14_sanity_failure({"pairs": 3, "min_sim": 0.99}, 0.98) is None
+    assert fa.d14_sanity_failure({"pairs": 3, "min_sim": 0.98}, 0.98) is None  # >= passes
+    assert "0.9600 < 0.98" in fa.d14_sanity_failure({"pairs": 3, "min_sim": 0.96}, 0.98)
+    assert "none has fingerprints" in fa.d14_sanity_failure({"pairs": 2, "min_sim": None}, 0.95)
+
+
+def test_d14_sanity_failure_forces_pcm_hash_only(for_root, tmp_path, monkeypatch):
+    th = fa.Thresholds(d14_max_group_pct=100.0)  # chaining check always passes here
+    # Positive control: with the real sanity check, 0.95 is selected.
+    assert fa.run(for_root, tmp_path / "ok", "r", th=th)["near_duplicates"][
+        "d14_selected_threshold"] == 0.95
+    # Exact-PCM duplicates that look dissimilar to the fingerprint must veto every threshold.
+    monkeypatch.setattr(fa, "pcm_dup_min_sim", lambda *a: {
+        "pairs": 3, "pairs_without_fingerprint": 0, "min_sim": 0.5})
+    nd = fa.run(for_root, tmp_path / "bad", "r", th=th)["near_duplicates"]
+    assert nd["d14_selected_threshold"] == "pcm_hash_only"
+    for s in ("0.95", "0.98"):
+        assert nd["by_threshold"][s]["d14_pass"] and not nd["by_threshold"][s]["d14_eligible"]
+    assert set(nd["d14_sanity_failures"]) == {"0.9", "0.95", "0.98"}
+    md = (tmp_path / "bad" / "for2sec_summary.md").read_text(encoding="utf-8")
+    assert "D14 sanity check FAILED" in md
+    assert "0.5000 < 0.95" in md and "D14 selected threshold: pcm_hash_only" in md
 
 
 def test_neardup_col():

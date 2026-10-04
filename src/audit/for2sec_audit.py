@@ -176,10 +176,29 @@ def neardup_group_stats(groups: np.ndarray, decodable: np.ndarray, th: Threshold
             "d14_pass": bool(pct <= th.d14_max_group_pct)}
 
 
+def d14_sanity_failure(sanity: dict, sim: float) -> str | None:
+    """D14 sanity check at one threshold: None if it passes, else the reason it fails.
+
+    Passes when there are no exact-PCM-duplicate pairs, or when their minimum
+    fingerprint similarity is >= sim. Pairs that exist but cannot be checked (no
+    fingerprint for either file) fail: an unverifiable check is not a pass.
+    """
+    if sanity["pairs"] == 0:
+        return None
+    if sanity["min_sim"] is None:
+        return (f"{sanity['pairs']} exact-PCM-duplicate pairs exist but none has "
+                "fingerprints to check")
+    if sanity["min_sim"] < sim:
+        return (f"min similarity among exact-PCM-duplicate pairs is "
+                f"{sanity['min_sim']:.4f} < {sim}")
+    return None
+
+
 def d14_select_threshold(by_threshold: dict, th: Thresholds):
-    """D14: first candidate threshold whose chaining check passes, else 'pcm_hash_only'."""
+    """D14: first candidate threshold that is eligible (chaining check AND PCM sanity
+    check both pass), else 'pcm_hash_only'."""
     for s in th.d14_candidate_sims:
-        if by_threshold[str(s)]["d14_pass"]:
+        if by_threshold[str(s)]["d14_eligible"]:
             return s
     return "pcm_hash_only"
 
@@ -315,18 +334,25 @@ def run(root: Path, out: Path, revision: str, limit: int | None = None,
         np.save(out / "for2sec_fingerprints.npy", F)
         lab, spl = inv["label"].to_numpy(), inv["split_dir"].to_numpy()
         decodable = inv["decode_ok"].to_numpy(dtype=bool)
-        nd = {}
+        sanity = pcm_dup_min_sim(F, valid, inv["pcm_sha256"])
+        nd, sanity_failures = {}, {}
         for s in th.neardup_sims:
             p = nd_pairs[nd_pairs["sim"] >= s]
             nd[str(s)] = {"pairs": int(len(p)),
                           "cross_label_pairs": int((lab[p.i] != lab[p.j]).sum()),
                           "cross_split_pairs": int((spl[p.i] != spl[p.j]).sum()),
                           **neardup_group_stats(groups[s], decodable, th)}
+            reason = d14_sanity_failure(sanity, s)
+            nd[str(s)]["d14_sanity_pass"] = reason is None
+            nd[str(s)]["d14_eligible"] = nd[str(s)]["d14_pass"] and reason is None
+            if reason:
+                sanity_failures[str(s)] = reason
         report["near_duplicates"] = {
             "fingerprint_invalid": int((~valid).sum()), "pairs_truncated": truncated,
             "by_threshold": nd,
             "d14_selected_threshold": d14_select_threshold(nd, th),
-            "pcm_dup_sanity": pcm_dup_min_sim(F, valid, inv["pcm_sha256"]),
+            "pcm_dup_sanity": sanity,
+            "d14_sanity_failures": sanity_failures,
             "max_sim_quantiles_by_label": {
                 lb: inv.loc[inv.label == lb, "fp_max_sim"].quantile(
                     [0.5, 0.9, 0.99, 1.0]).round(4).to_dict()
@@ -381,6 +407,11 @@ def _write_markdown(path, report, inv, num_sc, cat_sc, tokens):
                                  {"key": "decoded PCM", **report["exact_duplicates_pcm"]}]))]
     if "near_duplicates" in report:
         nd = report["near_duplicates"]
+        if nd["d14_sanity_failures"]:
+            sanity_md = ["\n**D14 sanity check FAILED** (threshold not eligible):"] + \
+                [f"- {k}: {v}" for k, v in nd["d14_sanity_failures"].items()]
+        else:
+            sanity_md = ["\nD14 sanity check passed at all thresholds."]
         md += ["\n## 8. Near-duplicates (log-mel fingerprint cosine)",
                df_to_md(pd.DataFrame([{"threshold": k, **v}
                                       for k, v in nd["by_threshold"].items()])),
@@ -390,7 +421,10 @@ def _write_markdown(path, report, inv, num_sc, cat_sc, tokens):
                f"\n**D14 selected threshold: {nd['d14_selected_threshold']}** "
                f"(candidates in order: {report['thresholds']['d14_candidate_sims']}, "
                "else pcm_hash_only)",
+               "\n_d14_eligible = d14_pass AND d14_sanity_pass (every exact-PCM-duplicate "
+               "pair has similarity ≥ the threshold)._",
                f"\nD14 sanity — exact-PCM-duplicate pairs: {nd['pcm_dup_sanity']}",
+               *sanity_md,
                f"\nMax-sim quantiles: "
                f"{nd['max_sim_quantiles_by_label']}",
                "\n_Limitation: aligned fingerprints do not detect time-shifted "
