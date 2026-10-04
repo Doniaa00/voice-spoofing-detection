@@ -210,6 +210,41 @@ Not yet run in Colab.
 
 **Why it matters:** the Stage 1 evidence stays frozen while it is reviewed, and the log stays on a single line of history.
 
+### Entry 10 — Stage 2: threat model draft v0.1 (2026-10-04)
+
+**What we did:**
+- The team wrote `docs/threat_model.md` v0.1. It covers:
+  - scenarios: call-center triage of high-risk requests (primary) and an executive voice message (secondary);
+  - the attack path and detection point;
+  - assets, attacker profiles and attack classes in and out of scope;
+  - threats T1–T7 mapped to the planned evidence;
+  - the error policy and threats to the system itself;
+  - the oracle-abuse residual risk.
+- Committed as-is (commit `8b7b679`).
+- Checked the draft (Claude Code):
+  - every FR / NFR / PC / WH / UN ID against the SRS v3.0 text;
+  - every D* and H* against `docs/decisions.md`;
+  - the cited audit facts against `docs/dataset_audit.md`;
+  - Proposal §2.3;
+  - the mermaid syntax.
+
+**What we found [verified]:**
+- **All cited IDs exist** and their meaning matches the SRS:
+  - FR-03, FR-05–FR-07, FR-11, FR-12–FR-18, FR-20
+  - NFR-01–NFR-05, NFR-07, NFR-09
+  - PC-03–PC-05, WH-01–WH-04, UN-01, UN-02
+  - D2, D8, D11, D12, D14, D16–D20, H5, H6
+- SRS §1.2 and §7.4 support the cited content: scope, open limits, access-control mechanism. Proposal §2.3 is "Attacker capability assumptions".
+- **Mermaid block parses** (flowchart; `mermaid.parse` 11.17.2, with a broken-diagram negative control).
+- **Two mismatches, reported for team review, not fixed:**
+  1. §3.2 says "all files `src-to-tgt`". Only the 56 FAKE files are; the 8 REAL files are `<speaker>-original.wav` (`docs/dataset_audit.md` §5).
+  2. §10, "Tampering (data)", cites **D20** for the pinned FoR revision / DEEP-VOICE zip SHA-256 and the stop-on-mismatch. D20 defines the *permitted DEEP-VOICE accesses*; the pinning is in `configs/audit.yaml` (Entry 7) and has no decision ID.
+- **Observations (not mismatches):**
+  - The §10 spoofing control relies on FR-11, which is a *Could* requirement.
+  - T6 cites D2 for calibration on val-B; the val-A / val-B split itself is D9.
+
+**Why it matters:** the threat model sets the maximum claim for each threat. Its references have to be exact, because the final report will quote them.
+
 ---
 
 ## Open items
@@ -247,8 +282,13 @@ Not yet run in Colab.
 **Stage 1 gate**
 - [ ] Team sign-off of `docs/dataset_audit.md` §10 (Donia, Iheb, Malak).
 
+**Stage 2 gate**
+- [ ] Team review of `docs/threat_model.md` v0.1 (§13 open questions, §14 sign-off); resolve the two mismatches from Entry 10 (§3.2 REAL filenames; §10 D20 citation).
+- [ ] Decide the access-control mechanism (SRS §7.4) before the API stage (Stage 17), at the latest. The oracle-abuse residual risk (threat model §10.1) depends on it.
+
 **Later stages (reminders)**
 - [ ] `configs/robustness.yaml` → Stage 14. `docker-compose.yml` → Stage 17.
+- [ ] Stage 17: verify the ModelBundle checkpoint hash at load (threat model §10, tampering recommendation).
 - [ ] Stage 6: re-run the shortcut screen *after* preprocessing (silence, bandwidth).
 - [ ] Phase 0 leftovers: confirm ML lead (0.9), W&B project (0.6), pin `requirements.txt` for 3.13 + 3.14 (0.10).
 
@@ -260,7 +300,7 @@ Not yet run in Colab.
 - Readiness audit and decisions D1–D20; hypotheses H5–H6 pre-registered.
 - Repo scaffold on GitHub.
 - **Stage 1 done — awaiting sign-off/merge.** Both audits run and written up in `docs/dataset_audit.md` and `docs/decisions.md`, with no TBDs and every cited number backed by a file in `docs/audit_evidence/`. Audit notebook ported, pinned, and confirmed in Colab.
-- Stacked branch `stage-2-threat-model` created from `stage-1-audit-run` (Entry 9). **Stage 2 is CURRENT**; threat-model content not started.
+- Stacked branch `stage-2-threat-model` created from `stage-1-audit-run` (Entry 9). **Stage 2 is CURRENT**: threat model draft v0.1 committed and checked (Entry 10), **awaiting team review**.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -279,5 +319,5 @@ Not yet run in Colab.
 
 **What's next:**
 1. Team sign-off of `docs/dataset_audit.md` §10 (commit on `stage-1-audit-run`), then PRs merged in order: stage-0 → stage-1 → stage-2.
-2. Stage 2: threat model → `docs/threat_model.md` (on `stage-2-threat-model`).
+2. Stage 2: team review of `docs/threat_model.md` v0.1 and the two citation fixes → sign-off (§14) → v1.0.
 3. Stage 3: Experimental Protocol v1.0 (also fixes the D17 silence threshold).
