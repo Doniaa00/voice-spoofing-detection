@@ -49,14 +49,21 @@ def test_for_audit_end_to_end(for_root, tmp_path):
     assert rep["exact_duplicates_pcm"]["cross_label_groups"] == 1
     near = inv.loc[inv.rel_path.str.endswith("near.wav"), "fp_max_sim"].item()
     assert near > 0.98
-    g = inv.set_index("rel_path")["neardup_group"]
+    g = inv.set_index("rel_path")["neardup_group_095"]
     assert g["REAL/near.wav"] == g["REAL/file0_real.wav"]
+    assert "neardup_group" not in inv
     for col in ("neardup_group_090", "neardup_group_095", "neardup_group_098"):
         assert col in inv
     by_th = rep["near_duplicates"]["by_threshold"]
     assert set(by_th) == {"0.9", "0.95", "0.98"}
     for st in by_th.values():
-        assert {"n_groups", "multi_file_groups", "largest_group", "largest_group_pct"} <= set(st)
+        assert {"n_groups", "multi_file_groups", "largest_group", "largest_group_pct",
+                "d14_pass"} <= set(st)
+        assert st["n_groups"] <= 27  # 28 files minus the corrupt one
+    # Tiny fixture: the duplicate cluster around file0_real (>= 2 of 27 clips, > 5%) fails D14
+    assert rep["near_duplicates"]["d14_selected_threshold"] == "pcm_hash_only"
+    assert "D14 selected threshold: pcm_hash_only" in \
+        (tmp_path / "out" / "for2sec_summary.md").read_text(encoding="utf-8")
     sanity = rep["near_duplicates"]["pcm_dup_sanity"]
     assert sanity["pairs"] >= 3 and sanity["min_sim"] > 0.999  # identical PCM -> identical fp
     assert "samplerate" in rep["shortcut_flags"]["numeric_high"]
@@ -79,9 +86,31 @@ def test_neardup_grouping_chains_transitively():
     g95 = groups[0.95]
     assert g95[0] == g95[1] == g95[2] != g95[3]       # ...yet one group via B
     assert len(set(groups[0.98])) == 4                 # nothing groups at 0.98
-    st = fa.neardup_group_stats(g95)
+    st = fa.neardup_group_stats(g95, np.ones(4, bool), fa.Thresholds())
     assert st == {"n_groups": 2, "multi_file_groups": 1, "largest_group": 3,
-                  "largest_group_pct": 75.0}
+                  "largest_group_pct": 75.0, "d14_pass": False}
+
+
+def test_neardup_group_stats_excludes_corrupt():
+    groups = np.array([0, 0, 2, 3])                   # file 3 is corrupt (its own singleton)
+    decodable = np.array([True, True, True, False])
+    st = fa.neardup_group_stats(groups, decodable, fa.Thresholds())
+    assert st["n_groups"] == 2 and st["largest_group"] == 2
+    assert abs(st["largest_group_pct"] - 100 * 2 / 3) < 1e-3
+
+
+def test_d14_select_threshold():
+    th = fa.Thresholds()
+    def bt(p95, p98):
+        return {"0.9": {"d14_pass": False}, "0.95": {"d14_pass": p95},
+                "0.98": {"d14_pass": p98}}
+    assert fa.d14_select_threshold(bt(True, True), th) == 0.95
+    assert fa.d14_select_threshold(bt(False, True), th) == 0.98
+    assert fa.d14_select_threshold(bt(False, False), th) == "pcm_hash_only"
+    # boundary: exactly 5% passes ("<= 5%")
+    st = fa.neardup_group_stats(np.r_[np.zeros(5, int), np.arange(1, 96)],
+                                np.ones(100, bool), th)
+    assert st["largest_group_pct"] == 5.0 and st["d14_pass"] is True
 
 
 def test_neardup_col():

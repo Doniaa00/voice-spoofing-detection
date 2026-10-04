@@ -158,7 +158,8 @@ class Thresholds:
     silence_dbfs: float = -50.0
     clip_level: float = 0.999
     neardup_sims: tuple = (0.90, 0.95, 0.98)
-    neardup_group_sim: float = 0.95
+    d14_candidate_sims: tuple = (0.95, 0.98)  # tried in order; else PCM-hash grouping only
+    d14_max_group_pct: float = 5.0            # largest group above this % = chaining
 
     def as_dict(self):
         return asdict(self)

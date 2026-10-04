@@ -163,12 +163,25 @@ def near_duplicates(F: np.ndarray, valid: np.ndarray, th: Thresholds,
     return pd.DataFrame(pairs, columns=["i", "j", "sim"]), max_sim, groups, truncated
 
 
-def neardup_group_stats(groups: np.ndarray) -> dict:
-    """Group-size statistics for the D14 chaining check. % is of all inventory clips."""
-    sizes = pd.Series(groups).value_counts()
+def neardup_group_stats(groups: np.ndarray, decodable: np.ndarray, th: Thresholds) -> dict:
+    """Group-size statistics for the D14 chaining check, over decodable clips only.
+
+    Corrupt files are excluded (as §0 excludes them). d14_pass is True when the largest
+    group holds at most th.d14_max_group_pct % of decodable clips.
+    """
+    sizes = pd.Series(groups[decodable]).value_counts()
+    pct = round(100.0 * int(sizes.max()) / int(decodable.sum()), 4)
     return {"n_groups": int(len(sizes)), "multi_file_groups": int((sizes > 1).sum()),
-            "largest_group": int(sizes.max()),
-            "largest_group_pct": round(100.0 * int(sizes.max()) / len(groups), 4)}
+            "largest_group": int(sizes.max()), "largest_group_pct": pct,
+            "d14_pass": bool(pct <= th.d14_max_group_pct)}
+
+
+def d14_select_threshold(by_threshold: dict, th: Thresholds):
+    """D14: first candidate threshold whose chaining check passes, else 'pcm_hash_only'."""
+    for s in th.d14_candidate_sims:
+        if by_threshold[str(s)]["d14_pass"]:
+            return s
+    return "pcm_hash_only"
 
 
 def pcm_dup_min_sim(F: np.ndarray, valid: np.ndarray, pcm_hash: pd.Series) -> dict:
@@ -297,21 +310,22 @@ def run(root: Path, out: Path, revision: str, limit: int | None = None,
         F = np.stack([f if f is not None else np.zeros(dim, np.float32) for f in fps])
         nd_pairs, max_sim, groups, truncated = near_duplicates(F, valid, th)
         inv["fp_max_sim"] = max_sim
-        inv["neardup_group"] = groups[th.neardup_group_sim]
         for s in th.neardup_sims:
             inv[neardup_col(s)] = groups[s]
         np.save(out / "for2sec_fingerprints.npy", F)
         lab, spl = inv["label"].to_numpy(), inv["split_dir"].to_numpy()
+        decodable = inv["decode_ok"].to_numpy(dtype=bool)
         nd = {}
         for s in th.neardup_sims:
             p = nd_pairs[nd_pairs["sim"] >= s]
             nd[str(s)] = {"pairs": int(len(p)),
                           "cross_label_pairs": int((lab[p.i] != lab[p.j]).sum()),
                           "cross_split_pairs": int((spl[p.i] != spl[p.j]).sum()),
-                          **neardup_group_stats(groups[s])}
+                          **neardup_group_stats(groups[s], decodable, th)}
         report["near_duplicates"] = {
             "fingerprint_invalid": int((~valid).sum()), "pairs_truncated": truncated,
             "by_threshold": nd,
+            "d14_selected_threshold": d14_select_threshold(nd, th),
             "pcm_dup_sanity": pcm_dup_min_sim(F, valid, inv["pcm_sha256"]),
             "max_sim_quantiles_by_label": {
                 lb: inv.loc[inv.label == lb, "fp_max_sim"].quantile(
@@ -371,7 +385,11 @@ def _write_markdown(path, report, inv, num_sc, cat_sc, tokens):
                df_to_md(pd.DataFrame([{"threshold": k, **v}
                                       for k, v in nd["by_threshold"].items()])),
                "\n_Groups are transitive (connected components). largest_group_pct is "
-               "% of all inventory clips; D14 treats > 5% as chaining._",
+               "% of decodable clips; d14_pass = largest_group_pct ≤ "
+               f"{report['thresholds']['d14_max_group_pct']}% (D14 chaining check)._",
+               f"\n**D14 selected threshold: {nd['d14_selected_threshold']}** "
+               f"(candidates in order: {report['thresholds']['d14_candidate_sims']}, "
+               "else pcm_hash_only)",
                f"\nD14 sanity — exact-PCM-duplicate pairs: {nd['pcm_dup_sanity']}",
                f"\nMax-sim quantiles: "
                f"{nd['max_sim_quantiles_by_label']}",
