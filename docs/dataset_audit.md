@@ -70,7 +70,7 @@ Automatic screen (`for2sec_shortcut_numeric.csv`, `for2sec_shortcut_categorical.
 | Feature | Median REAL | Median FAKE_mp3 | Median FAKE_other | Separability FAKE_mp3 vs REAL | Separability FAKE_other vs REAL |
 |---|---|---|---|---|---|
 | `bw99_hz` | 5,074.5 | 3,221 | 3,461 | 0.666 | 0.600 |
-| `rms_dbfs` | not reported | not reported | not reported | 0.697 | 0.701 |
+| `rms_dbfs` | −16.68 | −15.10 | −14.66 | 0.697 | 0.701 |
 | `silence_frac` | 0.01 | 0.03 | 0.06 | 0.588 | **0.750** |
 
 ### 3.1 MP3 filename signature
