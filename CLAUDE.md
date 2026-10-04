@@ -49,6 +49,8 @@ fix, and wait for approval.
 - End each stage with: what was done · evidence · checks run · open issues · gate → **WAITING FOR APPROVAL**.
 - Label claims: [verified locally] / [documentation] / [hypothesis]. Never present a hypothesis as fact.
 - If results look too good, suspect leakage or shortcuts before celebrating.
+- At the end of each stage or session, update `docs/project_log.md`: append a new log entry, update
+  Open items, rewrite Current status. Never edit old entries.
 
 ## Code rules
 - Python 3.13 is the official version (D15): results come from Colab, whose runtime is 3.13.15.
