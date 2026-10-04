@@ -51,8 +51,52 @@ def test_for_audit_end_to_end(for_root, tmp_path):
     assert near > 0.98
     g = inv.set_index("rel_path")["neardup_group"]
     assert g["REAL/near.wav"] == g["REAL/file0_real.wav"]
+    for col in ("neardup_group_090", "neardup_group_095", "neardup_group_098"):
+        assert col in inv
+    by_th = rep["near_duplicates"]["by_threshold"]
+    assert set(by_th) == {"0.9", "0.95", "0.98"}
+    for st in by_th.values():
+        assert {"n_groups", "multi_file_groups", "largest_group", "largest_group_pct"} <= set(st)
+    sanity = rep["near_duplicates"]["pcm_dup_sanity"]
+    assert sanity["pairs"] >= 3 and sanity["min_sim"] > 0.999  # identical PCM -> identical fp
     assert "samplerate" in rep["shortcut_flags"]["numeric_high"]
     assert (tmp_path / "out" / "for2sec_summary.md").read_text().startswith("# FoR-2sec")
+
+
+def _unit(deg, dim=8):
+    v = np.zeros(dim, np.float32)
+    v[0], v[1] = np.cos(np.radians(deg)), np.sin(np.radians(deg))
+    return v
+
+
+def test_neardup_grouping_chains_transitively():
+    # A~B and B~C at cos(16°)≈0.961, but A vs C is cos(32°)≈0.848; D is orthogonal.
+    F = np.stack([_unit(0), _unit(16), _unit(32), np.eye(8, dtype=np.float32)[2]])
+    valid = np.ones(4, bool)
+    pairs, _, groups, _ = fa.near_duplicates(F, valid, fa.Thresholds())
+    sims = {(i, j): s for i, j, s in pairs.itertuples(index=False)}
+    assert (0, 2) not in sims or sims[(0, 2)] < 0.95  # A is not ~ C directly
+    g95 = groups[0.95]
+    assert g95[0] == g95[1] == g95[2] != g95[3]       # ...yet one group via B
+    assert len(set(groups[0.98])) == 4                 # nothing groups at 0.98
+    st = fa.neardup_group_stats(g95)
+    assert st == {"n_groups": 2, "multi_file_groups": 1, "largest_group": 3,
+                  "largest_group_pct": 75.0}
+
+
+def test_neardup_col():
+    assert [fa.neardup_col(s) for s in (0.90, 0.95, 0.98)] == \
+        ["neardup_group_090", "neardup_group_095", "neardup_group_098"]
+
+
+def test_pcm_dup_min_sim():
+    F = np.stack([_unit(0), _unit(10), _unit(90), _unit(0), _unit(45)])
+    valid = np.array([True, True, True, True, False])
+    h = pd.Series(["x", "x", "y", None, "y"])
+    r = fa.pcm_dup_min_sim(F, valid, h)
+    assert r["pairs"] == 2 and r["pairs_without_fingerprint"] == 1
+    assert abs(r["min_sim"] - np.cos(np.radians(10))) < 1e-6
+    assert fa.pcm_dup_min_sim(F, valid, pd.Series([None] * 5))["min_sim"] is None
 
 
 def test_label_inference_fails_loudly(tmp_path):
