@@ -12,6 +12,7 @@ for2sec:
 
 deepvoice:
   root: "/content/data/deep_voice"        # copied from Drive raw/deep_voice before running
+  audit_subdir: "KAGGLE"                  # metadata audit runs on <root>/<audit_subdir> only
   out: "/content/audit_out/deepvoice"
   revision: ""                            # Kaggle dataset version number
 

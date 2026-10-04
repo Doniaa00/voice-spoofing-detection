@@ -160,10 +160,11 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 - [ ] `stage-1-audit-run` → PR + merge at the end of Stage 1.
 
 **Notebook fixes made only in the Colab copy — must be ported to the repo notebook**
-- [ ] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
-- [ ] Cell 2: download FoR to local disk (not Drive); print the folder/label structure; back up as one `.tar` + `REVISION.txt` in Drive.
-- [ ] Add the dry-run, full-run, and codec-check cells as used in the session.
-- [ ] Port Colab cells 1 / 2 / 3 and the run cells (FoR audit, codec check, DEEP-VOICE metadata audit, FoR ∩ DEEP-VOICE overlap check) to `notebooks/01_stage1_dataset_audit.ipynb`.
+- [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
+- [x] Cell 2: download FoR to local disk (not Drive); print the folder/label structure; back up as one `.tar` + `REVISION.txt` in Drive.
+- [x] Add the dry-run, full-run, and codec-check cells as used in the session.
+- [x] Port Colab cells 1 / 2 / 3 and the run cells (FoR audit, codec check, DEEP-VOICE metadata audit, FoR ∩ DEEP-VOICE overlap check) to `notebooks/01_stage1_dataset_audit.ipynb` (9 cells, outputs stripped; `BRANCH` defaults to `main`; `deepvoice.audit_subdir` added to `configs/audit.yaml`).
+- [ ] Run the ported notebook once in Colab, end to end or at least cells 1, 6, 8 and 9 from the Drive archive, to confirm it works outside local checks.
 
 **Security**
 - [ ] Regenerate the Kaggle API token.
@@ -174,7 +175,7 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 - [ ] Check the original FoR source (Reimao & Tzerpos, 2019) for its stated terms of use.
 - [x] HF dataset card checked 2026-10-04: empty; viewer shows only `audio` and `label`. No speaker / source / generator metadata; D14 stands.
 - [x] Remaining TBDs in `docs/dataset_audit.md` filled: run by Donia Mabrouk, DEEP-VOICE audit commit `ae45e9f`, download dates 2026-10-04, Drive locations of full outputs (`processed/metadata/stage1/`) and of the DEEP-VOICE zip (`raw/deep-voice-deepfake-voice-recognition.zip`). D5 wording amended.
-- [ ] Archive the codec-check and FoR ∩ DEEP-VOICE overlap outputs in `docs/audit_evidence/` (values are cited in the audit but the outputs are not committed). Done as part of the notebook port.
+- [ ] Archive the codec-check and FoR ∩ DEEP-VOICE overlap outputs in `docs/audit_evidence/` (values are cited in the audit but the outputs are not committed). The notebook now saves them (`for2sec_codec_check.csv/.json`, `cross_dataset_overlap.json`): re-run cells 1, 6, 8 in Colab from the Drive archive, copy the three files into `docs/audit_evidence/`, then remove the "not yet archived" notes in `docs/dataset_audit.md`.
 - [x] Log D13, D14, D9, D16, H5, H6 in `docs/decisions.md` and fill in `docs/dataset_audit.md` (done, with D17–D19).
 - [ ] Update Proposal and Execution Plan discrepancies after the audit (e.g., the DEEP-VOICE 628 / 4,425 counts).
 
