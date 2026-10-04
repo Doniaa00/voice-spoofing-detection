@@ -74,13 +74,18 @@ GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected (PR + 1 approva
   (e.g. `stage-1-audit-run`).
 - Small commits with clear messages.
 - Push the branch and tell the team to open a PR. Never merge it yourself.
+- **Stacked branches:** while a stage's PR waits for sign-off/approval, the next stage branches
+  from it (not from `main`), e.g. `stage-2-threat-model` from `stage-1-audit-run`. The waiting
+  branch then receives **no more commits** except its sign-off (for Stage 1: §10 of
+  `docs/dataset_audit.md`). All `docs/project_log.md` and `CLAUDE.md` updates go on the newest
+  branch.
 
 ## Roadmap and current status
 | # | Stage | Status |
 |---|---|---|
 | 0 | Repo scaffold + environment | done |
-| 1 | Dataset audit (FoR full, DEEP-VOICE metadata-only) → `docs/dataset_audit.md` | ← CURRENT |
-| 2 | Threat model → `docs/threat_model.md` | |
+| 1 | Dataset audit (FoR full, DEEP-VOICE metadata-only) → `docs/dataset_audit.md` | done — awaiting sign-off/merge |
+| 2 | Threat model → `docs/threat_model.md` | ← CURRENT |
 | 3 | Experimental Protocol v1.0 (freeze) | |
 | 4–5 | Leakage-aware split + dataset freeze (manifests + hashes) | |
 | 6 | Preprocessing profile v1 + tests + compute benchmark | |

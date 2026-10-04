@@ -196,6 +196,20 @@ Not yet run in Colab.
 
 **Why it matters:** every number in the audit document now points to a committed evidence file, produced by code in the repo at a recorded commit.
 
+### Entry 9 — Stacked branch for Stage 2 (2026-10-04)
+
+**Decision:** Stage 1 is waiting for team sign-off and PR approval. Work continues on a **stacked branch**, so the team review doesn't block progress.
+- Created `stage-2-threat-model` **from `stage-1-audit-run`**, not from `main`.
+- **Rule:** `stage-1-audit-run` receives no more commits except the §10 sign-off in `docs/dataset_audit.md`. All `docs/project_log.md` and `CLAUDE.md` updates now go on `stage-2-threat-model` (and later on the newest branch).
+- `CLAUDE.md`:
+  - The stacked-branch rule is added to the Git workflow section.
+  - Roadmap: Stage 1 = "done — awaiting sign-off/merge", Stage 2 = CURRENT.
+- The Git workflow section was only on the unmerged `stage-0-git-workflow` branch. It was brought in by merging `origin/stage-0-git-workflow` (`428e0b8`) into `stage-2-threat-model`, so both PRs carry the same commit and should not conflict.
+
+**Merge order:** `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model`. Until the first two are merged, the Stage 2 PR also shows their changes.
+
+**Why it matters:** the Stage 1 evidence stays frozen while it is reviewed, and the log stays on a single line of history.
+
 ---
 
 ## Open items
@@ -207,6 +221,7 @@ Not yet run in Colab.
 - [ ] `.gitattributes` PR (LF line endings for Windows + Colab).
 - [ ] Transfer repo ownership to Iheb. Afterwards everyone runs `git remote set-url`, and we update repo URLs in the notebook and docs.
 - [ ] `stage-1-audit-run` → PR + merge at the end of Stage 1.
+- [ ] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). `stage-1-audit-run` only gets the §10 sign-off commit from now on.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -244,22 +259,25 @@ Not yet run in Colab.
 **What was done:**
 - Readiness audit and decisions D1–D20; hypotheses H5–H6 pre-registered.
 - Repo scaffold on GitHub.
-- Stage 1 rules pre-registered, then both audits run: full FoR-2sec audit + codec check; DEEP-VOICE metadata-only audit + FoR ∩ DEEP-VOICE overlap check.
-- Stage 1 fully written up in `docs/dataset_audit.md` and `docs/decisions.md`. No TBDs are left, and every cited number has a committed evidence file in `docs/audit_evidence/`. **Audit complete; awaiting team sign-off (§10).**
-- The audit notebook is ported to the repo, pinned to both datasets, and confirmed in Colab at `c2136cb` with identical results.
+- **Stage 1 done — awaiting sign-off/merge.** Both audits run and written up in `docs/dataset_audit.md` and `docs/decisions.md`, with no TBDs and every cited number backed by a file in `docs/audit_evidence/`. Audit notebook ported, pinned, and confirmed in Colab.
+- Stacked branch `stage-2-threat-model` created from `stage-1-audit-run` (Entry 9). **Stage 2 is CURRENT**; threat-model content not started.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
 - One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
 - DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
-- Full audit outputs archived in Drive (`processed/metadata/stage1/`); evidence summaries committed in `docs/audit_evidence/`.
-- A reproducible audit notebook that refuses to run on unpinned or changed data.
+- A reproducible audit notebook that refuses to run on unpinned or changed data; full outputs archived in Drive.
+
+**Branches:**
+- `stage-0-git-workflow`: PR pending.
+- `stage-1-audit-run`: frozen except the §10 sign-off.
+- `stage-2-threat-model`: active; all log and `CLAUDE.md` updates go here.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Team review and sign-off of `docs/dataset_audit.md` §10 (Donia, Iheb, Malak).
-2. PR `stage-1-audit-run` → 1 approval → merge → Stage 1 closed (update the roadmap status in `CLAUDE.md`).
-3. Stage 2 (threat model) and Stage 3 (Experimental Protocol v1.0, which also fixes the D17 silence threshold).
+1. Team sign-off of `docs/dataset_audit.md` §10 (commit on `stage-1-audit-run`), then PRs merged in order: stage-0 → stage-1 → stage-2.
+2. Stage 2: threat model → `docs/threat_model.md` (on `stage-2-threat-model`).
+3. Stage 3: Experimental Protocol v1.0 (also fixes the D17 silence threshold).
