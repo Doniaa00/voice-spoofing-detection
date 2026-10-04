@@ -1,0 +1,54 @@
+{
+  "check": "FoR-2sec codec check (REAL / FAKE_mp3 / FAKE_other)",
+  "rule": "FAKE_mp3 = FAKE with 'mp3' in the lower-cased file stem; FAKE_other = remaining FAKE",
+  "source_inventory": "/content/audit_out/for2sec/for2sec_inventory.csv",
+  "revision": "ff8c82c79e7bbefef811941bac9775c9328e9055",
+  "code_commit": "c2136cba0a5323fc278282cf9d962c8299380fcc",
+  "generated_utc": "2026-10-04T13:54:18.765098+00:00",
+  "real_with_mp3_in_stem": 0,
+  "separability": "max(AUC, 1-AUC) of each group vs REAL (src.audit.common.auc_separability)",
+  "groups": [
+    {
+      "group": "REAL",
+      "n": 8800,
+      "median_bw99_hz": 5074.5,
+      "median_rms_dbfs": -16.6770782147524,
+      "median_silence_frac": 0.01,
+      "median_dc_offset": -1.1625290312622383e-06,
+      "median_clip_frac": 3.125e-05,
+      "sep_vs_REAL_bw99_hz": null,
+      "sep_vs_REAL_rms_dbfs": null,
+      "sep_vs_REAL_silence_frac": null,
+      "sep_vs_REAL_dc_offset": null,
+      "sep_vs_REAL_clip_frac": null
+    },
+    {
+      "group": "FAKE_mp3",
+      "n": 7592,
+      "median_bw99_hz": 3221.0,
+      "median_rms_dbfs": -15.104365070705342,
+      "median_silence_frac": 0.03,
+      "median_dc_offset": 3.895235204254277e-05,
+      "median_clip_frac": 3.125e-05,
+      "sep_vs_REAL_bw99_hz": 0.6658717684284894,
+      "sep_vs_REAL_rms_dbfs": 0.6970404103601877,
+      "sep_vs_REAL_silence_frac": 0.5883017335831976,
+      "sep_vs_REAL_dc_offset": 0.6331368246479547,
+      "sep_vs_REAL_clip_frac": 0.6223379873551106
+    },
+    {
+      "group": "FAKE_other",
+      "n": 1329,
+      "median_bw99_hz": 3461.0,
+      "median_rms_dbfs": -14.66299441501596,
+      "median_silence_frac": 0.06,
+      "median_dc_offset": 3.319644747534767e-05,
+      "median_clip_frac": 3.125e-05,
+      "sep_vs_REAL_bw99_hz": 0.6003996511389288,
+      "sep_vs_REAL_rms_dbfs": 0.7006254702784048,
+      "sep_vs_REAL_silence_frac": 0.7500838805663862,
+      "sep_vs_REAL_dc_offset": 0.6467658099049183,
+      "sep_vs_REAL_clip_frac": 0.589779524933306
+    }
+  ]
+}

@@ -178,6 +178,24 @@ Not yet run in Colab.
 
 **Why it matters:** the audit can now be re-run from the repo alone, against exactly the same data, and every DEEP-VOICE touch before the external run is written down and limited.
 
+### Entry 8 — Stage 1: Colab run of the ported notebook (2026-10-04)
+
+**What we did:** ran the ported notebook in Colab, in the same session as the original audit: commit `c2136cb`, Python 3.13.15.
+- **Cell 1 (setup):** clone/checkout, install, tests — 12 passed.
+- **Cell 6 (codec check):** saved `for2sec_codec_check.csv` / `.json`.
+- **Cell 8 (FoR ∩ DEEP-VOICE overlap):** saved `cross_dataset_overlap.json`.
+- **Cell 9:** archived to Drive.
+- Committed the three files to `docs/audit_evidence/`. `docs/dataset_audit.md` now cites them instead of "not yet archived".
+
+**What we found [verified]:** the results are identical to the original run.
+- Codec groups: REAL 8,800 / FAKE_mp3 7,592 / FAKE_other 1,329. 0 REAL clips have `mp3` in the stem.
+- FAKE_other silence separability: 0.750.
+- Overlap: 0 identical files (17,721 FoR vs 64 DEEP-VOICE file hashes).
+
+**Caveat:** the Colab session still had its local outputs, so both cells read the local inventories (`source_inventory` = `/content/audit_out/...`). The archive-only read path of cells 6 and 8 has been exercised **on synthetic data only** (local smoke test, Entry 7), not on the real Drive archive.
+
+**Why it matters:** every number in the audit document now points to a committed evidence file, produced by code in the repo at a recorded commit.
+
 ---
 
 ## Open items
@@ -195,7 +213,8 @@ Not yet run in Colab.
 - [x] Cell 2: download FoR to local disk (not Drive); print the folder/label structure; back up as one `.tar` + `REVISION.txt` in Drive.
 - [x] Add the dry-run, full-run, and codec-check cells as used in the session.
 - [x] Port Colab cells 1 / 2 / 3 and the run cells (FoR audit, codec check, DEEP-VOICE metadata audit, FoR ∩ DEEP-VOICE overlap check) to `notebooks/01_stage1_dataset_audit.ipynb` (9 cells, outputs stripped; `BRANCH` defaults to `main`; `deepvoice.audit_subdir` added to `configs/audit.yaml`).
-- [ ] Run the ported notebook once in Colab, end to end or at least cells 1, 6, 8 and 9 from the Drive archive, to confirm it works outside local checks. Set `BRANCH = "stage-1-audit-run"` until the branch is merged (default is `main`).
+- [x] Run the ported notebook once in Colab (cells 1, 6, 8, 9 at `c2136cb`; results identical, Entry 8). Archive-only read path exercised on synthetic data only.
+- [ ] Optional: exercise the archive-only path of cells 6 and 8 on the real Drive archive in a fresh Colab session (no local outputs).
 
 **Security**
 - [ ] Regenerate the Kaggle API token.
@@ -206,7 +225,7 @@ Not yet run in Colab.
 - [ ] Check the original FoR source (Reimao & Tzerpos, 2019) for its stated terms of use.
 - [x] HF dataset card checked 2026-10-04: empty; viewer shows only `audio` and `label`. No speaker / source / generator metadata; D14 stands.
 - [x] Remaining TBDs in `docs/dataset_audit.md` filled: run by Donia Mabrouk, DEEP-VOICE audit commit `ae45e9f`, download dates 2026-10-04, Drive locations of full outputs (`processed/metadata/stage1/`) and of the DEEP-VOICE zip (`raw/deep-voice-deepfake-voice-recognition.zip`). D5 wording amended.
-- [ ] Archive the codec-check and FoR ∩ DEEP-VOICE overlap outputs in `docs/audit_evidence/` (values are cited in the audit but the outputs are not committed). The notebook now saves them (`for2sec_codec_check.csv/.json`, `cross_dataset_overlap.json`): re-run cells 1, 6, 8 in Colab from the Drive archive, copy the three files into `docs/audit_evidence/`, then remove the "not yet archived" notes in `docs/dataset_audit.md`.
+- [x] Codec-check and FoR ∩ DEEP-VOICE overlap outputs committed to `docs/audit_evidence/` (`for2sec_codec_check.csv/.json`, `cross_dataset_overlap.json`); "not yet archived" notes replaced in `docs/dataset_audit.md`.
 - [x] Log D13, D14, D9, D16, H5, H6 in `docs/decisions.md` and fill in `docs/dataset_audit.md` (done, with D17–D19).
 - [ ] Update Proposal and Execution Plan discrepancies after the audit (e.g., the DEEP-VOICE 628 / 4,425 counts).
 
@@ -226,14 +245,14 @@ Not yet run in Colab.
 - Readiness audit and decisions D1–D20; hypotheses H5–H6 pre-registered.
 - Repo scaffold on GitHub.
 - Stage 1 rules pre-registered, then both audits run: full FoR-2sec audit + codec check; DEEP-VOICE metadata-only audit + FoR ∩ DEEP-VOICE overlap check.
-- Stage 1 fully written up in `docs/dataset_audit.md` (no TBDs left) and `docs/decisions.md`. Provenance, licenses and the HF card check recorded. Audit is **awaiting team sign-off (§10)**.
-- Audit notebook ported to the repo, with both datasets pinned in `configs/audit.yaml` (FoR revision, DEEP-VOICE zip sha256). Permitted DEEP-VOICE accesses fixed in D20 and `CLAUDE.md`.
+- Stage 1 fully written up in `docs/dataset_audit.md` and `docs/decisions.md`. No TBDs are left, and every cited number has a committed evidence file in `docs/audit_evidence/`. **Audit complete; awaiting team sign-off (§10).**
+- The audit notebook is ported to the repo, pinned to both datasets, and confirmed in Colab at `c2136cb` with identical results.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
 - One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
 - DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
-- Full audit outputs archived in Drive (`processed/metadata/stage1/`); summaries in `docs/audit_evidence/`.
+- Full audit outputs archived in Drive (`processed/metadata/stage1/`); evidence summaries committed in `docs/audit_evidence/`.
 - A reproducible audit notebook that refuses to run on unpinned or changed data.
 
 **What we want:**
@@ -241,7 +260,6 @@ Not yet run in Colab.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Run the ported notebook in Colab (`BRANCH = "stage-1-audit-run"`): at least cells 1, 6, 8, 9 from the Drive archive. Copy the codec-check and overlap files into `docs/audit_evidence/` and drop the "not yet archived" notes.
-2. Team review and sign-off of `docs/dataset_audit.md` §10.
-3. PR `stage-1-audit-run` → 1 approval → merge → Stage 1 closed.
-4. Stage 2 (threat model) and Stage 3 (Experimental Protocol v1.0, which also fixes the D17 silence threshold).
+1. Team review and sign-off of `docs/dataset_audit.md` §10 (Donia, Iheb, Malak).
+2. PR `stage-1-audit-run` → 1 approval → merge → Stage 1 closed (update the roadmap status in `CLAUDE.md`).
+3. Stage 2 (threat model) and Stage 3 (Experimental Protocol v1.0, which also fixes the D17 silence threshold).
