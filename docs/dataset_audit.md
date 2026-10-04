@@ -115,6 +115,10 @@ Note: resampling to 16 kHz neutralizes a sample-rate flag, but **not** band-limi
 
 ## 9. Exclusions and change log
 
+### Change log
+
+- 2026-10-04: D14 refined before any audit output — PCM sanity check made part of threshold eligibility; unverifiable pairs fail; partially checkable pairs decided on checkable ones. Re-confirmed by Donia, Iheb and Malak (team chat, 2026-10-04).
+
 ## 10. Sign-off
 
 | Member | Reviewed | Date |
