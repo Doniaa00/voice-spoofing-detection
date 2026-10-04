@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | DRAFT — decision rules pre-registered, results pending |
+| Status | §0 rules approved 2026-10-04, audit not yet run |
 | Audit code commit | `<git sha>` |
 | Run by / date | `<name>` / `<date>` |
 | Machine outputs | `audit_out/for2sec/*`, `audit_out/deepvoice/*` (archived in Drive `processed/metadata/stage1/`) |
@@ -18,12 +18,14 @@ These rules were fixed before any audit output was seen, so the results cannot s
 | Decision | Rule |
 |---|---|
 | **D13: official split vs re-split** | Use the packaged split **only if** (a) train/val/test folders exist, (b) there are zero cross-split exact duplicates (bytes or PCM), and (c) there are zero cross-split near-duplicate pairs at sim ≥ 0.95. Otherwise re-split. |
-| **D14: grouping unit** | Speaker or source-recording metadata, if it exists in filenames or the card. Otherwise near-duplicate components at sim ≥ 0.95, merged with PCM-hash groups. Sensitivity is reported at 0.90 and 0.98, but the grouping threshold stays at 0.95. |
-| **Re-split ratios** (if re-split) | Group-aware, label-stratified 70 / 15 / 15 (train / val / test). Val is further split 50/50 into val-A (early stopping, model selection) and val-B (threshold, calibration), per D9, if val-B has ≥ 500 clips per class; otherwise single val with the reuse documented. *Ratios still need final approval in Protocol v1.0.* |
+| **D14: grouping unit** | Speaker or source-recording metadata, if it exists in filenames or the card. Otherwise near-duplicate components merged with PCM-hash groups, with the threshold chosen by this procedure: group threshold = 0.95. Validity check: if the largest near-duplicate group contains more than 5% of all clips, the threshold is invalid (chaining); move to 0.98 and re-check. If 0.98 also fails, group by exact PCM-hash duplicates only and record the residual near-duplicate risk as a limitation. Sanity check: all exact-PCM-duplicate pairs must have similarity ≥ the chosen threshold. Sensitivity is reported at 0.90 and 0.98. |
+| **Re-split ratios** (if re-split) | Group-aware, label-stratified 70 / 15 / 15 (train / val / test). Val is further split 50/50 into val-A (early stopping, model selection) and val-B (threshold, calibration), per D9, if val-B has ≥ 500 clips per class; otherwise single val with the reuse documented. |
 | **D5: evaluation unit** | Training unit = FoR clip. If DEEP-VOICE files are longer than 2 s, evaluate on non-overlapping 2 s windows from file start and drop the remainder under 2 s. Windows are the primary unit; file-level mean score is secondary; bootstrap CIs are clustered by source speaker. The pad/crop rule for clips under 2 s is set from the FoR duration distribution (§2). |
 | **Shortcut rule** | Any numeric feature with separability AUC ≥ 0.90, or any categorical value with purity ≥ 0.99 at ≥ 1% support, must be either neutralized by the preprocessing profile and **re-screened after preprocessing (Stage 6)**, or carried forward as a named limitation. A flag in the 0.75–0.90 range is reported and discussed. |
 | **Corrupt files** | Excluded, listed by path and hash in §9. The exclusion list is part of the dataset freeze. |
 | **Exact duplicates** | Within-label duplicates: keep one copy (lowest path lexicographically). Cross-label duplicates: exclude **all** copies (label noise) and report the count. |
+
+Approved by Donia, Iheb and Malak (team chat, 2026-10-04) before any audit output was produced.
 
 ---
 
