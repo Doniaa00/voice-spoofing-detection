@@ -1,0 +1,103 @@
+{
+  "dataset": "DEEP-VOICE",
+  "root": "/content/data/deep_voice/KAGGLE",
+  "revision": "kaggle-updated-3y-ago zip-sha256:8cb258530daa2bb678121f3b276313a4d56fc638280bfd276a610dd8f732bdcf",
+  "attestation": "BLIND AUDIT ATTESTATION: this run read file headers, byte hashes, filenames and CSV schema/label counts only. No audio samples were decoded, no features computed, no model run.",
+  "files": 64,
+  "by_label": {
+    "FAKE": 56,
+    "REAL": 8
+  },
+  "header_failures": 0,
+  "ext": {
+    ".wav": 64
+  },
+  "samplerates_by_label": {
+    "('FAKE', 40000)": 4,
+    "('FAKE', 44100)": 52,
+    "('REAL', 44100)": 5,
+    "('REAL', 48000)": 3
+  },
+  "channels_by_label": {
+    "('FAKE', 2)": 56,
+    "('REAL', 2)": 8
+  },
+  "total_seconds_by_label": {
+    "FAKE": 26204.746,
+    "REAL": 3744.728
+  },
+  "total_hours_by_label": {
+    "FAKE": 7.279,
+    "REAL": 1.04
+  },
+  "n_2s_windows_by_label_if_nonoverlapping": {
+    "FAKE": 13090,
+    "REAL": 1870
+  },
+  "source_speakers": [
+    "biden",
+    "linus",
+    "margot",
+    "musk",
+    "obama",
+    "ryan",
+    "taylor",
+    "trump"
+  ],
+  "target_speakers": [
+    "biden",
+    "linus",
+    "margot",
+    "musk",
+    "obama",
+    "ryan",
+    "taylor",
+    "trump"
+  ],
+  "unparsed_name_patterns": 8,
+  "exact_duplicate_files": 0,
+  "csv_files": [
+    {
+      "file": "DATASET-balanced.csv",
+      "sha256": "fce38004b2381322bf7925465534acd94da34455d63b39e7a96426900955a7de",
+      "n_rows": 11778,
+      "n_columns": 27,
+      "columns": [
+        "chroma_stft",
+        "rms",
+        "spectral_centroid",
+        "spectral_bandwidth",
+        "rolloff",
+        "zero_crossing_rate",
+        "mfcc1",
+        "mfcc2",
+        "mfcc3",
+        "mfcc4",
+        "mfcc5",
+        "mfcc6",
+        "mfcc7",
+        "mfcc8",
+        "mfcc9",
+        "mfcc10",
+        "mfcc11",
+        "mfcc12",
+        "mfcc13",
+        "mfcc14",
+        "mfcc15",
+        "mfcc16",
+        "mfcc17",
+        "mfcc18",
+        "mfcc19",
+        "mfcc20",
+        "LABEL"
+      ],
+      "label_column": "LABEL",
+      "label_counts": {
+        "FAKE": 5889,
+        "REAL": 5889
+      },
+      "usage_rule": "Supplementary features from a different pipeline (1-s windows, class-balanced by random sampling per publisher). NOT used for any evaluation in this project."
+    }
+  ],
+  "other_file_types": []
+}

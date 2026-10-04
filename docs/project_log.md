@@ -103,6 +103,30 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 
 **Not yet written into `docs/decisions.md` / `docs/dataset_audit.md`** — planned as one commit at the end of Stage 1.
 
+### Entry 5 — Stage 1: DEEP-VOICE metadata audit and audit documentation (2026-10-04)
+
+**What we did:**
+- Downloaded DEEP-VOICE from Kaggle (`birdy654/deep-voice-deepfake-voice-recognition`, "updated 3 years ago", no version number).
+- Archived the download: zip 3.96 GB, sha256 `8cb25853…f732bdcf` (full hash in `docs/dataset_audit.md` §1). Drive location TBD.
+- Ran the metadata-only audit (`src/audit/deepvoice_metadata_audit.py`) on `KAGGLE/` only. It read headers, byte hashes, filenames and the CSV schema; it decoded no audio (attestation in `docs/dataset_audit.md` §5). `DEMONSTRATION/` (2 MP3) was excluded and never opened; `DATASET-balanced.csv` is never used.
+- Checked FoR ∩ DEEP-VOICE for identical files.
+- Wrote up Stage 1: `docs/dataset_audit.md` §1–§9, `docs/decisions.md` (D5, D9, D13, D14 settled; D16–D19 and H5–H6 added). Evidence summaries committed in `docs/audit_evidence/`.
+
+**What we found [verified]:**
+- 64 WAV files: 8 REAL / 56 FAKE. All stereo. Sample rates 40 / 44.1 / 48 kHz.
+- 8 speakers (biden, linus, margot, musk, obama, ryan, taylor, trump). FAKE = every source → target pair (8 × 7).
+- Durations 79–600 s. As 2-s windows: 1,870 REAL / 13,090 FAKE (87.5% FAKE).
+- 0 exact duplicates inside DEEP-VOICE; 0 identical files shared with FoR.
+- The "628 / 4,425" counts in the Proposal and Execution Plan match nothing in the package (files, windows or CSV).
+
+**Decisions:**
+- **D5 confirmed:** 2-s windows on DEEP-VOICE.
+- **D17:** speech-window filter on DEEP-VOICE using the frozen silence detector. Threshold fixed in Protocol v1.0. Filtered (primary) and unfiltered (sensitivity) views come from the same single run. Drop counts reported per class and per speaker.
+- **D18:** mono averaging + 16 kHz resampling, identical everywhere. Stage 6 tests pipeline invariance on FoR clips converted to 40 / 44.1 / 48 kHz stereo.
+- **D19:** external results include a per-speaker table (8 rows) and a speaker average.
+
+**Why it matters:** DEEP-VOICE differs from FoR in format (stereo, higher sample rates, long files) and has only 8 speakers. D17–D19 fix how the one external run handles that, before anything is scored.
+
 ---
 
 ## Open items
@@ -119,12 +143,22 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 - [ ] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
 - [ ] Cell 2: download FoR to local disk (not Drive); print the folder/label structure; back up as one `.tar` + `REVISION.txt` in Drive.
 - [ ] Add the dry-run, full-run, and codec-check cells as used in the session.
+- [ ] Port Colab cells 1 / 2 / 3 and the run cells (FoR audit, codec check, DEEP-VOICE metadata audit, FoR ∩ DEEP-VOICE overlap check) to `notebooks/01_stage1_dataset_audit.ipynb`.
+
+**Security**
+- [ ] Regenerate the Kaggle API token.
 
 **Documentation**
 - [ ] `docs/dataset_audit.md` §9: confirm Iheb and Malak really re-confirmed D14 on 2026-10-04 [to verify]; correct the line if not.
-- [ ] §1: FoR license from the Hugging Face dataset page; DEEP-VOICE version and license from Kaggle.
-- [ ] Log D13, D14, D9, D16, H5, H6 in `docs/decisions.md` and fill in `docs/dataset_audit.md`.
+- [ ] Licenses TBD: FoR (Hugging Face dataset page) and DEEP-VOICE terms (Kaggle "Other (specified in description)"). DEEP-VOICE version recorded as zip sha256.
+- [ ] HF dataset card: check for speaker / source metadata (D14 rule covers "filenames or the card"; only the package was checked).
+- [ ] Fill remaining TBDs in `docs/dataset_audit.md`: run-by name, DEEP-VOICE audit commit, download dates, Drive location of full outputs and of the DEEP-VOICE zip.
+- [ ] Archive the codec-check and FoR ∩ DEEP-VOICE overlap outputs in `docs/audit_evidence/` (values are cited in the audit but the outputs are not committed).
+- [x] Log D13, D14, D9, D16, H5, H6 in `docs/decisions.md` and fill in `docs/dataset_audit.md` (done, with D17–D19).
 - [ ] Update Proposal and Execution Plan discrepancies after the audit (e.g., the DEEP-VOICE 628 / 4,425 counts).
+
+**Stage 1 gate**
+- [ ] Team sign-off of `docs/dataset_audit.md` §10 (Donia, Iheb, Malak).
 
 **Later stages (reminders)**
 - [ ] `configs/robustness.yaml` → Stage 14. `docker-compose.yml` → Stage 17.
@@ -136,22 +170,21 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 ## Current status — updated 2026-10-04
 
 **What was done:**
-- Readiness audit and decisions D1–D16.
+- Readiness audit and decisions D1–D19; hypotheses H5–H6 pre-registered.
 - Repo scaffold on GitHub.
-- Stage 1 rules pre-registered.
-- Full FoR-2sec audit plus codec check, with D13, D14, and D9 settled by the rules.
+- Stage 1 rules pre-registered, then both audits run: full FoR-2sec audit + codec check; DEEP-VOICE metadata-only audit + FoR ∩ DEEP-VOICE overlap check.
+- Stage 1 written up in `docs/dataset_audit.md` and `docs/decisions.md`; audit is **awaiting team sign-off (§10)**.
 
 **What we have:**
-- A clean, balanced development dataset: no duplicates, no corrupt files, uniform format.
-- One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes.
-- Tests H5 and H6, designed to detect whether the model exploits that risk.
+- FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
+- One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
+- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond metadata. Rules for the one external run fixed in D17–D19.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. **Step 9:** DEEP-VOICE download and metadata-only audit (no listening, no plots).
-2. Fill in `docs/dataset_audit.md` and log the decisions (one Claude Code commit on `stage-1-audit-run`).
-3. Team sign-off on the audit → PR + merge → Stage 1 closed.
-4. Stage 2 (threat model) and Stage 3 (Experimental Protocol v1.0).
+1. Team review and sign-off of `docs/dataset_audit.md` §10; resolve or accept the TBDs (licenses, run-by, Drive locations).
+2. PR `stage-1-audit-run` → 1 approval → merge → Stage 1 closed.
+3. Stage 2 (threat model) and Stage 3 (Experimental Protocol v1.0, which also fixes the D17 silence threshold).

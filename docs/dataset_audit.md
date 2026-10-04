@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Status | §0 rules approved 2026-10-04, audit not yet run |
-| Audit code commit | `<git sha>` |
-| Run by / date | `<name>` / `<date>` |
-| Machine outputs | `audit_out/for2sec/*`, `audit_out/deepvoice/*` (archived in Drive `processed/metadata/stage1/`) |
+| Status | Audit run 2026-10-04; awaiting team sign-off (§10) |
+| Audit code commit | FoR-2sec: `ae45e9ff9f24e1839f09ba92a4948e78d01d1c9a` (clean tree, Python 3.13.15, Colab) · DEEP-VOICE: TBD (not recorded in `deepvoice_summary.json`) |
+| Run by / date | TBD / 2026-10-04 (FoR run 11:46 UTC) |
+| Machine outputs | Summaries committed in `docs/audit_evidence/` (FoR summary + shortcut CSVs, DEEP-VOICE summary). Full outputs (inventory, pairs, fingerprints): Drive location TBD. |
 
-Evidence labels used in this document: **[B] verified locally** · **[C] publisher documentation / literature** · **[E] hypothesis, unverified**.
+Evidence labels used in this document: **[verified]** checked on real data / audit output · **[doc]** publisher documentation or literature · **[hypothesis]** not yet tested.
 
 ---
 
@@ -34,86 +34,135 @@ Approved by Donia, Iheb and Malak (team chat, 2026-10-04) before any audit outpu
 | Item | FoR-2sec | DEEP-VOICE |
 |---|---|---|
 | Source | Hugging Face `UncovAI/FOR-2sec` | Kaggle `birdy654/deep-voice-deepfake-voice-recognition` |
-| Exact revision | `<HF commit sha>` [B] | `<Kaggle version #>` [B] |
-| Download date | | |
-| Archive / snapshot hash | | |
-| License (from card) | | |
-| Original work | Reimao & Tzerpos, Fake-or-Real (FoR) dataset, 2019 [C] | Bird & Lotfi, *Real-time Detection of AI-Generated Speech for DeepFake Voice Conversion*, 2023 [C] |
-| Packaging notes | HF viewer lists format "soundfolder" and one parquet-converted `train` split, 1.13 GB [C]. If true, the original train/val/test split is **not** preserved; verify. | Publisher: raw audio in `AUDIO/REAL`, `AUDIO/FAKE`; filenames encode source → target speaker; `DATASET-balanced.csv` holds 1-s-window features balanced by random sampling; RVC applied to extracted vocals, then re-layered onto the original background [C]. |
+| Exact revision | HF commit `ff8c82c79e7bbefef811941bac9775c9328e9055` [verified] | No version number on Kaggle: page shows "updated 3 years ago", update frequency "Never" [doc]. Pinned by archive hash (next row). |
+| Download date | TBD | TBD |
+| Archive / snapshot hash | Backup: Drive `raw/for_2sec_ff8c82c7.tar` (1.22 GB); revision sha in `raw/for_2sec_REVISION.txt` [verified] | Kaggle zip, 3.96 GB, sha256 `8cb258530daa2bb678121f3b276313a4d56fc638280bfd276a610dd8f732bdcf` [verified] |
+| License | TBD (from the HF dataset page). The package contains no README or license file [verified]. | "Other (specified in description)" [doc]; terms TBD |
+| Original work | Reimao & Tzerpos, Fake-or-Real (FoR) dataset, 2019 [doc] | Bird & Lotfi, *Real-time Detection of AI-Generated Speech for DeepFake Voice Conversion*, 2023 [doc] |
+| Packaging | Only two folders, `FAKE/` and `REAL/`; no train/val/test folders [verified]. The original FoR split is therefore **not** preserved in this package. | Audit root = `KAGGLE/` only. `DEMONSTRATION/` (2 MP3 files) excluded and never opened. `KAGGLE/AUDIO/{REAL,FAKE}` + `DATASET-balanced.csv` [verified]. Publisher: filenames encode source → target speaker; RVC applied to extracted vocals, then re-layered onto the original background; the CSV holds 1-s-window features balanced by random sampling [doc]. |
 
 ## 2. FoR-2sec: verified facts
 
+Source: `docs/audit_evidence/for2sec_summary.json` / `.md`, revision `ff8c82c7…`, audit commit `ae45e9f`.
+
 | Fact | Value | Evidence | Label |
 |---|---|---|---|
-| Total files / REAL / FAKE | | `for2sec_summary.json` → counts | [B] |
-| Packaged split folders | | counts.by_split_dir_label | [B] |
-| Extensions, formats, subtypes | | summary.md §2 | [B] |
-| Sample rates by label | | summary.md §2 | [B] |
-| Channels by label | | summary.md §2 | [B] |
-| Duration distribution by label | | summary.md §3 | [B] |
-| Clips outside 2.0 s ± 50 ms | | summary.md §3 | [B] |
-| Header / decode failures | | counts | [B] |
-| Speaker metadata available? | | filename tokens §6 + card | [B] |
-| Source-recording metadata available? | | filename tokens §6 + card | [B] |
-| Generator (TTS engine) metadata available? | | filename tokens §6 + card | [B] |
-| Generators actually present | | | [B] or "not determinable" |
+| Total files / REAL / FAKE | 17,721 / 8,800 / 8,921 (49.7% / 50.3%) | counts | [verified] |
+| Packaged split folders | None (`none/FAKE`, `none/REAL` only) | counts.by_split_dir_label | [verified] |
+| Extensions, formats, subtypes | All `.wav`, PCM_16 | summary.md §1–2 | [verified] |
+| Sample rates by label | 16,000 Hz for all clips, both labels | summary.md §2 | [verified] |
+| Channels by label | Mono for all clips, both labels | summary.md §2 | [verified] |
+| Duration distribution by label | Exactly 2.0 s for every clip (min = max = 2 s, both labels) | summary.md §3 | [verified] |
+| Clips outside 2.0 s ± 50 ms | 0 | summary.md §3 | [verified] |
+| Header / decode failures | 0 / 0 | counts | [verified] |
+| Speaker metadata available? | No. Filenames are `fileN…` plus processing suffixes; no speaker field. The same `fileN` token appears in both labels (e.g. `file788`, 3 files, frac_FAKE 0.67), so `N` is not a shared speaker or recording ID. HF dataset card: TBD (to check with the license). | summary.md §6 | [verified] (package) |
+| Source-recording metadata available? | No (same evidence as above) | summary.md §6 | [verified] (package) |
+| Generator (TTS engine) metadata available? | No generator field in filenames or package | summary.md §6 | [verified] (package) |
+| Generators actually present | Not determinable from the package | — | not determinable |
+| Codec history (filename signature) | 7,592 FAKE clips (85.1% of FAKE) carry an `.mp3` step in their filename chain; 0 REAL clips do. Remaining FAKE = 1,329 ("FAKE_other"). | shortcut_categorical.csv; codec check | [verified] |
 
 ## 3. Shortcut / artifact analysis
 
-For every flagged feature, fill in:
+Automatic screen (`for2sec_shortcut_numeric.csv`, `for2sec_shortcut_categorical.csv`) [verified]: **no numeric feature reaches AUC ≥ 0.90 or ≥ 0.75** (highest: `rms_dbfs` 0.698). **One categorical value is label-pure**: the MP3 filename signature (purity 1.0, n = 7,592). Format, sample rate, channels, duration and file size are identical across labels (AUC 0.5).
 
-- **Observation** (what the table shows):
-- **Interpretation:**
-- **Hypothesis** [E]:
-- **Decision** (neutralize in profile + re-screen in Stage 6 / document as limitation):
+**Codec follow-up check** [verified] (Colab session, 2026-10-04; output not yet archived in `docs/audit_evidence/`): FAKE split by filename signature into FAKE_mp3 (7,592) and FAKE_other (1,329), each compared with REAL (8,800).
 
-Note: resampling to 16 kHz neutralizes a sample-rate flag, but **not** band-limited content below 8 kHz (`bw99_hz`) or loudness and silence differences. Stage 6 re-screen is mandatory for every flag.
+| Feature | Median REAL | Median FAKE_mp3 | Median FAKE_other | Separability FAKE_mp3 vs REAL | Separability FAKE_other vs REAL |
+|---|---|---|---|---|---|
+| `bw99_hz` | 5,074.5 | 3,221 | 3,461 | 0.666 | 0.600 |
+| `rms_dbfs` | not reported | not reported | not reported | 0.697 | 0.701 |
+| `silence_frac` | 0.01 | 0.03 | 0.06 | 0.588 | **0.750** |
+
+### 3.1 MP3 filename signature
+- **Observation:** `file#.mp#.wav_#k.wav_norm.wav_mono.wav_silence.wav_#sec` covers 7,592 clips, all FAKE (purity 1.0, support 42.8%) [verified]. Token `mp3` is the only label-pure token in the top 30 [verified].
+- **Interpretation:** filenames are not model input, so the name itself cannot be learned. What it reveals is a **codec-history imbalance**: 85% of FAKE clips passed through MP3 before conversion to WAV, 0% of REAL [verified].
+- **Hypothesis** [hypothesis]: the CNN could learn MP3 compression traces instead of synthesis artifacts (→ **H5**).
+- **Decision:** the §0 shortcut rule fires (purity ≥ 0.99 at ≥ 1% support). Not neutralizable by preprocessing, so it is **carried forward as a named limitation** (§8). No data changes; re-split stratified by REAL / FAKE_mp3 / FAKE_other; H5 tests the effect (D16).
+
+### 3.2 `bw99_hz` (99%-energy bandwidth)
+- **Observation:** overall AUC 0.656; medians REAL 5,074.5 Hz vs FAKE 3,264 Hz [verified]. By subgroup: FAKE_mp3 3,221 Hz (0.666), FAKE_other 3,461 Hz (0.600) [verified]. Below the 0.75 flag.
+- **Interpretation:** both FAKE subgroups are band-limited to ~3.2–3.5 kHz, with or without MP3 history, so MP3 is not the main cause of the bandwidth gap in coarse statistics.
+- **Hypothesis** [hypothesis]: the CNN could still use the missing high band as a cue; resampling to 16 kHz does not remove it (→ **H6**).
+- **Decision:** no data change (D16). Re-screened after preprocessing in Stage 6; H6 robustness test in Stage 14.
+
+### 3.3 `rms_dbfs` (loudness)
+- **Observation:** overall AUC 0.698 (highest numeric feature); medians REAL −16.68 dBFS vs FAKE −15.05 dBFS [verified]. Subgroups: FAKE_mp3 0.697, FAKE_other 0.701 [verified]. Below the 0.75 flag.
+- **Interpretation:** FAKE clips are slightly louder at the median, equally in both subgroups, so the difference is not tied to MP3 history.
+- **Hypothesis** [hypothesis]: a log-Mel CNN could use absolute level if the preprocessing profile does not remove it.
+- **Decision:** no data change. Whether the profile normalizes level is a Stage 6 decision; mandatory Stage 6 re-screen.
+
+### 3.4 `silence_frac`
+- **Observation:** overall AUC 0.612; medians REAL 0.01, FAKE 0.03 [verified]. Subgroups: FAKE_mp3 0.03 (0.588), **FAKE_other 0.06 (0.750)**, which sits at the lower edge of the 0.75–0.90 "report and discuss" band [verified].
+- **Interpretation:** FAKE_other clips contain more silent frames (≤ −50 dBFS, 20 ms) than REAL; the effect is not driven by MP3 history (FAKE_mp3 is weaker).
+- **Hypothesis** [hypothesis]: the CNN could learn "more silence → FAKE", especially for the FAKE_other subgroup.
+- **Decision:** silence is re-screened **after trimming** in Stage 6 (D16). If the gap persists after preprocessing, it is carried forward as a limitation.
+
+Note: resampling to 16 kHz neutralizes a sample-rate flag, but **not** band-limited content below 8 kHz (`bw99_hz`) or loudness and silence differences. Stage 6 re-screen is mandatory for every item above.
 
 ## 4. Leakage analysis
 
-| Check | Result | Consequence |
+| Check | Result [verified] | Consequence |
 |---|---|---|
-| Exact duplicates (bytes): groups / cross-label / cross-split | | |
-| Exact duplicates (decoded PCM): groups / cross-label / cross-split | | |
-| Near-dup pairs @0.90 / 0.95 / 0.98 (cross-label, cross-split) | | |
-| Near-dup components @0.95: n groups, largest | | |
-| Max-sim quantiles by label | | |
-| Known limitation | Aligned fingerprints miss time-shifted overlapping excerpts of the same recording | Residual leakage risk stated in the report |
+| Exact duplicates (bytes): groups / cross-label / cross-split | 0 / 0 / 0 | Nothing to remove |
+| Exact duplicates (decoded PCM): groups / cross-label / cross-split | 0 / 0 / 0 | Nothing to remove; D14 sanity check passes trivially (0 pairs) |
+| Near-dup pairs @0.90 / 0.95 / 0.98 | 181 / 98 / 91 pairs; **0 cross-label** at every threshold. Cross-split = 0 is uninformative (no packaged split). | No label noise from near-duplicates |
+| Near-dup components @0.95: n groups, largest | 17,634 groups; 82 multi-file groups; largest = 6 clips (0.0339% of decodable clips). At 0.90: largest 13 (0.0734%); at 0.98: largest 6 (0.0339%). | All thresholds pass the chaining check; D14 selects 0.95. Groups kept within one split in the re-split. |
+| Max-sim quantiles by label (p50 / p90 / p99 / max) | REAL 0.7301 / 0.819 / 1.0 / 1.0 · FAKE 0.7416 / 0.8003 / 0.8798 / 1.0 | REAL has a heavier near-identical tail (p99 = 1.0); these pairs are captured by the 0.95 groups |
+| FoR ∩ DEEP-VOICE identical files | 0 (Colab session; output not yet in `docs/audit_evidence/`) | No byte-level overlap between development and external data |
+| Known limitation | Aligned fingerprints miss time-shifted overlapping excerpts of the same recording | Residual leakage risk stated in §8 |
 
 ## 5. DEEP-VOICE: metadata-only facts
 
-> Paste the attestation line from `deepvoice_summary.md` here.
+> BLIND AUDIT ATTESTATION: this run read file headers, byte hashes, filenames and CSV schema/label counts only. No audio samples were decoded, no features computed, no model run.
+
+Source: `docs/audit_evidence/deepvoice_summary.json` / `.md`. Audit root `KAGGLE/`.
 
 | Fact | Value | Label |
 |---|---|---|
-| Files by label | | [B] |
-| Total seconds / hours by label | | [B] |
-| 2 s windows by label (if D5 adopted) | | [B] |
-| Sample rates / channels by label | | [B] |
-| Source speakers / target speakers | | [B] |
-| Exact duplicate files; FoR ∩ DEEP-VOICE byte overlap | | [B] |
-| CSV schema and label counts (never used for evaluation) | | [B] |
+| Files by label | 64 WAV: 8 REAL / 56 FAKE; 0 header failures | [verified] |
+| Total seconds / hours by label | REAL 3,744.728 s (1.04 h) · FAKE 26,204.746 s (7.279 h) | [verified] |
+| Duration range | 79.49 s – 600.4 s (both labels). By source speaker: margot 79.49 s, ryan 93.69 s, linus 570.4 s, others ≈ 600 s | [verified] |
+| 2 s windows by label (D5) | REAL 1,870 · FAKE 13,090 (87.5% FAKE) | [verified] |
+| Sample rates / channels by label | REAL: 44.1 kHz × 5, 48 kHz × 3 · FAKE: 44.1 kHz × 52, 40 kHz × 4 · all files stereo (2 ch) | [verified] |
+| Source speakers / target speakers | 8 / 8, same set: biden, linus, margot, musk, obama, ryan, taylor, trump. FAKE = all 56 ordered source → target pairs (8 × 7). The 8 REAL files (`<speaker>-original.wav`) have no target. | [verified] |
+| Exact duplicate files; FoR ∩ DEEP-VOICE byte overlap | 0; 0 | [verified] |
+| CSV schema and label counts (never used) | `DATASET-balanced.csv`: 11,778 rows × 27 cols (26 features + `LABEL`), FAKE 5,889 / REAL 5,889, sha256 `fce38004b2381322bf7925465534acd94da34455d63b39e7a96426900955a7de`. Not used for anything in this project. | [verified] |
+| Excluded content | `DEMONSTRATION/` (2 MP3), outside the audit root, never opened | [verified] |
 
 ## 6. Discrepancies with project documents
 
 | Document claim | Where | Audit finding | Action |
 |---|---|---|---|
-| DEEP-VOICE 628 bonafide / 4,425 spoof | Proposal §6.1, Exec Plan Phase 2 | | Update or remove |
-| "Eight public figures" | Proposal §6 | | |
-| FoR-2sec spans six TTS engines | Proposal §6, Exec Plan Phase 0 | | |
-| ~17,700 clips, ~1.13 GB | Master prompt §15 | | |
+| DEEP-VOICE 628 bonafide / 4,425 spoof | Proposal §6.1, Exec Plan Phase 2 | Matches none of the audited counts: files 8 / 56, 2-s windows 1,870 / 13,090, CSV rows 5,889 / 5,889 [verified] | Update or remove in both documents |
+| "Eight public figures" | Proposal §6 | Consistent: 8 source speakers [verified] | None |
+| FoR-2sec spans six TTS engines | Proposal §6, Exec Plan Phase 0 | Not determinable from the package (no generator metadata) [verified] | Cite as [doc] (original FoR paper) only, not as an audited fact |
+| ~17,700 clips, ~1.13 GB | Master prompt §15 | 17,721 clips confirmed [verified]. Size not compared like for like (HF lists 1.13 GB [doc]; our tar backup is 1.22 GB). | None |
 
 ## 7. Decisions (applying the §0 rules)
 
 | Decision | Outcome | Evidence |
 |---|---|---|
-| D13 | | |
-| D14 | | |
-| D5 | | |
+| D13 | **Re-split.** Condition (a) fails: no train/val/test folders. | §2 (split folders: none) |
+| D14 | **Near-duplicate groups at 0.95.** No speaker or source-recording metadata in the package (HF card: TBD). 0.95 is eligible: largest group 6 clips = 0.0339% ≤ 5%; sanity check passes (0 exact-PCM-duplicate pairs). | §4; summary.md §8 |
+| Re-split ratios / D9 | **70 / 15 / 15 with val-A / val-B applies**: val-B ≈ 665 clips per class ≥ 500. | §2 counts |
+| D5 | **Confirmed.** DEEP-VOICE files are 79–600 s, so 2-s non-overlapping windows apply. FoR has no clip outside 2.0 s ± 50 ms, so no pad/crop is needed for FoR. | §2, §5 |
+| Shortcut rule | One categorical value fires (MP3 filename signature) → limitation; no numeric feature ≥ 0.75 overall; one subgroup value at 0.750 (silence, FAKE_other) → reported and discussed. | §3 |
+| D16 | No data changes; split stratified by REAL / FAKE_mp3 / FAKE_other; codec-history imbalance is a limitation; silence re-screened after trimming (Stage 6). | §3; `docs/decisions.md` |
 
 ## 8. Limitations carried forward
 
+1. **No speaker metadata in FoR** → groups are near-duplicate components only; the same speaker can appear in train and test, so **in-domain (FoR) scores are an upper bound** [verified absence; effect is a hypothesis].
+2. **Codec-history imbalance:** 85% of FAKE vs 0% of REAL clips have an MP3 step [verified]. Tested by H5; cannot be removed without changing the data (D16).
+3. **Fingerprints miss time-shifted overlaps:** aligned log-Mel fingerprints do not detect overlapping excerpts of the same recording at different offsets; residual leakage risk [verified as a method property].
+4. **DEEP-VOICE is small and skewed:** only 8 source recordings, so speaker-clustered CIs will be wide; 87.5% of windows are FAKE [verified]. Reported per speaker (D19) and with class-aware metrics.
+5. **FoR → DEEP-VOICE differences are confounded (D8):** generation method (TTS vs RVC), speakers, recording conditions, sample rates and channels all change together; any gap cannot be attributed to the generation method alone [doc / D8].
+
 ## 9. Exclusions and change log
+
+### Exclusions
+
+- **FoR-2sec:** none. 0 corrupt files, 0 exact duplicates (bytes or PCM) [verified].
+- **DEEP-VOICE:** `DEMONSTRATION/` (2 MP3 files) excluded, never opened. `DATASET-balanced.csv` kept in place but never used [verified].
 
 ### Change log
 
