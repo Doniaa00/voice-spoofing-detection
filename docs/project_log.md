@@ -245,6 +245,26 @@ Not yet run in Colab.
 
 **Why it matters:** the threat model sets the maximum claim for each threat. Its references have to be exact, because the final report will quote them.
 
+### Entry 11 — Stage 2: threat model v0.2, D21 (2026-10-04)
+
+**What we did:** applied the approved fixes from the v0.1 review (Entry 10). `docs/threat_model.md` → **v0.2**:
+- **§3.2:** "8 source speakers [verified]; the 56 FAKE files are named `src-to-tgt`, the 8 REAL files `<speaker>-original`."
+- **§10, Tampering (data):** now cites **D21** and `configs/audit.yaml` instead of D20.
+- **§10, Spoofing:** status adds "FR-11 is Could priority; if not implemented, this threat is unmitigated."
+- **§11:** new residual risk 7, analyst impersonation if FR-11 is not implemented.
+- **§8 T6:** cites D2 and D9.
+- **§12:** §8 row adds D9; §10 row cites D21 instead of D20.
+- **D21** added to `docs/decisions.md`: datasets are pinned (FoR-2sec HF revision, DEEP-VOICE zip SHA-256) in `configs/audit.yaml`; the notebook refuses unpinned or mismatched data; changing a pin requires a new decision entry.
+
+**Evidence [verified]:** citation check re-run on every changed line.
+- All cited IDs exist: SRS v3.0, plus D2, D9 and D21 in `docs/decisions.md`.
+- The D21 hashes equal the values in `configs/audit.yaml`.
+- `deepvoice_summary` confirms 56 FAKE `src-to-tgt` and 8 REAL `<speaker>-original` files.
+- The SRS lists FR-11 as Could (requirements table and MoSCoW table).
+- D20 is no longer cited in the threat model.
+
+**Why it matters:** every claim and citation in the threat model now traces to its source. The one gap, analyst authentication, is stated as a residual risk instead of being implied as covered.
+
 ---
 
 ## Open items
@@ -283,7 +303,8 @@ Not yet run in Colab.
 - [ ] Team sign-off of `docs/dataset_audit.md` §10 (Donia, Iheb, Malak).
 
 **Stage 2 gate**
-- [ ] Team review of `docs/threat_model.md` v0.1 (§13 open questions, §14 sign-off); resolve the two mismatches from Entry 10 (§3.2 REAL filenames; §10 D20 citation).
+- [x] Resolve the two v0.1 mismatches from Entry 10 (§3.2 REAL filenames; §10 D20 → D21) → v0.2 (Entry 11).
+- [ ] Team review of `docs/threat_model.md` v0.2 (§13 open questions, §14 sign-off).
 - [ ] Decide the access-control mechanism (SRS §7.4) before the API stage (Stage 17), at the latest. The oracle-abuse residual risk (threat model §10.1) depends on it.
 
 **Later stages (reminders)**
@@ -297,10 +318,10 @@ Not yet run in Colab.
 ## Current status — updated 2026-10-04
 
 **What was done:**
-- Readiness audit and decisions D1–D20; hypotheses H5–H6 pre-registered.
+- Readiness audit and decisions D1–D21; hypotheses H5–H6 pre-registered.
 - Repo scaffold on GitHub.
 - **Stage 1 done — awaiting sign-off/merge.** Both audits run and written up in `docs/dataset_audit.md` and `docs/decisions.md`, with no TBDs and every cited number backed by a file in `docs/audit_evidence/`. Audit notebook ported, pinned, and confirmed in Colab.
-- Stacked branch `stage-2-threat-model` created from `stage-1-audit-run` (Entry 9). **Stage 2 is CURRENT**: threat model draft v0.1 committed and checked (Entry 10), **awaiting team review**.
+- Stacked branch `stage-2-threat-model` created from `stage-1-audit-run` (Entry 9). **Stage 2 is CURRENT**: threat model **v0.2** (citation fixes, D21), **awaiting team review** (Entries 10–11).
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -319,5 +340,5 @@ Not yet run in Colab.
 
 **What's next:**
 1. Team sign-off of `docs/dataset_audit.md` §10 (commit on `stage-1-audit-run`), then PRs merged in order: stage-0 → stage-1 → stage-2.
-2. Stage 2: team review of `docs/threat_model.md` v0.1 and the two citation fixes → sign-off (§14) → v1.0.
+2. Stage 2: team review of `docs/threat_model.md` v0.2 → sign-off (§14) → v1.0.
 3. Stage 3: Experimental Protocol v1.0 (also fixes the D17 silence threshold).

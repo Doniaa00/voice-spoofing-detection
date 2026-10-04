@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **DRAFT v0.1 — awaiting team review** (Stage 2 gate) |
+| Status | **DRAFT v0.2 — awaiting team review** (Stage 2 gate) |
 | Stage / branch | Stage 2 · `stage-2-threat-model` |
 | Authors | Donia Mabrouk, Iheb Zemzemi, Malak Ben Salem |
 | Inputs | Proposal §2 (threat figure, attacker assumptions), SRS v3.0 (§1.2 scope, NFRs, WH-01–04), SDD v1.0, `docs/dataset_audit.md`, `docs/decisions.md` |
@@ -38,7 +38,7 @@ A bank's call center receives a phone request that would cause harm if fraudulen
 
 ### 3.2 Secondary scenario — executive impersonation via voice message [decision]
 
-An employee in a finance team receives a **recorded voice message** (e.g., a messaging-app voice note) that appears to come from a senior executive and requests an urgent payment. The message is a file by nature, so it fits a recorded-audio detector directly. This scenario is the closest match to our external test set: DEEP-VOICE contains voice conversion of well-known people [verified: 8 source speakers, all files `src-to-tgt`].
+An employee in a finance team receives a **recorded voice message** (e.g., a messaging-app voice note) that appears to come from a senior executive and requests an urgent payment. The message is a file by nature, so it fits a recorded-audio detector directly. This scenario is the closest match to our external test set: DEEP-VOICE contains voice conversion of well-known people 8 source speakers [verified]; the 56 FAKE files are named `src-to-tgt`, the 8 REAL files `<speaker>-original`.
 
 ### 3.3 Detection point [decision]
 
@@ -143,7 +143,7 @@ This table defines the **maximum claim** for each threat. A claim beyond the las
 | T3 | Phone-channel degradation hides synthesis cues | Robustness curve: noise, compression, bandwidth reduction on the FoR test (FR-17) | 14 | Simulated degradation, not real phone calls |
 | **T4** | **Genuine callers on narrowband phone lines flagged as synthetic** | **H6**: band-limit REAL test clips to ~3.4 kHz and measure false "synthetic" calls | 14 | **Operationally critical for §3.1.** The audit found FoR REAL clips carry energy to ~5.1 kHz vs ~3.3 kHz for FAKE (99%-energy medians) [verified]. A model that learned "narrow band = fake" would falsely accuse genuine phone callers [hypothesis] |
 | T5 | Detector relies on dataset artifacts (MP3 history) instead of synthesis | **H5**: recall on FAKE_other vs FAKE_mp3 on the FoR test | 11, 16 | 85% of FAKE and 0% of REAL clips have MP3 history [verified]; ~200 FAKE_other test clips → wide CIs |
-| T6 | Confidence is misleading under distribution shift | Calibration fitted on FoR val-B (D2); reliability / ECE on FoR test and on stored DEEP-VOICE outputs | 10, 15 | Calibration is fitted on FoR only; reliability under other shifts is unknown |
+| T6 | Confidence is misleading under distribution shift | Calibration fitted on FoR val-B (D2, D9); reliability / ECE on FoR test and on stored DEEP-VOICE outputs | 10, 15 | Calibration is fitted on FoR only; reliability under other shifts is unknown |
 | T7 | Pipeline differences create false evidence (format, resampling, silence) | D18 pipeline-invariance test (40 / 44.1 / 48 kHz stereo); Stage 6 shortcut re-screen; D17 speech-window filter | 6, 13 | Covers our own pipeline only, not unknown recording conditions |
 
 **Not covered by any experiment:** replay, adversarial evasion, partial fakes, live calls, other languages, generators absent from both datasets, real phone-network recordings. The final report must state these as limitations.
@@ -168,9 +168,9 @@ Threats to the deployed service, each linked to an existing requirement. **No ne
 
 | Category | Threat | Existing control | Status |
 |---|---|---|---|
-| Spoofing (identity) | Someone posing as an analyst annotates results | Authenticated analyst accounts (FR-11) | Mechanism open (SRS §7.4) |
+| Spoofing (identity) | Someone posing as an analyst annotates results | Authenticated analyst accounts (FR-11) | Mechanism open (SRS §7.4). FR-11 is Could priority; if not implemented, this threat is unmitigated. |
 | Tampering | Model, profile, or thresholds replaced or altered | ModelBundle versioning, frozen manifest, version-match refusal at load (NFR-09, SDD) | Recommendation: verify the checkpoint hash at load |
-| Tampering (data) | Training or test data altered | Pinned FoR revision and DEEP-VOICE zip SHA-256; notebook stops on mismatch (D20) [verified] | In place |
+| Tampering (data) | Training or test data altered | Pinned FoR revision and DEEP-VOICE zip SHA-256 in `configs/audit.yaml`; notebook stops on unpinned or mismatched data (D21) [verified] | In place |
 | Repudiation | A result or annotation is disputed later | Request ID, versions, timestamp, latency per record (NFR-07); annotations stored beside, never inside, results (FR-11) | Designed (SDD) |
 | Information disclosure | Leak of audio, weights, data locations, stack traces | No raw audio in logs (NFR-04); retention limit (NFR-03); sanitized errors (NFR-02) | Designed (SDD) |
 | Denial of service | Oversized or very long uploads exhaust the service | Size/duration limits before inference (FR-03); latency target (NFR-01) | Limits still TBD (SRS §7.4) |
@@ -192,6 +192,7 @@ If an attacker can submit audio and read the result, they can **adjust a fake un
 4. Degradation tests are simulated, not real phone recordings.
 5. Oracle abuse is unmitigated until access control is decided (§10.1).
 6. Adversarial evasion, replay, partial fakes, live calls, and other languages are not evaluated.
+7. Analyst impersonation is unmitigated if FR-11 (Could priority) is not implemented (§10, Spoofing).
 
 ---
 
@@ -202,9 +203,9 @@ If an attacker can submit audio and read the result, they can **adjust a fake un
 | §3 Scenario and detection point | SRS §1.2, WH-01, FR-05, NFR-05, UN-01, UN-02 |
 | §6 Attackers | Proposal §2.3, SRS WH-02 |
 | §7 Scope | SRS §1.2, WH-01–04, D8 |
-| §8 Threats ↔ evidence | FR-12–FR-18, PC-03–PC-05, D2, D8, D11, D14, D16–D19, H5, H6 |
+| §8 Threats ↔ evidence | FR-12–FR-18, PC-03–PC-05, D2, D8, D9, D11, D14, D16–D19, H5, H6 |
 | §9 Error policy | FR-05–FR-07, NFR-05, PC-03, PC-04, D12 |
-| §10 System threats | FR-03, FR-11, FR-20, NFR-01–NFR-04, NFR-07, NFR-09, D20 |
+| §10 System threats | FR-03, FR-11, FR-20, NFR-01–NFR-04, NFR-07, NFR-09, D21 |
 
 ---
 

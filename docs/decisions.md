@@ -25,6 +25,7 @@ Execution Plan where they differ. Any change needs a new entry with a reason and
 | D18 | Preprocessing averages channels to mono and resamples to 16 kHz, identically everywhere. Stage 6 adds a pipeline-invariance test on FoR clips converted to 40, 44.1 and 48 kHz stereo. Resampler, settings and tolerance are fixed in Stage 6. | Approved (2026-10-04) |
 | D19 | External (DEEP-VOICE) results include a per-speaker table (8 rows) and a speaker average as a secondary summary. | Approved (2026-10-04) |
 | D20 | Permitted DEEP-VOICE accesses before the external run are **only**: download, zip hash, unzip, listing paths / extensions / sizes / byte hashes, and `src/audit/deepvoice_metadata_audit.py`. Nothing reads audio content. Extends D6 to cover the download steps; `CLAUDE.md` hard rule 1 matches. | Approved (2026-10-04) |
+| D21 | Datasets are pinned: FoR-2sec HF revision `ff8c82c79e7bbefef811941bac9775c9328e9055` and DEEP-VOICE zip SHA-256 `8cb258530daa2bb678121f3b276313a4d56fc638280bfd276a610dd8f732bdcf` in `configs/audit.yaml`. The notebook refuses unpinned or mismatched data. Changing a pin requires a new decision entry. | Approved (2026-10-04) |
 
 ## Pre-registered hypotheses
 
