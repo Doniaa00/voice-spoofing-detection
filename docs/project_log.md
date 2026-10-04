@@ -127,6 +127,26 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 
 **Why it matters:** DEEP-VOICE differs from FoR in format (stereo, higher sample rates, long files) and has only 8 speakers. D17–D19 fix how the one external run handles that, before anything is scored.
 
+### Entry 6 — Stage 1: open TBDs resolved (2026-10-04)
+
+**What we did:** filled every TBD left in `docs/dataset_audit.md` (commit `c4a1b56`) and aligned D5 wording in `docs/decisions.md`.
+- **Provenance:**
+  - Audit run by Donia Mabrouk.
+  - DEEP-VOICE audit code commit `ae45e9f` (printed by notebook cell 1, same Colab session as the FoR run).
+  - Both datasets downloaded 2026-10-04.
+- **Drive locations:**
+  - Full audit outputs: `MyDrive/voice-spoofing-detection/processed/metadata/stage1/{for2sec,deepvoice}`.
+  - DEEP-VOICE zip: `MyDrive/voice-spoofing-detection/raw/deep-voice-deepfake-voice-recognition.zip`, hash in `raw/deep_voice_ZIP_SHA256.txt`. This resolves "Drive location TBD" in Entry 5.
+- **HF card checked [verified]:** the card is empty; the dataset viewer shows only `audio` and `label`. No per-file speaker, source or generator metadata. **D14 confirmed** on filenames + card (groups at 0.95).
+- **Licenses recorded [doc]:**
+  - FoR: not stated by the HF repackager; the original FoR terms apply (Reimao & Tzerpos, 2019).
+  - DEEP-VOICE: MIT (Kaggle description), attribution Bird & Lotfi 2023, arXiv:2308.12734.
+  - Both are used for academic research only; audio is never redistributed.
+- **Ethics / rights:** DEEP-VOICE recordings are of real public figures, and the dataset license does not necessarily cover rights in the original speeches. Added as limitation 6 in `docs/dataset_audit.md` §8.
+- **D5 wording:** raw FoR clips need no pad/crop (all 2.0 s); whether silence trimming introduces length variation is decided in Stage 6.
+
+**Why it matters:** the audit document now has no open placeholders, so the team can sign it off as written.
+
 ---
 
 ## Open items
@@ -174,18 +194,20 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 - Readiness audit and decisions D1–D19; hypotheses H5–H6 pre-registered.
 - Repo scaffold on GitHub.
 - Stage 1 rules pre-registered, then both audits run: full FoR-2sec audit + codec check; DEEP-VOICE metadata-only audit + FoR ∩ DEEP-VOICE overlap check.
-- Stage 1 written up in `docs/dataset_audit.md` and `docs/decisions.md`; audit is **awaiting team sign-off (§10)**.
+- Stage 1 fully written up in `docs/dataset_audit.md` (no TBDs left) and `docs/decisions.md`. Provenance, licenses and the HF card check recorded. Audit is **awaiting team sign-off (§10)**.
 
 **What we have:**
-- FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
+- FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
 - One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
-- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond metadata. Rules for the one external run fixed in D17–D19.
+- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond metadata. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
+- Full audit outputs archived in Drive (`processed/metadata/stage1/`); summaries in `docs/audit_evidence/`.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Team review and sign-off of `docs/dataset_audit.md` §10; resolve or accept the TBDs (licenses, run-by, Drive locations).
+1. Team review and sign-off of `docs/dataset_audit.md` §10.
 2. PR `stage-1-audit-run` → 1 approval → merge → Stage 1 closed.
-3. Stage 2 (threat model) and Stage 3 (Experimental Protocol v1.0, which also fixes the D17 silence threshold).
+3. Port the Colab cells to the repo notebook and archive the codec-check and overlap outputs in `docs/audit_evidence/`.
+4. Stage 2 (threat model) and Stage 3 (Experimental Protocol v1.0, which also fixes the D17 silence threshold).

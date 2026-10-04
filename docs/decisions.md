@@ -9,7 +9,7 @@ Execution Plan where they differ. Any change needs a new entry with a reason and
 | D2 | Fit the risk policy (thresholds, uncertain band) and calibration on FoR validation **before** the ModelBundle freeze. The DEEP-VOICE run comes after. Supersedes the Exec Plan order (Phase 5 before Phases 6/9). | Approved |
 | D3 | No robustness evaluation on DEEP-VOICE. Robustness runs on the FoR test split only (FR-17). Supersedes Exec Plan Phase 9 "optionally DEEP-VOICE". | Approved |
 | D4 | Metrics: score-level (EER, ROC-AUC) on the continuous score; decision-level (accuracy, precision, recall, F1) at the frozen threshold, both forced-binary and on the non-deferred subset; 3-way confusion matrix; coverage/deferral rate; class counts; FPR/FNR; 95% CIs. Positive class = spoof. | Approved |
-| D5 | Evaluation unit: 2 s windows (primary), file-level mean score (secondary) | **Confirmed** by the Stage 1 audit (DEEP-VOICE files 79–600 s; `docs/dataset_audit.md` §7) |
+| D5 | Evaluation unit: 2 s windows (primary), file-level mean score (secondary) | **Confirmed** by the Stage 1 audit (DEEP-VOICE files 79–600 s; `docs/dataset_audit.md` §7). Raw FoR clips need no pad/crop (all 2.0 s); whether silence trimming introduces length variation is decided in Stage 6. |
 | D6 | DEEP-VOICE audit is metadata-only (counts, headers, hashes, filenames, CSV schema). No listening, spectrograms, or feature stats. Supersedes Exec Plan Phase 2 "explore both datasets". | Approved |
 | D7 | Baseline = RBF-SVM on MFCC mean + std | Approved |
 | D8 | Research question narrowed to cross-dataset FoR (TTS) → DEEP-VOICE (RVC) generalization. Attribution to "generation method" is a hypothesis only. | Approved |
