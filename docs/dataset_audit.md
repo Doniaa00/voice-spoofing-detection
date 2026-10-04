@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | Status | Audit run 2026-10-04; awaiting team sign-off (§10) |
-| Audit code commit | FoR-2sec: `ae45e9ff9f24e1839f09ba92a4948e78d01d1c9a` (clean tree, Python 3.13.15, Colab) · DEEP-VOICE: TBD (not recorded in `deepvoice_summary.json`) |
-| Run by / date | TBD / 2026-10-04 (FoR run 11:46 UTC) |
-| Machine outputs | Summaries committed in `docs/audit_evidence/` (FoR summary + shortcut CSVs, DEEP-VOICE summary). Full outputs (inventory, pairs, fingerprints): Drive location TBD. |
+| Audit code commit | FoR-2sec: `ae45e9ff9f24e1839f09ba92a4948e78d01d1c9a` (clean tree, Python 3.13.15, Colab) · DEEP-VOICE: `ae45e9f` (printed by notebook cell 1, same Colab session; not recorded in `deepvoice_summary.json`) |
+| Run by / date | Donia Mabrouk / 2026-10-04 (FoR run 11:46 UTC) |
+| Machine outputs | Summaries committed in `docs/audit_evidence/` (FoR summary + shortcut CSVs, DEEP-VOICE summary). Full outputs (inventory, pairs, fingerprints): Drive `MyDrive/voice-spoofing-detection/processed/metadata/stage1/{for2sec,deepvoice}`. |
 
 Evidence labels used in this document: **[verified]** checked on real data / audit output · **[doc]** publisher documentation or literature · **[hypothesis]** not yet tested.
 
@@ -35,11 +35,11 @@ Approved by Donia, Iheb and Malak (team chat, 2026-10-04) before any audit outpu
 |---|---|---|
 | Source | Hugging Face `UncovAI/FOR-2sec` | Kaggle `birdy654/deep-voice-deepfake-voice-recognition` |
 | Exact revision | HF commit `ff8c82c79e7bbefef811941bac9775c9328e9055` [verified] | No version number on Kaggle: page shows "updated 3 years ago", update frequency "Never" [doc]. Pinned by archive hash (next row). |
-| Download date | TBD | TBD |
-| Archive / snapshot hash | Backup: Drive `raw/for_2sec_ff8c82c7.tar` (1.22 GB); revision sha in `raw/for_2sec_REVISION.txt` [verified] | Kaggle zip, 3.96 GB, sha256 `8cb258530daa2bb678121f3b276313a4d56fc638280bfd276a610dd8f732bdcf` [verified] |
-| License | TBD (from the HF dataset page). The package contains no README or license file [verified]. | "Other (specified in description)" [doc]; terms TBD |
-| Original work | Reimao & Tzerpos, Fake-or-Real (FoR) dataset, 2019 [doc] | Bird & Lotfi, *Real-time Detection of AI-Generated Speech for DeepFake Voice Conversion*, 2023 [doc] |
-| Packaging | Only two folders, `FAKE/` and `REAL/`; no train/val/test folders [verified]. The original FoR split is therefore **not** preserved in this package. | Audit root = `KAGGLE/` only. `DEMONSTRATION/` (2 MP3 files) excluded and never opened. `KAGGLE/AUDIO/{REAL,FAKE}` + `DATASET-balanced.csv` [verified]. Publisher: filenames encode source → target speaker; RVC applied to extracted vocals, then re-layered onto the original background; the CSV holds 1-s-window features balanced by random sampling [doc]. |
+| Download date | 2026-10-04 | 2026-10-04 |
+| Archive / snapshot hash | Backup: Drive `raw/for_2sec_ff8c82c7.tar` (1.22 GB); revision sha in `raw/for_2sec_REVISION.txt` [verified] | Kaggle zip, 3.96 GB, sha256 `8cb258530daa2bb678121f3b276313a4d56fc638280bfd276a610dd8f732bdcf` [verified]. Backup: Drive `MyDrive/voice-spoofing-detection/raw/deep-voice-deepfake-voice-recognition.zip`; hash in `raw/deep_voice_ZIP_SHA256.txt`. |
+| License | Not stated by the HF repackager: no dataset card, no license tag; the package contains no README or license file [verified]. The terms of the original FoR dataset apply [doc]. Used for academic research only; audio is never redistributed (not in the repo). | MIT License, stated in the Kaggle description [doc]. Attribution: Bird, J.J. and Lotfi, A., 2023, "Real-time Detection of AI-Generated Speech for DeepFake Voice Conversion", arXiv:2308.12734 [doc]. Academic use only; audio is never redistributed. |
+| Original work | Reimao & Tzerpos, "FoR: A Dataset for Synthetic Speech Detection", 2019 [doc] | Bird & Lotfi, *Real-time Detection of AI-Generated Speech for DeepFake Voice Conversion*, 2023 [doc] |
+| Packaging | Only two folders, `FAKE/` and `REAL/`; no train/val/test folders [verified]. The original FoR split is therefore **not** preserved in this package. | Audit root = `KAGGLE/` only. `DEMONSTRATION/` (2 MP3 files) excluded and never opened. `KAGGLE/AUDIO/{REAL,FAKE}` + `DATASET-balanced.csv` [verified]. Publisher confirms: experimental data is in `KAGGLE/`; `DEMONSTRATION/` holds cropped, compressed demo audio only [doc]. Publisher: filenames encode source → target speaker; RVC applied to extracted vocals, then re-layered onto the original background; the CSV holds 1-s-window features balanced by random sampling [doc]. |
 
 ## 2. FoR-2sec: verified facts
 
@@ -55,9 +55,9 @@ Source: `docs/audit_evidence/for2sec_summary.json` / `.md`, revision `ff8c82c7�
 | Duration distribution by label | Exactly 2.0 s for every clip (min = max = 2 s, both labels) | summary.md §3 | [verified] |
 | Clips outside 2.0 s ± 50 ms | 0 | summary.md §3 | [verified] |
 | Header / decode failures | 0 / 0 | counts | [verified] |
-| Speaker metadata available? | No. Filenames are `fileN…` plus processing suffixes; no speaker field. The same `fileN` token appears in both labels (e.g. `file788`, 3 files, frac_FAKE 0.67), so `N` is not a shared speaker or recording ID. HF dataset card: TBD (to check with the license). | summary.md §6 | [verified] (package) |
-| Source-recording metadata available? | No (same evidence as above) | summary.md §6 | [verified] (package) |
-| Generator (TTS engine) metadata available? | No generator field in filenames or package | summary.md §6 | [verified] (package) |
+| Speaker metadata available? | No. Filenames are `fileN…` plus processing suffixes; no speaker field. The same `fileN` token appears in both labels (e.g. `file788`, 3 files, frac_FAKE 0.67), so `N` is not a shared speaker or recording ID. HF dataset card (checked 2026-10-04): empty; the dataset viewer shows only `audio` and `label` columns. | summary.md §6; HF card | [verified] (filenames + card) |
+| Source-recording metadata available? | No (same evidence as above) | summary.md §6; HF card | [verified] (filenames + card) |
+| Generator (TTS engine) metadata available? | No generator field in filenames, package or HF card | summary.md §6; HF card | [verified] (filenames + card) |
 | Generators actually present | Not determinable from the package | — | not determinable |
 | Codec history (filename signature) | 7,592 FAKE clips (85.1% of FAKE) carry an `.mp3` step in their filename chain; 0 REAL clips do. Remaining FAKE = 1,329 ("FAKE_other"). | shortcut_categorical.csv; codec check | [verified] |
 
@@ -143,9 +143,9 @@ Source: `docs/audit_evidence/deepvoice_summary.json` / `.md`. Audit root `KAGGLE
 | Decision | Outcome | Evidence |
 |---|---|---|
 | D13 | **Re-split.** Condition (a) fails: no train/val/test folders. | §2 (split folders: none) |
-| D14 | **Near-duplicate groups at 0.95.** No speaker or source-recording metadata in the package (HF card: TBD). 0.95 is eligible: largest group 6 clips = 0.0339% ≤ 5%; sanity check passes (0 exact-PCM-duplicate pairs). | §4; summary.md §8 |
+| D14 | **Near-duplicate groups at 0.95.** No per-file speaker, source or generator metadata in filenames or the HF card (card empty; viewer shows only `audio` and `label`, checked 2026-10-04). 0.95 is eligible: largest group 6 clips = 0.0339% ≤ 5%; sanity check passes (0 exact-PCM-duplicate pairs). | §4; summary.md §8 |
 | Re-split ratios / D9 | **70 / 15 / 15 with val-A / val-B applies**: val-B ≈ 665 clips per class ≥ 500. | §2 counts |
-| D5 | **Confirmed.** DEEP-VOICE files are 79–600 s, so 2-s non-overlapping windows apply. FoR has no clip outside 2.0 s ± 50 ms, so no pad/crop is needed for FoR. | §2, §5 |
+| D5 | **Confirmed.** DEEP-VOICE files are 79–600 s, so 2-s non-overlapping windows apply. Raw FoR clips need no pad/crop (all 2.0 s); whether silence trimming introduces length variation is decided in Stage 6. | §2, §5 |
 | Shortcut rule | One categorical value fires (MP3 filename signature) → limitation; no numeric feature ≥ 0.75 overall; one subgroup value at 0.750 (silence, FAKE_other) → reported and discussed. | §3 |
 | D16 | No data changes; split stratified by REAL / FAKE_mp3 / FAKE_other; codec-history imbalance is a limitation; silence re-screened after trimming (Stage 6). | §3; `docs/decisions.md` |
 
@@ -156,6 +156,7 @@ Source: `docs/audit_evidence/deepvoice_summary.json` / `.md`. Audit root `KAGGLE
 3. **Fingerprints miss time-shifted overlaps:** aligned log-Mel fingerprints do not detect overlapping excerpts of the same recording at different offsets; residual leakage risk [verified as a method property].
 4. **DEEP-VOICE is small and skewed:** only 8 source recordings, so speaker-clustered CIs will be wide; 87.5% of windows are FAKE [verified]. Reported per speaker (D19) and with class-aware metrics.
 5. **FoR → DEEP-VOICE differences are confounded (D8):** generation method (TTS vs RVC), speakers, recording conditions, sample rates and channels all change together; any gap cannot be attributed to the generation method alone [doc / D8].
+6. **Ethics / rights (DEEP-VOICE):** the recordings are of real public figures. The dataset license (MIT) does not necessarily cover rights in the original speeches. Academic use only; no redistribution of audio [doc].
 
 ## 9. Exclusions and change log
 

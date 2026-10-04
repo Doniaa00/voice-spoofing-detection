@@ -150,10 +150,11 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 
 **Documentation**
 - [ ] `docs/dataset_audit.md` §9: confirm Iheb and Malak really re-confirmed D14 on 2026-10-04 [to verify]; correct the line if not.
-- [ ] Licenses TBD: FoR (Hugging Face dataset page) and DEEP-VOICE terms (Kaggle "Other (specified in description)"). DEEP-VOICE version recorded as zip sha256.
-- [ ] HF dataset card: check for speaker / source metadata (D14 rule covers "filenames or the card"; only the package was checked).
-- [ ] Fill remaining TBDs in `docs/dataset_audit.md`: run-by name, DEEP-VOICE audit commit, download dates, Drive location of full outputs and of the DEEP-VOICE zip.
-- [ ] Archive the codec-check and FoR ∩ DEEP-VOICE overlap outputs in `docs/audit_evidence/` (values are cited in the audit but the outputs are not committed).
+- [x] Licenses recorded in `docs/dataset_audit.md` §1: FoR not stated by the HF repackager (original FoR terms apply); DEEP-VOICE MIT (Kaggle description), with attribution. Ethics / rights limitation added to §8.
+- [ ] Check the original FoR source (Reimao & Tzerpos, 2019) for its stated terms of use.
+- [x] HF dataset card checked 2026-10-04: empty; viewer shows only `audio` and `label`. No speaker / source / generator metadata; D14 stands.
+- [x] Remaining TBDs in `docs/dataset_audit.md` filled: run by Donia Mabrouk, DEEP-VOICE audit commit `ae45e9f`, download dates 2026-10-04, Drive locations of full outputs (`processed/metadata/stage1/`) and of the DEEP-VOICE zip (`raw/deep-voice-deepfake-voice-recognition.zip`). D5 wording amended.
+- [ ] Archive the codec-check and FoR ∩ DEEP-VOICE overlap outputs in `docs/audit_evidence/` (values are cited in the audit but the outputs are not committed). Done as part of the notebook port.
 - [x] Log D13, D14, D9, D16, H5, H6 in `docs/decisions.md` and fill in `docs/dataset_audit.md` (done, with D17–D19).
 - [ ] Update Proposal and Execution Plan discrepancies after the audit (e.g., the DEEP-VOICE 628 / 4,425 counts).
 
