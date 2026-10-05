@@ -1,0 +1,12 @@
+{
+  "check": "FoR-2sec \u2229 DEEP-VOICE identical files (sha256 of file bytes)",
+  "for2sec_inventory": "/content/audit_out/for2sec/for2sec_inventory.csv",
+  "deepvoice_inventory": "/content/audit_out/deepvoice/deepvoice_inventory.csv",
+  "for2sec_revision": "ff8c82c79e7bbefef811941bac9775c9328e9055",
+  "code_commit": "c2136cba0a5323fc278282cf9d962c8299380fcc",
+  "generated_utc": "2026-10-04T13:54:43.945751+00:00",
+  "n_for2sec_hashes": 17721,
+  "n_deepvoice_hashes": 64,
+  "n_overlap": 0,
+  "overlapping_sha256": []
+}

@@ -26,8 +26,9 @@ fix, and wait for approval.
 1. **DEEP-VOICE is external and touched exactly once.** Never use it for training, tuning, threshold
    selection, calibration, early stopping, model selection, or exploration. No listening, no spectrograms,
    no feature statistics, no model scoring, except the single guarded external run after the ModelBundle
-   freeze. The only other permitted access is `src/audit/deepvoice_metadata_audit.py`. If a request would
-   touch DEEP-VOICE in any other way, **stop and refuse**, explaining why.
+   freeze. Before that run, the only permitted accesses are (D20): download, zip hash, unzip, listing
+   paths / extensions / sizes / byte hashes, and `src/audit/deepvoice_metadata_audit.py`. Nothing reads
+   audio content. If a request would touch DEEP-VOICE in any other way, **stop and refuse**, explaining why.
 2. **ModelBundle = CNN checkpoint + preprocessing profile + risk policy (thresholds, uncertain band,
    calibration).** All fitted on FoR only and frozen together *before* the external run (D2).
 3. **Scope lock.** Baseline = MFCC (mean+std) + RBF-SVM, for evaluation only (D7). Deployed model =
@@ -49,6 +50,8 @@ fix, and wait for approval.
 - End each stage with: what was done · evidence · checks run · open issues · gate → **WAITING FOR APPROVAL**.
 - Label claims: [verified locally] / [documentation] / [hypothesis]. Never present a hypothesis as fact.
 - If results look too good, suspect leakage or shortcuts before celebrating.
+- At the end of each stage or session, update `docs/project_log.md`: append a new log entry, update
+  Open items, rewrite Current status. Never edit old entries.
 
 ## Code rules
 - Python 3.13 is the official version (D15): results come from Colab, whose runtime is 3.13.15.

@@ -123,16 +123,27 @@ class _UnionFind:
             self.p[max(ra, rb)] = min(ra, rb)
 
 
+def neardup_col(sim: float) -> str:
+    """Inventory column name for the group id at one threshold, e.g. 0.95 -> neardup_group_095."""
+    return f"neardup_group_{round(sim * 100):03d}"
+
+
 def near_duplicates(F: np.ndarray, valid: np.ndarray, th: Thresholds,
                     chunk: int = 1024, max_pairs: int = 2_000_000):
-    """Chunked all-pairs cosine similarity. Returns (pairs_df, max_sim, group_ids)."""
+    """Chunked all-pairs cosine similarity.
+
+    Returns (pairs_df, max_sim, groups_by_sim, truncated). groups_by_sim maps every
+    threshold in th.neardup_sims to connected-component group ids (transitive, so
+    A~B and B~C put A and C in one group even if A is not ~ C). Grouping uses every
+    pair, even when the stored pairs table is truncated at max_pairs.
+    """
     n = F.shape[0]
     idx = np.flatnonzero(valid)
     G = F[idx]
     max_sim = np.full(n, np.nan, dtype=np.float32)
     lo = min(th.neardup_sims)
     pairs, truncated = [], False
-    uf = _UnionFind(n)
+    ufs = {s: _UnionFind(n) for s in th.neardup_sims}
     for s in range(0, len(idx), chunk):
         S = G[s:s + chunk] @ G.T
         rows = np.arange(s, min(s + chunk, len(idx)))
@@ -141,14 +152,79 @@ def near_duplicates(F: np.ndarray, valid: np.ndarray, th: Thresholds,
         S[np.tril(np.ones_like(S, dtype=bool), k=s)] = -np.inf  # keep j > i only
         r, c = np.nonzero(S >= lo)
         for a, b, v in zip(idx[rows[r]], idx[c], S[r, c]):
-            if v >= th.neardup_group_sim:
-                uf.union(int(a), int(b))
+            for sim, uf in ufs.items():
+                if v >= sim:
+                    uf.union(int(a), int(b))
             if len(pairs) < max_pairs:
                 pairs.append((int(a), int(b), float(v)))
             else:
                 truncated = True
-    groups = np.array([uf.find(i) for i in range(n)])
+    groups = {sim: np.array([uf.find(i) for i in range(n)]) for sim, uf in ufs.items()}
     return pd.DataFrame(pairs, columns=["i", "j", "sim"]), max_sim, groups, truncated
+
+
+def neardup_group_stats(groups: np.ndarray, decodable: np.ndarray, th: Thresholds) -> dict:
+    """Group-size statistics for the D14 chaining check, over decodable clips only.
+
+    Corrupt files are excluded (as §0 excludes them). d14_pass is True when the largest
+    group holds at most th.d14_max_group_pct % of decodable clips.
+    """
+    sizes = pd.Series(groups[decodable]).value_counts()
+    pct = round(100.0 * int(sizes.max()) / int(decodable.sum()), 4)
+    return {"n_groups": int(len(sizes)), "multi_file_groups": int((sizes > 1).sum()),
+            "largest_group": int(sizes.max()), "largest_group_pct": pct,
+            "d14_pass": bool(pct <= th.d14_max_group_pct)}
+
+
+def d14_sanity_failure(sanity: dict, sim: float) -> str | None:
+    """D14 sanity check at one threshold: None if it passes, else the reason it fails.
+
+    Passes when there are no exact-PCM-duplicate pairs, or when their minimum
+    fingerprint similarity is >= sim. Pairs that exist but cannot be checked (no
+    fingerprint for either file) fail: an unverifiable check is not a pass.
+    """
+    if sanity["pairs"] == 0:
+        return None
+    if sanity["min_sim"] is None:
+        return (f"{sanity['pairs']} exact-PCM-duplicate pairs exist but none has "
+                "fingerprints to check")
+    if sanity["min_sim"] < sim:
+        return (f"min similarity among exact-PCM-duplicate pairs is "
+                f"{sanity['min_sim']:.4f} < {sim}")
+    return None
+
+
+def d14_select_threshold(by_threshold: dict, th: Thresholds):
+    """D14: first candidate threshold that is eligible (chaining check AND PCM sanity
+    check both pass), else 'pcm_hash_only'."""
+    for s in th.d14_candidate_sims:
+        if by_threshold[str(s)]["d14_eligible"]:
+            return s
+    return "pcm_hash_only"
+
+
+def pcm_dup_min_sim(F: np.ndarray, valid: np.ndarray, pcm_hash: pd.Series) -> dict:
+    """D14 sanity check: minimum fingerprint similarity among exact-PCM-duplicate pairs.
+
+    Every such pair must reach the chosen grouping threshold. Pairs where a file has
+    no fingerprint cannot be checked and are counted separately, not skipped silently.
+    """
+    h = pcm_hash.reset_index(drop=True)
+    min_sim, n_pairs, unchecked = None, 0, 0
+    for _, members in h[h.notna()].groupby(h[h.notna()]).groups.items():
+        m = np.asarray(members)
+        if len(m) < 2:
+            continue
+        k = len(m)
+        n_pairs += k * (k - 1) // 2
+        ok = m[valid[m]]
+        unchecked += k * (k - 1) // 2 - len(ok) * (len(ok) - 1) // 2
+        if len(ok) < 2:
+            continue
+        S = F[ok] @ F[ok].T
+        v = float(S[np.triu_indices(len(ok), k=1)].min())
+        min_sim = v if min_sim is None else min(min_sim, v)
+    return {"pairs": n_pairs, "pairs_without_fingerprint": unchecked, "min_sim": min_sim}
 
 
 def dup_group_report(inv: pd.DataFrame, key: str) -> dict:
@@ -253,23 +329,30 @@ def run(root: Path, out: Path, revision: str, limit: int | None = None,
         F = np.stack([f if f is not None else np.zeros(dim, np.float32) for f in fps])
         nd_pairs, max_sim, groups, truncated = near_duplicates(F, valid, th)
         inv["fp_max_sim"] = max_sim
-        inv["neardup_group"] = groups
+        for s in th.neardup_sims:
+            inv[neardup_col(s)] = groups[s]
         np.save(out / "for2sec_fingerprints.npy", F)
         lab, spl = inv["label"].to_numpy(), inv["split_dir"].to_numpy()
-        nd = {}
+        decodable = inv["decode_ok"].to_numpy(dtype=bool)
+        sanity = pcm_dup_min_sim(F, valid, inv["pcm_sha256"])
+        nd, sanity_failures = {}, {}
         for s in th.neardup_sims:
             p = nd_pairs[nd_pairs["sim"] >= s]
             nd[str(s)] = {"pairs": int(len(p)),
                           "cross_label_pairs": int((lab[p.i] != lab[p.j]).sum()),
-                          "cross_split_pairs": int((spl[p.i] != spl[p.j]).sum())}
-        sizes = pd.Series(groups).value_counts()
+                          "cross_split_pairs": int((spl[p.i] != spl[p.j]).sum()),
+                          **neardup_group_stats(groups[s], decodable, th)}
+            reason = d14_sanity_failure(sanity, s)
+            nd[str(s)]["d14_sanity_pass"] = reason is None
+            nd[str(s)]["d14_eligible"] = nd[str(s)]["d14_pass"] and reason is None
+            if reason:
+                sanity_failures[str(s)] = reason
         report["near_duplicates"] = {
             "fingerprint_invalid": int((~valid).sum()), "pairs_truncated": truncated,
             "by_threshold": nd,
-            "groups_at_group_sim": {"threshold": th.neardup_group_sim,
-                                    "n_groups": int(len(sizes)),
-                                    "multi_file_groups": int((sizes > 1).sum()),
-                                    "largest_group": int(sizes.max())},
+            "d14_selected_threshold": d14_select_threshold(nd, th),
+            "pcm_dup_sanity": sanity,
+            "d14_sanity_failures": sanity_failures,
             "max_sim_quantiles_by_label": {
                 lb: inv.loc[inv.label == lb, "fp_max_sim"].quantile(
                     [0.5, 0.9, 0.99, 1.0]).round(4).to_dict()
@@ -324,11 +407,25 @@ def _write_markdown(path, report, inv, num_sc, cat_sc, tokens):
                                  {"key": "decoded PCM", **report["exact_duplicates_pcm"]}]))]
     if "near_duplicates" in report:
         nd = report["near_duplicates"]
+        if nd["d14_sanity_failures"]:
+            sanity_md = ["\n**D14 sanity check FAILED** (threshold not eligible):"] + \
+                [f"- {k}: {v}" for k, v in nd["d14_sanity_failures"].items()]
+        else:
+            sanity_md = ["\nD14 sanity check passed at all thresholds."]
         md += ["\n## 8. Near-duplicates (log-mel fingerprint cosine)",
                df_to_md(pd.DataFrame([{"threshold": k, **v}
                                       for k, v in nd["by_threshold"].items()])),
-               f"\nGroups at sim ≥ {nd['groups_at_group_sim']['threshold']}: "
-               f"{nd['groups_at_group_sim']}", f"\nMax-sim quantiles: "
+               "\n_Groups are transitive (connected components). largest_group_pct is "
+               "% of decodable clips; d14_pass = largest_group_pct ≤ "
+               f"{report['thresholds']['d14_max_group_pct']}% (D14 chaining check)._",
+               f"\n**D14 selected threshold: {nd['d14_selected_threshold']}** "
+               f"(candidates in order: {report['thresholds']['d14_candidate_sims']}, "
+               "else pcm_hash_only)",
+               "\n_d14_eligible = d14_pass AND d14_sanity_pass (every exact-PCM-duplicate "
+               "pair has similarity ≥ the threshold)._",
+               f"\nD14 sanity — exact-PCM-duplicate pairs: {nd['pcm_dup_sanity']}",
+               *sanity_md,
+               f"\nMax-sim quantiles: "
                f"{nd['max_sim_quantiles_by_label']}",
                "\n_Limitation: aligned fingerprints do not detect time-shifted "
                "overlapping excerpts of the same source recording._"]
