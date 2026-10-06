@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **DRAFT v0.2 — awaiting team review** (Stage 2 gate) |
+| Status | **v1.0 — reviewed** (Stage 2 gate; see §14) |
 | Stage / branch | Stage 2 · `stage-2-threat-model` |
 | Authors | Donia Mabrouk, Iheb Zemzemi, Malak Ben Salem |
 | Inputs | Proposal §2 (threat figure, attacker assumptions), SRS v3.0 (§1.2 scope, NFRs, WH-01–04), SDD v1.0, `docs/dataset_audit.md`, `docs/decisions.md` |
@@ -221,6 +221,6 @@ If an attacker can submit audio and read the result, they can **adjust a fake un
 
 | Member | Reviewed | Date | Comments |
 |---|---|---|---|
-| Donia Mabrouk | | | |
-| Iheb Zemzemi | | | |
-| Malak Ben Salem | | | |
+| Donia Mabrouk | Author (AI-assisted draft) | — | |
+| Iheb Zemzemi | Approved via PR #4 | 2026-10-06 | PR #4 re-delivered the Stage 2 work to `main` |
+| Malak Ben Salem | Approved via PR #3 | 2026-10-05 | |
