@@ -11,7 +11,8 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 - **This file points; it does not duplicate.** Official decisions live in `docs/decisions.md`. Official audit facts live in `docs/dataset_audit.md`. The log references them by ID (D13, H5, …).
 - **Log entries are append-only.** Never edit an old entry; if something was wrong, add a new entry that corrects it.
 - **At every update:** (1) add a new log entry, (2) tick or add items in **Open items**, (3) rewrite **Current status**.
-- **Evidence labels:** **[verified]** = checked on real data/output · **[doc]** = from documentation · **[hypothesis]** = not yet tested · **[to verify]** = we are not sure it happened.
+- **Evidence labels:** **[verified]** = checked against data or sources (evidence for review, not acceptance) · **[doc]** = from documentation · **[hypothesis]** = not yet tested · **[to verify]** = we are not sure it happened.
+- **Acceptance** = team review, recorded in the sign-off tables (`docs/dataset_audit.md` §10, `docs/threat_model.md` §14). AI-produced work is not accepted until then (`CLAUDE.md`, human in the loop).
 
 ---
 
@@ -196,6 +197,103 @@ Not yet run in Colab.
 
 **Why it matters:** every number in the audit document now points to a committed evidence file, produced by code in the repo at a recorded commit.
 
+### Entry 9 — Stacked branch for Stage 2 (2026-10-04)
+
+**Decision:** Stage 1 is waiting for team sign-off and PR approval. Work continues on a **stacked branch**, so the team review doesn't block progress.
+- Created `stage-2-threat-model` **from `stage-1-audit-run`**, not from `main`.
+- **Rule:** `stage-1-audit-run` receives no more commits except the §10 sign-off in `docs/dataset_audit.md`. All `docs/project_log.md` and `CLAUDE.md` updates now go on `stage-2-threat-model` (and later on the newest branch).
+- `CLAUDE.md`:
+  - The stacked-branch rule is added to the Git workflow section.
+  - Roadmap: Stage 1 = "done — awaiting sign-off/merge", Stage 2 = CURRENT.
+- The Git workflow section was only on the unmerged `stage-0-git-workflow` branch. It was brought in by merging `origin/stage-0-git-workflow` (`428e0b8`) into `stage-2-threat-model`, so both PRs carry the same commit and should not conflict.
+
+**Merge order:** `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model`. Until the first two are merged, the Stage 2 PR also shows their changes.
+
+**Why it matters:** the Stage 1 evidence stays frozen while it is reviewed, and the log stays on a single line of history.
+
+### Entry 10 — Stage 2: threat model draft v0.1 (2026-10-04)
+
+**What we did:**
+- The team wrote `docs/threat_model.md` v0.1. It covers:
+  - scenarios: call-center triage of high-risk requests (primary) and an executive voice message (secondary);
+  - the attack path and detection point;
+  - assets, attacker profiles and attack classes in and out of scope;
+  - threats T1–T7 mapped to the planned evidence;
+  - the error policy and threats to the system itself;
+  - the oracle-abuse residual risk.
+- Committed as-is (commit `8b7b679`).
+- Checked the draft (Claude Code):
+  - every FR / NFR / PC / WH / UN ID against the SRS v3.0 text;
+  - every D* and H* against `docs/decisions.md`;
+  - the cited audit facts against `docs/dataset_audit.md`;
+  - Proposal §2.3;
+  - the mermaid syntax.
+
+**What we found [verified]:**
+- **All cited IDs exist** and their meaning matches the SRS:
+  - FR-03, FR-05–FR-07, FR-11, FR-12–FR-18, FR-20
+  - NFR-01–NFR-05, NFR-07, NFR-09
+  - PC-03–PC-05, WH-01–WH-04, UN-01, UN-02
+  - D2, D8, D11, D12, D14, D16–D20, H5, H6
+- SRS §1.2 and §7.4 support the cited content: scope, open limits, access-control mechanism. Proposal §2.3 is "Attacker capability assumptions".
+- **Mermaid block parses** (flowchart; `mermaid.parse` 11.17.2, with a broken-diagram negative control).
+- **Two mismatches, reported for team review, not fixed:**
+  1. §3.2 says "all files `src-to-tgt`". Only the 56 FAKE files are; the 8 REAL files are `<speaker>-original.wav` (`docs/dataset_audit.md` §5).
+  2. §10, "Tampering (data)", cites **D20** for the pinned FoR revision / DEEP-VOICE zip SHA-256 and the stop-on-mismatch. D20 defines the *permitted DEEP-VOICE accesses*; the pinning is in `configs/audit.yaml` (Entry 7) and has no decision ID.
+- **Observations (not mismatches):**
+  - The §10 spoofing control relies on FR-11, which is a *Could* requirement.
+  - T6 cites D2 for calibration on val-B; the val-A / val-B split itself is D9.
+
+**Why it matters:** the threat model sets the maximum claim for each threat. Its references have to be exact, because the final report will quote them.
+
+### Entry 11 — Stage 2: threat model v0.2, D21 (2026-10-04)
+
+**What we did:** applied the approved fixes from the v0.1 review (Entry 10). `docs/threat_model.md` → **v0.2**:
+- **§3.2:** "8 source speakers [verified]; the 56 FAKE files are named `src-to-tgt`, the 8 REAL files `<speaker>-original`."
+- **§10, Tampering (data):** now cites **D21** and `configs/audit.yaml` instead of D20.
+- **§10, Spoofing:** status adds "FR-11 is Could priority; if not implemented, this threat is unmitigated."
+- **§11:** new residual risk 7, analyst impersonation if FR-11 is not implemented.
+- **§8 T6:** cites D2 and D9.
+- **§12:** §8 row adds D9; §10 row cites D21 instead of D20.
+- **D21** added to `docs/decisions.md`: datasets are pinned (FoR-2sec HF revision, DEEP-VOICE zip SHA-256) in `configs/audit.yaml`; the notebook refuses unpinned or mismatched data; changing a pin requires a new decision entry.
+
+**Evidence [verified]:** citation check re-run on every changed line.
+- All cited IDs exist: SRS v3.0, plus D2, D9 and D21 in `docs/decisions.md`.
+- The D21 hashes equal the values in `configs/audit.yaml`.
+- `deepvoice_summary` confirms 56 FAKE `src-to-tgt` and 8 REAL `<speaker>-original` files.
+- The SRS lists FR-11 as Could (requirements table and MoSCoW table).
+- D20 is no longer cited in the threat model.
+
+**Why it matters:** every claim and citation in the threat model now traces to its source. The one gap, analyst authentication, is stated as a residual risk instead of being implied as covered.
+
+### Entry 12 — Plan review and corrections (2026-10-04)
+
+**Correction to Entry 10:** `docs/threat_model.md` v0.1 was drafted with Claude (AI assistant, chat) from the team's documents and decisions, then committed for team review. **The team has not reviewed it yet.** The audit code in `src/audit/` was likewise written with AI assistance and verified by tests.
+
+**Execution Plan comparison:**
+- **Phase 1:** SRS requirements covered. Threat model in progress. GitHub Issues board not created.
+- **Phase 2:** dataset audit done. Preprocessing, manifests and compute benchmark not started.
+
+**Document discrepancies found [doc, checked against the reference files]** — to fix later, not now:
+- DEEP-VOICE zip is 3.96 GB [verified]; the Execution Plan says ~0.55 GB.
+- The Proposal's architecture figure still shows "ASVspoof + WaveFake" as training data and "baseline + deep model" inside the deployed detector.
+- Proposal §3.2 calls real-time / streaming detection a stretch goal; SRS WH-01 excludes it.
+- The Execution Plan lists six named TTS engines for FoR; this is not determinable from the package (`docs/dataset_audit.md` §2).
+- Execution Plan steps superseded by D2, D3, D6 and D10.
+
+**Stage 6 flag:** the Execution Plan suggests `silero-vad` (a small pretrained model) for voice-activity detection / silence trimming. Choosing it must be an **explicit Stage 6 decision**, not a default. D17 (DEEP-VOICE speech-window filter) depends on the chosen detector.
+
+**Stage 3 rule:** Experimental Protocol v1.0 may be **drafted now** on a stacked branch. It is **frozen only after the Stage 1 sign-off**.
+
+### Entry 13 — Human in the loop; label meaning; Issues board (2026-10-04)
+
+- **Human-in-the-loop rule** added to `CLAUDE.md` "Working mode" (commit `684f7cd`). Every AI-produced artifact (code, documents, analysis) is reviewed by a team member before it is accepted. AI output is never merged, cited or reported as verified without that review. AI assistance is recorded honestly in this log.
+- **Meaning of labels:**
+  - **[verified]** = checked against data or sources. It is evidence for review.
+  - **Acceptance** = team review, recorded in the sign-off tables: `docs/dataset_audit.md` §10 and `docs/threat_model.md` §14.
+  - The evidence-labels line in "How to use this file" is updated to match.
+- **Issues board:** follows the Execution Plan (Phase 1, task 5). One issue per SRS requirement (FR / NFR / PC IDs), grouped under one milestone per stage. **This corrects the wording logged in Entry 12** ("one issue per upcoming stage"); there is no plan deviation. The open item is updated to match.
+
 ---
 
 ## Open items
@@ -207,6 +305,7 @@ Not yet run in Colab.
 - [ ] `.gitattributes` PR (LF line endings for Windows + Colab).
 - [ ] Transfer repo ownership to Iheb. Afterwards everyone runs `git remote set-url`, and we update repo URLs in the notebook and docs.
 - [ ] `stage-1-audit-run` → PR + merge at the end of Stage 1.
+- [ ] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). `stage-1-audit-run` only gets the §10 sign-off commit from now on.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -228,13 +327,38 @@ Not yet run in Colab.
 - [x] Codec-check and FoR ∩ DEEP-VOICE overlap outputs committed to `docs/audit_evidence/` (`for2sec_codec_check.csv/.json`, `cross_dataset_overlap.json`); "not yet archived" notes replaced in `docs/dataset_audit.md`.
 - [x] Log D13, D14, D9, D16, H5, H6 in `docs/decisions.md` and fill in `docs/dataset_audit.md` (done, with D17–D19).
 - [ ] Update Proposal and Execution Plan discrepancies after the audit (e.g., the DEEP-VOICE 628 / 4,425 counts).
+  Also, from Entry 12:
+  - DEEP-VOICE size 3.96 GB (Exec Plan: ~0.55 GB);
+  - the Proposal architecture figure (ASVspoof + WaveFake; "baseline + deep model" in the detector);
+  - Proposal §3.2 streaming as a stretch goal (vs SRS WH-01);
+  - Exec Plan's six named TTS engines (not determinable);
+  - Exec Plan steps superseded by D2, D3, D6, D10.
 
 **Stage 1 gate**
 - [ ] Team sign-off of `docs/dataset_audit.md` §10 (Donia, Iheb, Malak).
 
+**Team meeting (next)**
+- [ ] Collaborator invitations accepted (Iheb, Malak).
+- [ ] Stage 1: `docs/dataset_audit.md` §10 sign-off.
+- [ ] Stage 2: threat model review (§13 open questions, §14 sign-off).
+- [ ] Assign the three tracks (0.9), set up W&B (0.6), confirm compute per person (0.7), set the weekly sync + channel (0.8).
+- [ ] Agree the PR merge order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model`.
+
+**Execution Plan phases (from the Entry 12 comparison)**
+- [ ] Phase 0: compute per person (0.7); weekly sync + async channel (0.8); random-seed policy (0.10).
+- [ ] Phase 1: GitHub Issues board per the Execution Plan (Phase 1, task 5): one issue per SRS requirement (FR / NFR / PC IDs), tagged by track (`ml` / `backend` / `frontend`), grouped under one milestone per stage (Entry 13).
+- [ ] Phase 2: compute benchmark before Stage 8. Train the CNN on a small subset and record GPU type, VRAM, batch size and time per epoch.
+
+**Stage 2 gate**
+- [x] Resolve the two v0.1 mismatches from Entry 10 (§3.2 REAL filenames; §10 D20 → D21) → v0.2 (Entry 11).
+- [ ] Team review of `docs/threat_model.md` v0.2 (§13 open questions, §14 sign-off).
+- [ ] Decide the access-control mechanism (SRS §7.4) before the API stage (Stage 17), at the latest. The oracle-abuse residual risk (threat model §10.1) depends on it.
+
 **Later stages (reminders)**
 - [ ] `configs/robustness.yaml` → Stage 14. `docker-compose.yml` → Stage 17.
+- [ ] Stage 17: verify the ModelBundle checkpoint hash at load (threat model §10, tampering recommendation).
 - [ ] Stage 6: re-run the shortcut screen *after* preprocessing (silence, bandwidth).
+- [ ] Stage 6: decide the silence / voice-activity detector explicitly (energy-based vs `silero-vad`) and record it as a decision; D17 depends on it.
 - [ ] Phase 0 leftovers: confirm ML lead (0.9), W&B project (0.6), pin `requirements.txt` for 3.13 + 3.14 (0.10).
 
 ---
@@ -242,24 +366,30 @@ Not yet run in Colab.
 ## Current status — updated 2026-10-04
 
 **What was done:**
-- Readiness audit and decisions D1–D20; hypotheses H5–H6 pre-registered.
+- Readiness audit and decisions D1–D21; hypotheses H5–H6 pre-registered.
 - Repo scaffold on GitHub.
-- Stage 1 rules pre-registered, then both audits run: full FoR-2sec audit + codec check; DEEP-VOICE metadata-only audit + FoR ∩ DEEP-VOICE overlap check.
-- Stage 1 fully written up in `docs/dataset_audit.md` and `docs/decisions.md`. No TBDs are left, and every cited number has a committed evidence file in `docs/audit_evidence/`. **Audit complete; awaiting team sign-off (§10).**
-- The audit notebook is ported to the repo, pinned to both datasets, and confirmed in Colab at `c2136cb` with identical results.
+- **Stage 1 done — awaiting sign-off/merge.** Both audits run and written up in `docs/dataset_audit.md` and `docs/decisions.md`, with no TBDs and every cited number backed by a file in `docs/audit_evidence/`. Audit notebook ported, pinned, and confirmed in Colab.
+- Stacked branch `stage-2-threat-model` created from `stage-1-audit-run` (Entry 9). **Stage 2 is CURRENT**: threat model **v0.2** (AI-assisted draft, citation fixes, D21), **not yet reviewed by the team** (Entries 10–12).
+- Plan review against the Execution Plan (Entry 12): Phase 1 Issues board and Phase 2 preprocessing / manifests / compute benchmark not started; document discrepancies listed for a later fix.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
 - One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
-- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
-- Full audit outputs archived in Drive (`processed/metadata/stage1/`); evidence summaries committed in `docs/audit_evidence/`.
-- A reproducible audit notebook that refuses to run on unpinned or changed data.
+- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses, pinned by D21. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
+- A reproducible audit notebook that refuses to run on unpinned or changed data; full outputs archived in Drive.
+
+**Branches:**
+- `stage-0-git-workflow`: PR pending.
+- `stage-1-audit-run`: frozen except the §10 sign-off.
+- `stage-2-threat-model`: active; all log and `CLAUDE.md` updates go here.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Team review and sign-off of `docs/dataset_audit.md` §10 (Donia, Iheb, Malak).
-2. PR `stage-1-audit-run` → 1 approval → merge → Stage 1 closed (update the roadmap status in `CLAUDE.md`).
-3. Stage 2 (threat model) and Stage 3 (Experimental Protocol v1.0, which also fixes the D17 silence threshold).
+1. Team meeting (see Open items): invitations, Stage 1 §10 sign-off, threat model review, tracks / W&B / compute / weekly sync, merge order.
+2. PRs merged in order: stage-0 → stage-1 → stage-2.
+3. Stage 2: threat model v0.2 → team review → sign-off (§14) → v1.0.
+4. Stage 3: Experimental Protocol v1.0 (also fixes the D17 silence threshold). **It may be drafted now on a stacked branch, but it is frozen only after the Stage 1 sign-off.**
+5. Before Stage 8: compute benchmark. In Stage 6: explicit silence-detector decision.
