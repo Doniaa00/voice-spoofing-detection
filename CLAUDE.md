@@ -82,6 +82,8 @@ GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected (PR + 1 approva
   branch then receives **no more commits** except its sign-off (for Stage 1: §10 of
   `docs/dataset_audit.md`). All `docs/project_log.md` and `CLAUDE.md` updates go on the newest
   branch.
+- **Stacked PRs:** before merging a stacked PR, change its base to `main` once the PR below it is
+  merged. Never merge a PR whose base is not `main` unless that is intended.
 
 ## Roadmap and current status
 | # | Stage | Status |
