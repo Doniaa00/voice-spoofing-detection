@@ -294,18 +294,55 @@ Not yet run in Colab.
   - The evidence-labels line in "How to use this file" is updated to match.
 - **Issues board:** follows the Execution Plan (Phase 1, task 5). One issue per SRS requirement (FR / NFR / PC IDs), grouped under one milestone per stage. **This corrects the wording logged in Entry 12** ("one issue per upcoming stage"); there is no plan deviation. The open item is updated to match.
 
+### Entry 14 — Closeout of Stages 0–2: merges and reviews (2026-10-06)
+
+**Merges and reviewers (from GitHub; merge commits confirmed in git):**
+
+| PR | Branch → base | Reviewed / approved by | Merged by | Date |
+|---|---|---|---|---|
+| #1 | `stage-0-git-workflow` → `main` | Malak Ben Salem | Malak Ben Salem | 2026-10-05 |
+| #2 | `stage-1-audit-run` → `main` | Malak Ben Salem | Malak Ben Salem | 2026-10-05 |
+| #3 | `stage-2-threat-model` → **`stage-1-audit-run`** (by mistake) | Malak Ben Salem | Malak Ben Salem | 2026-10-05 |
+| #4 | `stage-2-into-main` → `main` | Iheb Zemzemi | Donia Mabrouk | 2026-10-06 |
+
+**What went wrong with PR #3:**
+- PR #3 had `stage-1-audit-run` as its base. It was merged one minute *after* PR #2 had already merged `stage-1-audit-run` into `main`, so the Stage 2 work landed on a branch nothing merges any more.
+- A direct PR `stage-2-threat-model` → `main` then showed a conflict on GitHub. The branch had **two merge bases** with `main` (`4f4202f` and `428e0b8`, the stage-0 commit merged into both lines). Git's default merge strategy merges cleanly; a merge on a single base conflicts in `CLAUDE.md`.
+- The work was re-delivered through `stage-2-into-main`, built from `main` (merge `d2f6618`; content identical to the Stage 2 tip `28255c1`), as **PR #4**.
+- The **Stacked PRs** rule was added to `CLAUDE.md` (`5e4bd2d`): before merging a stacked PR, change its base to `main` once the PR below it is merged.
+
+**Sign-offs recorded:**
+- `docs/dataset_audit.md` §10:
+  - Malak: reviewed and approved via PR #2 (2026-10-05).
+  - Donia: author.
+  - Iheb: not yet reviewed.
+  - Status: "Audit complete; signed off by Malak (PR #2)".
+- `docs/threat_model.md` §14 → **v1.0 "reviewed"**:
+  - Malak: approved via PR #3 (2026-10-05).
+  - Iheb: approved via PR #4 (2026-10-06).
+  - Donia: author (AI-assisted draft).
+  - The §13 open questions stay open.
+
+**Other facts:**
+- Iheb and Malak accepted the collaborator invitations.
+- GitHub shows a branch-protection rule that applies to 1 branch. Its exact settings (PR + 1 approval, no force-push, no bypass) are not yet confirmed.
+- `CLAUDE.md` roadmap: Stages 0, 1 and 2 done; **Stage 3 (Experimental Protocol) CURRENT**.
+
+**Why it matters:** the review evidence for Stages 1 and 2 is now in the documents themselves. The stacked-PR mistake is understood and guarded against by a written rule.
+
 ---
 
 ## Open items
 
 **GitHub / repo**
-- [ ] PR `stage-0-git-workflow`: create it [to verify], get 1 teammate approval, merge.
-- [ ] Iheb and Malak accept the collaborator invitations. Invitations expire after 7 days.
-- [ ] Branch protection on `main` is active [to verify]: PR + 1 approval, no force-push, no bypass.
+- [x] PR `stage-0-git-workflow`: merged as PR #1 (approved and merged by Malak, 2026-10-05).
+- [x] Iheb and Malak accept the collaborator invitations (accepted; Entry 14).
+- [ ] Branch protection on `main` is active [to verify]: PR + 1 approval, no force-push, no bypass. A rule exists (GitHub: "applies to 1 branch", 2026-10-06); its settings are not yet confirmed.
 - [ ] `.gitattributes` PR (LF line endings for Windows + Colab).
 - [ ] Transfer repo ownership to Iheb. Afterwards everyone runs `git remote set-url`, and we update repo URLs in the notebook and docs.
-- [ ] `stage-1-audit-run` → PR + merge at the end of Stage 1.
-- [ ] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). `stage-1-audit-run` only gets the §10 sign-off commit from now on.
+- [x] `stage-1-audit-run` → PR + merge at the end of Stage 1 (PR #2, 2026-10-05).
+- [x] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). Done as PR #1 → #2 → #3. #3 landed on `stage-1-audit-run`, so it was re-delivered as PR #4 (Entry 14).
+- [ ] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`) after a content check against `main` and team OK.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -335,14 +372,14 @@ Not yet run in Colab.
   - Exec Plan steps superseded by D2, D3, D6, D10.
 
 **Stage 1 gate**
-- [ ] Team sign-off of `docs/dataset_audit.md` §10 (Donia, Iheb, Malak).
+- [x] Team sign-off of `docs/dataset_audit.md` §10: signed off by Malak (PR #2, 2026-10-05); Donia author; Iheb not yet reviewed.
 
 **Team meeting (next)**
-- [ ] Collaborator invitations accepted (Iheb, Malak).
-- [ ] Stage 1: `docs/dataset_audit.md` §10 sign-off.
-- [ ] Stage 2: threat model review (§13 open questions, §14 sign-off).
+- [x] Collaborator invitations accepted (Iheb, Malak).
+- [x] Stage 1: `docs/dataset_audit.md` §10 sign-off (Malak, PR #2).
+- [x] Stage 2: threat model §14 sign-off (Malak PR #3, Iheb PR #4). §13 open questions still open (see Stage 2 gate).
 - [ ] Assign the three tracks (0.9), set up W&B (0.6), confirm compute per person (0.7), set the weekly sync + channel (0.8).
-- [ ] Agree the PR merge order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model`.
+- [x] Agree the PR merge order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (merged; Entry 14).
 
 **Execution Plan phases (from the Entry 12 comparison)**
 - [ ] Phase 0: compute per person (0.7); weekly sync + async channel (0.8); random-seed policy (0.10).
@@ -351,7 +388,8 @@ Not yet run in Colab.
 
 **Stage 2 gate**
 - [x] Resolve the two v0.1 mismatches from Entry 10 (§3.2 REAL filenames; §10 D20 → D21) → v0.2 (Entry 11).
-- [ ] Team review of `docs/threat_model.md` v0.2 (§13 open questions, §14 sign-off).
+- [x] Team review of `docs/threat_model.md` v0.2 → **v1.0 reviewed** (§14: Malak PR #3, Iheb PR #4).
+- [ ] Threat model §13 open questions: (1) confirm the primary / secondary scenarios; (2) access control (also below); (3) confirm both datasets are English-only.
 - [ ] Decide the access-control mechanism (SRS §7.4) before the API stage (Stage 17), at the latest. The oracle-abuse residual risk (threat model §10.1) depends on it.
 
 **Later stages (reminders)**
@@ -363,33 +401,33 @@ Not yet run in Colab.
 
 ---
 
-## Current status — updated 2026-10-04
+## Current status — updated 2026-10-06
 
 **What was done:**
 - Readiness audit and decisions D1–D21; hypotheses H5–H6 pre-registered.
-- Repo scaffold on GitHub.
-- **Stage 1 done — awaiting sign-off/merge.** Both audits run and written up in `docs/dataset_audit.md` and `docs/decisions.md`, with no TBDs and every cited number backed by a file in `docs/audit_evidence/`. Audit notebook ported, pinned, and confirmed in Colab.
-- Stacked branch `stage-2-threat-model` created from `stage-1-audit-run` (Entry 9). **Stage 2 is CURRENT**: threat model **v0.2** (AI-assisted draft, citation fixes, D21), **not yet reviewed by the team** (Entries 10–12).
-- Plan review against the Execution Plan (Entry 12): Phase 1 Issues board and Phase 2 preprocessing / manifests / compute benchmark not started; document discrepancies listed for a later fix.
+- **Stages 0, 1 and 2 done and merged into `main`** (PRs #1, #2, #4; PR #3 re-delivered through #4, Entry 14).
+- Stage 1 dataset audit: complete, with every cited number backed by `docs/audit_evidence/`. **Signed off by Malak (PR #2)**; Iheb has not reviewed it yet.
+- Stage 2 threat model: **v1.0 reviewed** (Malak PR #3, Iheb PR #4). §13 open questions still open.
+- Git workflow hardened: stacked branches and the **Stacked PRs** rule in `CLAUDE.md`; human-in-the-loop rule for AI-produced work.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
 - One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
 - DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses, pinned by D21. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
+- A threat model that states the maximum claim per threat (T1–T7) and the residual risks.
 - A reproducible audit notebook that refuses to run on unpinned or changed data; full outputs archived in Drive.
 
 **Branches:**
-- `stage-0-git-workflow`: PR pending.
-- `stage-1-audit-run`: frozen except the §10 sign-off.
-- `stage-2-threat-model`: active; all log and `CLAUDE.md` updates go here.
+- `main`: Stages 0–2.
+- `docs/stage2-closeout`: this closeout, PR pending.
+- `stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`: merged; deletion pending a content check and team OK.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Team meeting (see Open items): invitations, Stage 1 §10 sign-off, threat model review, tracks / W&B / compute / weekly sync, merge order.
-2. PRs merged in order: stage-0 → stage-1 → stage-2.
-3. Stage 2: threat model v0.2 → team review → sign-off (§14) → v1.0.
-4. Stage 3: Experimental Protocol v1.0 (also fixes the D17 silence threshold). **It may be drafted now on a stacked branch, but it is frozen only after the Stage 1 sign-off.**
-5. Before Stage 8: compute benchmark. In Stage 6: explicit silence-detector decision.
+1. Merge the closeout PR; delete the merged branches after the content check.
+2. **Stage 3 (CURRENT): Experimental Protocol v1.0.** Drafted from `main` now; frozen after review. It also fixes the D17 silence threshold.
+3. Open team items: tracks (0.9), W&B (0.6), compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, branch-protection settings, threat model §13 questions, Iheb's review of the audit.
+4. Before Stage 8: compute benchmark. In Stage 6: explicit silence-detector decision.

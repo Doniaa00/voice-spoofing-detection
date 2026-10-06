@@ -89,9 +89,9 @@ GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected (PR + 1 approva
 | # | Stage | Status |
 |---|---|---|
 | 0 | Repo scaffold + environment | done |
-| 1 | Dataset audit (FoR full, DEEP-VOICE metadata-only) → `docs/dataset_audit.md` | done — awaiting sign-off/merge |
-| 2 | Threat model → `docs/threat_model.md` | ← CURRENT |
-| 3 | Experimental Protocol v1.0 (freeze) | |
+| 1 | Dataset audit (FoR full, DEEP-VOICE metadata-only) → `docs/dataset_audit.md` | done |
+| 2 | Threat model → `docs/threat_model.md` | done |
+| 3 | Experimental Protocol v1.0 (freeze) | ← CURRENT |
 | 4–5 | Leakage-aware split + dataset freeze (manifests + hashes) | |
 | 6 | Preprocessing profile v1 + tests + compute benchmark | |
 | 7 | Evaluation harness + MFCC/SVM baseline | |
