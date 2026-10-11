@@ -1,8 +1,10 @@
-numpy
-pandas
-soundfile
-librosa
-pytest
-pyyaml
-huggingface_hub
-kaggle
+# Direct dependencies, pinned to the exact versions in use (2026-10-11).
+# Must install on Python 3.13 (official, D15; CI) and 3.14 (local development).
+huggingface_hub==2.0.0
+kaggle==2.2.4
+librosa==1.0.0
+numpy==2.5.3
+pandas==3.0.6
+pytest==9.1.1
+PyYAML==6.0.3
+soundfile==0.14.0

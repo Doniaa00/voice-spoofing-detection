@@ -1,0 +1,9 @@
+{
+  "//": "Recommended VS Code extensions. When a teammate opens this repo, VS Code offers to install these.",
+  "recommendations": [
+    "ms-python.python",
+    "ms-toolsai.jupyter",
+    "editorconfig.editorconfig",
+    "eamodio.gitlens"
+  ]
+}

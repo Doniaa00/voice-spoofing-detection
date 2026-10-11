@@ -1,11 +1,51 @@
-# Data: nothing but manifests and the README is committed
+# =============================================================================
+# .gitignore — never commit secrets, data, models, or local tool state.
+# Based on the CS 488 starter template (secrets / editor / logs / Python).
+# =============================================================================
+
+# --- Secrets & local environment (NEVER commit these) -----------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.*
+kaggle.json
+.DS_Store
+Thumbs.db
+
+# --- Local AI-tool overrides (personal, not shared; AGENTS.md is the shared one)
+CLAUDE.local.md
+AGENTS.override.md
+.claude/settings.local.json
+
+# --- Editor / IDE ------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.sample.json
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Logs & temp -------------------------------------------------------------
+*.log
+logs/
+tmp/
+.cache/
+coverage/
+.coverage
+htmlcov/
+
+# --- Data: nothing but manifests and the README is committed (hard rule 7) --
 data/*
 !data/manifests/
 data/manifests/*
 !data/manifests/.gitkeep
+!data/manifests/*.csv
 !data/README.md
 
-# Audio / models / features
+# --- Audio / models / features ----------------------------------------------
 *.wav
 *.flac
 *.mp3
@@ -13,13 +53,19 @@ data/manifests/*
 *.ckpt
 *.npy
 
-# Audit + experiment outputs
+# --- Audit + experiment outputs ----------------------------------------------
 audit_out/
 wandb/
 
-# Python / env
-.venv/
+# --- Python ------------------------------------------------------------------
 __pycache__/
-*.pyc
-.ipynb_checkpoints/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
