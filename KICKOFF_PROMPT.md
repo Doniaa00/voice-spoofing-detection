@@ -2,7 +2,7 @@
 
 ---
 
-Read `CLAUDE.md` completely first, then `docs/decisions.md`. We are at **Stage 0: repo scaffold**.
+Read `CLAUDE.md` completely first, then `docs/decisions/README.md`. We are at **Stage 0: repo scaffold**.
 This folder already contains the Stage 1 audit code (`src/audit/`, `tests/audit/`) and two docs.
 **Do not modify those files**, except to move them if a path below requires it (it shouldn't).
 

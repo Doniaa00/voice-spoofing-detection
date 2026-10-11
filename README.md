@@ -7,8 +7,8 @@ uncertain, with a confidence score and a LOW/MEDIUM/HIGH risk level.
 human fraud analyst to weigh alongside other evidence, never an automated accept/reject decision.
 
 Research core: train on **FoR-2sec** (TTS speech), then evaluate the frozen system **once** on
-**DEEP-VOICE** (RVC voice conversion) to measure cross-dataset generalization. See `CLAUDE.md` for
-the full project brief and hard rules, and `docs/decisions.md` for the approved decision log.
+**DEEP-VOICE** (RVC voice conversion) to measure cross-dataset generalization. See `AGENTS.md` for
+the full project brief and hard rules, and `docs/decisions/README.md` for the approved decision log.
 
 Team: Donia Mabrouk, Iheb Zemzemi, Malak Ben Salem — semester AI project (MUST University).
 
@@ -32,4 +32,4 @@ pytest -q
 
 ## Project status
 
-See the roadmap table in `CLAUDE.md` for the current stage and what's done so far.
+See the roadmap table in `AGENTS.md` for the current stage and what's done so far.

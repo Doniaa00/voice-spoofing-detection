@@ -147,7 +147,7 @@ Source: `docs/audit_evidence/deepvoice_summary.json` / `.md`. Audit root `KAGGLE
 | Re-split ratios / D9 | **70 / 15 / 15 with val-A / val-B applies**: val-B ≈ 665 clips per class ≥ 500. | §2 counts |
 | D5 | **Confirmed.** DEEP-VOICE files are 79–600 s, so 2-s non-overlapping windows apply. Raw FoR clips need no pad/crop (all 2.0 s); whether silence trimming introduces length variation is decided in Stage 6. | §2, §5 |
 | Shortcut rule | One categorical value fires (MP3 filename signature) → limitation; no numeric feature ≥ 0.75 overall; one subgroup value at 0.750 (silence, FAKE_other) → reported and discussed. | §3 |
-| D16 | No data changes; split stratified by REAL / FAKE_mp3 / FAKE_other; codec-history imbalance is a limitation; silence re-screened after trimming (Stage 6). | §3; `docs/decisions.md` |
+| D16 | No data changes; split stratified by REAL / FAKE_mp3 / FAKE_other; codec-history imbalance is a limitation; silence re-screened after trimming (Stage 6). | §3; `docs/decisions/README.md` |
 
 ## 8. Limitations carried forward
 
