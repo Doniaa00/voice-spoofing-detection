@@ -25,6 +25,7 @@ documents, propose a fix, and wait for approval.
 - `docs/dataset_audit.md` (Stage 1) · `docs/threat_model.md` (Stage 2) · `docs/project_log.md` (living log)
 - `docs/experimental_protocol.md` — Stage 3; does not exist yet
 - `CONTRIBUTING.md` — branches, commits, PRs, AI use
+- `docs/README.md` — docs index · `docs/architecture.md` (SDD summary) · `docs/setup.md` · `docs/CHANGELOG.md`
 
 ## HARD RULES — never break, never work around
 1. **DEEP-VOICE is external and touched exactly once.** Never use it for training, tuning, threshold
@@ -33,6 +34,8 @@ documents, propose a fix, and wait for approval.
    freeze. Before that run, the only permitted accesses are (D20): download, zip hash, unzip, listing
    paths / extensions / sizes / byte hashes, and `src/audit/deepvoice_metadata_audit.py`. Nothing reads
    audio content. If a request would touch DEEP-VOICE in any other way, **stop and refuse**, explaining why.
+   `tests/governance/test_deepvoice_access.py` fails CI if DEEP-VOICE paths appear outside the permitted
+   files; extend its allowlist only through a decision.
 2. **ModelBundle = CNN checkpoint + preprocessing profile + risk policy (thresholds, uncertain band,
    calibration).** All fitted on FoR only and frozen together *before* the external run (D2).
 3. **Scope lock.** Baseline = MFCC (mean+std) + RBF-SVM, for evaluation only (D7). Deployed model =
@@ -43,7 +46,8 @@ documents, propose a fix, and wait for approval.
    plus coverage/deferral. Positive class = spoof. No t-DCF. Never report accuracy alone.
 6. **No silent changes** to datasets, splits, preprocessing, thresholds, metrics, or scope. Propose them,
    explain the impact, and wait for approval. Dataset pins change only through a new decision (D21).
-7. Never commit audio, datasets, or checkpoints. Only code, configs, docs, and small manifest CSVs.
+7. Never commit audio, datasets, checkpoints, or secrets. Only code, configs, docs, and small manifest
+   CSVs. Secrets live in `.env` (template: `.env.example`), never in code, notebooks or AI prompts.
 
 ## Working mode
 - Work **one stage at a time**. Do only what the current stage needs, then stop and report.
@@ -62,11 +66,14 @@ documents, propose a fix, and wait for approval.
   review. Record AI assistance honestly in `docs/project_log.md` (which tool, for what).
 - **Decisions:** a new decision gets a D-ID row in `docs/decisions/README.md`; major ones also get an
   ADR from `docs/decisions/TEMPLATE.md` (D24).
+- **Reports:** max ~20 lines — what changed, checks with real output, open questions. Details only on
+  request.
 
 ## Code rules
 - Python 3.13 is the official version (D15): results come from Colab, whose runtime is 3.13.15.
   Local development on Python 3.14 is allowed for editing and quick tests. `requirements.txt` must
-  install cleanly on both 3.13 and 3.14; CI tests on 3.13. Data roots and all paths come from
+  install cleanly on both 3.13 and 3.14 and pins exact versions; CI (`.github/workflows/ci.yml`)
+  runs `pytest -q` on 3.13. Data roots and all paths come from
   config or CLI arguments. Never hardcode a Colab or Drive path.
 - Every run is `dataset version + config + code version → results`. Configs live in `configs/*.yaml`.
   Log runs to W&B.
@@ -81,7 +88,7 @@ documents, propose a fix, and wait for approval.
 GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected (PR + 1 approval, no direct pushes).
 - Never commit to `main`. One meaningful unit = one branch = one PR. Branch names
   `<type>/stage<N>-<name>`, types `feat`, `fix`, `docs`, `chore` (D23); Conventional Commits.
-- Push the branch and tell the team to open a PR. **AI agents never merge.**
+- Push the branch and tell the team to open a PR. CI must be green. **AI agents never merge.**
 - **Stacked branches:** while a stage's PR waits for sign-off/approval, the next stage may branch
   from it (not from `main`). The waiting branch then receives **no more commits** except its sign-off.
   All `docs/project_log.md` and `AGENTS.md` updates go on the newest branch.

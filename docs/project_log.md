@@ -367,6 +367,21 @@ Not yet run in Colab.
 
 **Evidence [verified]:** `pytest -q` passes (12 tests). `git grep` for the deleted file's name finds one remaining mention, inside Entry 15 (committed before this review). It is left unchanged because of the append-only rule.
 
+### Entry 17 — Repo structure: CS 488 template alignment, hygiene, CI, docs (2026-10-11)
+
+**Authorship:** requested and specified by Donia Mabrouk. All changes drafted by **Claude Code** (Claude Opus 5.5), an AI tool. **Not yet reviewed by the team** (acceptance = PR review).
+
+**Branch:** `chore/ai-context` renamed to **`chore/repo-structure`** (local and remote; old remote branch deleted; no PR existed). One PR, three topic commits on top of Entries 15–16:
+- **A — workflow docs:** `CONTRIBUTING.md`, PR template, issue templates, ADR `TEMPLATE.md` and ADR 0001 restructured on the CS 488 template (now found at `Desktop/cs488-template`, read only, not copied). Kept: D20 checkbox, stacked branches/PRs, D23 naming, human in the loop, AI agents never merge. ADRs 0002–0005 keep their table header (accepted ADRs are not rewritten).
+- **B — hygiene, CI, safety:** `.gitattributes` (LF; pdf/docx/png/wav/npy/pt binary; `--renormalize` changed no file), `.editorconfig`, `.env.example` (placeholders only), `.gitignore` merged with the template's secrets/editor/logs sections plus local AI-tool overrides (manifest CSVs now trackable), `scripts/setup.sh`, `check-docs.sh`, `update-structure.sh` (adapted: tree built from `git ls-files`, so `.venv/` and caches never appear), `.githooks/pre-push`, `.vscode/extensions.json`, CI (`.github/workflows/ci.yml`: Python 3.13, `pytest -q`, docs reminder, no dataset downloads), `requirements.txt` pinned to the versions in the local venv.
+- **Governance test** `tests/governance/test_deepvoice_access.py`: fails if a tracked or untracked (not ignored) file outside the permitted places references the DEEP-VOICE root (`deep_voice`), the Kaggle slug/owner or the `KAGGLE` subfolder; a second test proves it flags planted violations and ignores allowed files. **Allowlist addition to review:** `data/README.md` (documents the Drive layout `raw/deep_voice/`; no code), beyond the list in the request.
+- **C — docs:** `docs/README.md` (index), `docs/architecture.md` (SDD summary, one Mermaid diagram, deviations set by D2/D3/D9), `docs/setup.md`, `docs/CHANGELOG.md`, `docs/setup-report.md` (Lab 6 skeleton, TODOs only), MIT `LICENSE` (D25; standard text, the "code only" scope is stated in `README.md`), `README.md` in the template format with a generated structure tree. `data/README.md` pointers updated from `CLAUDE.md` to `AGENTS.md` and to D20.
+- **`AGENTS.md`:** Reports rule (max ~20 lines); docs index pointers; governance test under hard rule 1; secrets under hard rule 7; exact pins and CI path in Code rules; "CI must be green" in Git workflow.
+
+**Evidence [verified]:** `pytest -q` → `15 passed`. `bash scripts/setup.sh` → hooks enabled (`core.hooksPath = .githooks`). `git check-ignore`: `.env` ignored; `data/manifests/*.csv` and `docs/audit_evidence/*` not ignored. No `.env` in `git status`. `git grep KICKOFF_PROMPT` → only `docs/project_log.md`; `git grep` for the old register path → no match. `pip download --only-binary=:all:` resolves the full pinned set as Linux wheels for Python 3.13 and 3.14; local install verified on 3.14.7 only (no 3.13 locally; CI installs on 3.13).
+
+**Why it matters:** the repo now matches the course template, CI runs the tests on every PR, secrets and line endings are handled by default, and hard rule 1 has an automated guard.
+
 ---
 
 ## Open items
@@ -375,13 +390,13 @@ Not yet run in Colab.
 - [x] PR `stage-0-git-workflow`: merged as PR #1 (approved and merged by Malak, 2026-10-05).
 - [x] Iheb and Malak accept the collaborator invitations (accepted; Entry 14).
 - [ ] Branch protection on `main` is active [to verify]: PR + 1 approval, no force-push, no bypass. A rule exists (GitHub: "applies to 1 branch", 2026-10-06); its settings are not yet confirmed.
-- [ ] `.gitattributes` PR (LF line endings for Windows + Colab).
+- [x] `.gitattributes` (LF line endings for Windows + Colab): added on `chore/repo-structure` (Entry 17).
 - [ ] Transfer repo ownership to Iheb. Afterwards everyone runs `git remote set-url`, and we update repo URLs in the notebook and docs.
 - [x] `stage-1-audit-run` → PR + merge at the end of Stage 1 (PR #2, 2026-10-05).
 - [x] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). Done as PR #1 → #2 → #3. #3 landed on `stage-1-audit-run`, so it was re-delivered as PR #4 (Entry 14).
 - [x] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted after the content check and team OK (Entry 16).
-- [ ] Review and merge PR `chore/ai-context` (Entry 15; AI-drafted, needs team review).
-- [ ] PR B: add a `LICENSE` file (MIT, code only) to match D25; state in `README.md` that datasets are not redistributed.
+- [ ] Review and merge PR `chore/repo-structure` (formerly `chore/ai-context`; Entries 15–17; AI-drafted, needs team review). Includes reviewing the `data/README.md` allowlist entry of the governance test.
+- [x] `LICENSE` (MIT, code only, D25) and the README statement that datasets are not redistributed: in `chore/repo-structure` instead of a separate PR B (Entry 17).
 - [x] Decide whether branch protection should require code-owner review: **no** (review of Entry 16).
 - [x] Compare `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 with the actual CS 488 template and align them (keep D20 checkbox, stacked PRs, D23 naming, human in the loop): done on `chore/repo-structure` (Entry 17).
 
@@ -438,7 +453,7 @@ Not yet run in Colab.
 - [ ] Stage 17: verify the ModelBundle checkpoint hash at load (threat model §10, tampering recommendation).
 - [ ] Stage 6: re-run the shortcut screen *after* preprocessing (silence, bandwidth).
 - [ ] Stage 6: decide the silence / voice-activity detector explicitly (energy-based vs `silero-vad`) and record it as a decision; D17 depends on it.
-- [ ] Phase 0 leftovers: confirm ML lead (0.9), W&B project (0.6), pin `requirements.txt` for 3.13 + 3.14 (0.10).
+- [ ] Phase 0 leftovers: confirm ML lead (0.9), W&B project (0.6). `requirements.txt` pinned (Entry 17); confirm the 3.13 install on the first CI run of the PR.
 
 ---
 
@@ -449,7 +464,7 @@ Not yet run in Colab.
 - **Stages 0, 1 and 2 done and merged into `main`** (PRs #1, #2, #4; PR #3 re-delivered through #4; closeout PR #5, Entry 14).
 - Stage 1 dataset audit: complete, with every cited number backed by `docs/audit_evidence/`. **Signed off by Malak (PR #2)**; Iheb has not reviewed it yet.
 - Stage 2 threat model: **v1.0 reviewed** (Malak PR #3, Iheb PR #4). §13 open questions still open.
-- AI context and workflow structure (Entry 15, PR pending): `AGENTS.md` as the single AI context, `CONTRIBUTING.md`, PR / issue templates, `CODEOWNERS`, decision register moved to `docs/decisions/README.md` with ADRs 0001–0005.
+- AI context and repo structure (Entries 15–17, PR `chore/repo-structure` pending): `AGENTS.md` as the single AI context, CS 488-aligned `CONTRIBUTING.md` and templates, decision register in `docs/decisions/README.md` with ADRs 0001–0005, CI on Python 3.13, DEEP-VOICE governance test, pinned requirements, MIT `LICENSE`, docs index / architecture / setup.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -457,19 +472,19 @@ Not yet run in Colab.
 - DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses, pinned by D21. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
 - A threat model that states the maximum claim per threat (T1–T7) and the residual risks.
 - A reproducible audit notebook that refuses to run on unpinned or changed data; full outputs archived in Drive.
-- One set of rules for every AI tool (`AGENTS.md`) and a decision register with ADRs for the major decisions.
+- One set of rules for every AI tool (`AGENTS.md`), a decision register with ADRs for the major decisions, and CI with an automated DEEP-VOICE access guard.
 
 **Branches:**
 - `main`: Stages 0–2 and the closeout (PR #5).
-- `chore/ai-context`: this change, PR pending.
-- Old stage branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted (Entry 16). Remote heads: `main`, `chore/ai-context`.
+- `chore/repo-structure` (renamed from `chore/ai-context`): Entries 15–17, PR pending.
+- Old stage branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted (Entry 16). Remote heads: `main`, `chore/repo-structure`.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Align `CONTRIBUTING.md` and the templates with the CS 488 template once its location is confirmed; then review and merge `chore/ai-context`. PR B: MIT `LICENSE` (D25).
+1. Review and merge `chore/repo-structure` (check that CI is green on Python 3.13).
 2. **Stage 3 (CURRENT): Experimental Protocol v1.0**, on a `docs/stage3-...` branch (D23). Frozen after review. It also fixes the D17 silence threshold.
 3. Open team items: tracks (0.9), W&B (0.6), compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, branch-protection settings, threat model §13 questions, Iheb's review of the audit.
 4. Before Stage 8: compute benchmark. In Stage 6: explicit silence-detector decision.
