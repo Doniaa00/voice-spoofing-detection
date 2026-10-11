@@ -352,6 +352,21 @@ Not yet run in Colab.
 
 **Why it matters:** every AI tool now reads the same rules, decisions have a durable home with reasoning for the major ones, and PRs carry the checks (DEEP-VOICE untouched, decision logged, AI use disclosed) by default.
 
+### Entry 16 — Review of `chore/ai-context` (2026-10-11)
+
+**Review (Donia Mabrouk):** `chore/ai-context` approved with changes. Changes applied on the same branch by **Claude Code** (Claude Opus 5.5); not yet re-reviewed.
+- `kahlanzzi` is confirmed as Iheb Zemzemi's GitHub account (`.github/CODEOWNERS` unchanged).
+- The path-only edit inside old log entries (Entry 15) is accepted as a **one-time exception**. Append-only applies again from now on.
+- **D20:** annotation appended, decision text unchanged: "(Since D22, this rule lives in AGENTS.md, which CLAUDE.md imports.)"
+- The stale bootstrap prompt file at the repo root (Stage 0 instructions that still pointed to `CLAUDE.md`) is **deleted**.
+- **Remote branches deleted:** `stage-1-audit-run` (`2d1d872`), `stage-2-threat-model` (`28255c1`), `stage-2-into-main` (`5e4bd2d`). Before deletion, each tip was re-checked: unchanged since the content check, and merging it into `main` changes nothing. `git ls-remote --heads origin` now lists only `main` and `chore/ai-context`.
+- **License:** the MIT `LICENSE` file (D25) goes in a separate PR ("PR B").
+- **Branch protection:** no code-owner review requirement.
+
+**Not done — CS 488 template comparison:** the template folder named in the review (`cs488-template` on the Desktop) does not exist on this machine. The only CS 488 file found is the course PDF, which does not contain the template files. `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 are therefore **not yet aligned**; the Open item stays open.
+
+**Evidence [verified]:** `pytest -q` passes (12 tests). `git grep` for the deleted file's name finds one remaining mention, inside Entry 15 (committed before this review). It is left unchanged because of the append-only rule.
+
 ---
 
 ## Open items
@@ -364,11 +379,11 @@ Not yet run in Colab.
 - [ ] Transfer repo ownership to Iheb. Afterwards everyone runs `git remote set-url`, and we update repo URLs in the notebook and docs.
 - [x] `stage-1-audit-run` → PR + merge at the end of Stage 1 (PR #2, 2026-10-05).
 - [x] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). Done as PR #1 → #2 → #3. #3 landed on `stage-1-audit-run`, so it was re-delivered as PR #4 (Entry 14).
-- [ ] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`) after a content check against `main` and team OK. Content check done (Entry 14 session): `main` is missing nothing from any of them; waiting for the team OK.
+- [x] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted after the content check and team OK (Entry 16).
 - [ ] Review and merge PR `chore/ai-context` (Entry 15; AI-drafted, needs team review).
-- [ ] Add a `LICENSE` file (MIT, code only) to match D25; state in `README.md` that datasets are not redistributed.
-- [ ] Decide whether branch protection should require code-owner review now that `.github/CODEOWNERS` exists.
-- [ ] Compare `CONTRIBUTING.md` and the `.github/` templates with the actual CS 488 template text (the AI tool did not have it).
+- [ ] PR B: add a `LICENSE` file (MIT, code only) to match D25; state in `README.md` that datasets are not redistributed.
+- [x] Decide whether branch protection should require code-owner review: **no** (review of Entry 16).
+- [ ] Compare `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 with the actual CS 488 template and align them (keep D20 checkbox, stacked PRs, D23 naming, human in the loop). Blocked: the template folder was not found at the given path (Entry 16).
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -447,14 +462,14 @@ Not yet run in Colab.
 **Branches:**
 - `main`: Stages 0–2 and the closeout (PR #5).
 - `chore/ai-context`: this change, PR pending.
-- `stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`: content check done (nothing missing from `main`); deletion waiting for the team OK.
+- Old stage branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted (Entry 16). Remote heads: `main`, `chore/ai-context`.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Review and merge `chore/ai-context`; add the MIT `LICENSE` (D25); delete the merged stage branches after the team OK.
+1. Align `CONTRIBUTING.md` and the templates with the CS 488 template once its location is confirmed; then review and merge `chore/ai-context`. PR B: MIT `LICENSE` (D25).
 2. **Stage 3 (CURRENT): Experimental Protocol v1.0**, on a `docs/stage3-...` branch (D23). Frozen after review. It also fixes the D17 silence threshold.
 3. Open team items: tracks (0.9), W&B (0.6), compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, branch-protection settings, threat model §13 questions, Iheb's review of the audit.
 4. Before Stage 8: compute benchmark. In Stage 6: explicit silence-detector decision.
