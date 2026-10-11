@@ -1,24 +1,24 @@
 ---
-name: Feature request
+name: Feature / task
 about: A capability tied to an SRS requirement
-title: "[FR-xx] "
+title: "feat: [FR-xx] "
 labels: enhancement
 ---
 
-## SRS requirement
-<!-- Required: the SRS ID(s) this implements, e.g. FR-05, NFR-04, PC-02. -->
+## What
+_What should exist that doesn't yet?_
 
-## Stage
-<!-- Roadmap stage in AGENTS.md, e.g. Stage 7. -->
+## Why
+_Required: the SRS ID(s) this implements, e.g. FR-05, NFR-04, PC-02, and related D-IDs from
+`docs/decisions/README.md`, if any._
 
-## Description
-<!-- What should exist when this is done? -->
+## Stage and track
+- Stage: <!-- roadmap stage in AGENTS.md, e.g. Stage 7 -->
+- Track: <!-- ml / backend / frontend -->
 
 ## Acceptance criteria
-<!-- Copy or refine the SRS acceptance criterion. -->
+- [ ] _Copy or refine the SRS acceptance criterion_
+- [ ]
 
-## Track
-<!-- ml / backend / frontend -->
-
-## Related decisions
-<!-- D-IDs from docs/decisions/README.md, if any. -->
+## Notes
+_Design hints, edge cases, who's working on it._

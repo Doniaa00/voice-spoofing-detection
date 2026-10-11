@@ -383,7 +383,7 @@ Not yet run in Colab.
 - [ ] Review and merge PR `chore/ai-context` (Entry 15; AI-drafted, needs team review).
 - [ ] PR B: add a `LICENSE` file (MIT, code only) to match D25; state in `README.md` that datasets are not redistributed.
 - [x] Decide whether branch protection should require code-owner review: **no** (review of Entry 16).
-- [ ] Compare `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 with the actual CS 488 template and align them (keep D20 checkbox, stacked PRs, D23 naming, human in the loop). Blocked: the template folder was not found at the given path (Entry 16).
+- [x] Compare `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 with the actual CS 488 template and align them (keep D20 checkbox, stacked PRs, D23 naming, human in the loop): done on `chore/repo-structure` (Entry 17).
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.

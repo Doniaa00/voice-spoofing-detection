@@ -1,20 +1,24 @@
-# NNNN — Title in a few words
+# NNNN. Short title of the decision
 
-| Field | Value |
-|---|---|
-| Status | Proposed / Accepted / Superseded by NNNN |
-| Date | YYYY-MM-DD |
-| Register | D-ID(s) in `README.md` |
-| Deciders | Names |
+- **Status:** Proposed | Accepted | Superseded by NNNN
+- **Date:** YYYY-MM-DD
+- **Register:** D-ID(s) in `README.md`
+- **Deciders:** Names
 
 ## Context
-What problem or force makes a decision necessary? Facts only, with sources (SRS IDs, audit sections).
+
+What is the situation? What forces (requirements, constraints, deadlines, skills) are pushing on
+this decision? Facts only, with sources (SRS IDs, audit sections).
 
 ## Decision
-The decision, stated so it can be checked.
+
+What did we decide to do? State it in one or two clear sentences, so it can be checked.
 
 ## Consequences
-What becomes easier, harder, or forbidden. What must be verified later.
+
+What becomes easier because of this? What becomes harder, riskier or forbidden? What are we now
+committed to, and what must be verified later?
 
 ## Links
+
 Related decisions, documents, PRs.
