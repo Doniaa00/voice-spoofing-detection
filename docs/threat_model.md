@@ -5,7 +5,7 @@
 | Status | **v1.0 — reviewed** (Stage 2 gate; see §14) |
 | Stage / branch | Stage 2 · `stage-2-threat-model` |
 | Authors | Donia Mabrouk, Iheb Zemzemi, Malak Ben Salem |
-| Inputs | Proposal §2 (threat figure, attacker assumptions), SRS v3.0 (§1.2 scope, NFRs, WH-01–04), SDD v1.0, `docs/dataset_audit.md`, `docs/decisions.md` |
+| Inputs | Proposal §2 (threat figure, attacker assumptions), SRS v3.0 (§1.2 scope, NFRs, WH-01–04), SDD v1.0, `docs/dataset_audit.md`, `docs/decisions/README.md` |
 
 Evidence labels: **[verified]** checked on our data · **[doc]** from documentation or published reporting · **[hypothesis]** not yet tested · **[decision]** approved team decision.
 

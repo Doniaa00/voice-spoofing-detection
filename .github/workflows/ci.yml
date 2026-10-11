@@ -1,0 +1,37 @@
+# Continuous Integration — runs on every push to main and on every pull request.
+#
+# Kept light (CS 488 template): install, run the tests, remind about docs.
+# Python 3.13 is the official version (D15). CI never downloads datasets:
+# tests use synthetic data only (AGENTS.md hard rule 1, D20).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history, so the docs check can diff commits
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest -q
+
+      # --- Docs reminder (always runs, never fails the build) -----------------
+      - name: Docs reminder
+        run: bash scripts/check-docs.sh

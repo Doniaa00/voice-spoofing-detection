@@ -8,7 +8,7 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 ## How to use this file
 
 - **Purpose:** the chronological story of the project — what we did, what we found, what we decided, and why. Anyone joining (teammate, instructor, new Claude Code session) reads the **Current status** block at the bottom first.
-- **This file points; it does not duplicate.** Official decisions live in `docs/decisions.md`. Official audit facts live in `docs/dataset_audit.md`. The log references them by ID (D13, H5, …).
+- **This file points; it does not duplicate.** Official decisions live in `docs/decisions/README.md`. Official audit facts live in `docs/dataset_audit.md`. The log references them by ID (D13, H5, …).
 - **Log entries are append-only.** Never edit an old entry; if something was wrong, add a new entry that corrects it.
 - **At every update:** (1) add a new log entry, (2) tick or add items in **Open items**, (3) rewrite **Current status**.
 - **Evidence labels:** **[verified]** = checked against data or sources (evidence for review, not acceptance) · **[doc]** = from documentation · **[hypothesis]** = not yet tested · **[to verify]** = we are not sure it happened.
@@ -31,14 +31,14 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
   - B4: metrics undefined for a 3-way output.
   - B5: evaluation unit / clip length undefined.
 
-**Decisions:** D1–D14 approved (D5 provisional, D13 deferred to the audit) → `docs/decisions.md`. Research question narrowed to FoR (TTS) → DEEP-VOICE (RVC) generalization (D8).
+**Decisions:** D1–D14 approved (D5 provisional, D13 deferred to the audit) → `docs/decisions/README.md`. Research question narrowed to FoR (TTS) → DEEP-VOICE (RVC) generalization (D8).
 
 **Why it matters:** fixing the order and the rules before coding protects the project's central claim — an honest, one-time external test.
 
 ### Entry 2 — Stage 0: repo scaffold (2026-10-04)
 
 **What we did:**
-- Built the repo with Claude Code from a bootstrap package (`CLAUDE.md`, `docs/decisions.md`, audit code, reference documents).
+- Built the repo with Claude Code from a bootstrap package (`CLAUDE.md`, `docs/decisions/README.md`, audit code, reference documents).
 - `CLAUDE.md` holds the standing rules for every Claude Code session.
 - Fixed two Windows bugs in the audit code: UTF-8 file writing, and `/` paths in manifests.
 - **D15:** official Python = 3.13 (Colab 3.13.15); local development on 3.14 allowed; CI will test on 3.13.
@@ -102,7 +102,7 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 - **H5:** if the CNN relies on MP3 traces, its recall on FAKE_other will be clearly lower than on FAKE_mp3 (FoR test, Stages 11/16).
 - **H6:** if the CNN relies on bandwidth, band-limiting REAL clips to ~3.4 kHz will raise false "FAKE" calls (Stage 14 robustness test).
 
-**Not yet written into `docs/decisions.md` / `docs/dataset_audit.md`** — planned as one commit at the end of Stage 1.
+**Not yet written into `docs/decisions/README.md` / `docs/dataset_audit.md`** — planned as one commit at the end of Stage 1.
 
 ### Entry 5 — Stage 1: DEEP-VOICE metadata audit and audit documentation (2026-10-04)
 
@@ -111,7 +111,7 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 - Archived the download: zip 3.96 GB, sha256 `8cb25853…f732bdcf` (full hash in `docs/dataset_audit.md` §1). Drive location TBD.
 - Ran the metadata-only audit (`src/audit/deepvoice_metadata_audit.py`) on `KAGGLE/` only. It read headers, byte hashes, filenames and the CSV schema; it decoded no audio (attestation in `docs/dataset_audit.md` §5). `DEMONSTRATION/` (2 MP3) was excluded and never opened; `DATASET-balanced.csv` is never used.
 - Checked FoR ∩ DEEP-VOICE for identical files.
-- Wrote up Stage 1: `docs/dataset_audit.md` §1–§9, `docs/decisions.md` (D5, D9, D13, D14 settled; D16–D19 and H5–H6 added). Evidence summaries committed in `docs/audit_evidence/`.
+- Wrote up Stage 1: `docs/dataset_audit.md` §1–§9, `docs/decisions/README.md` (D5, D9, D13, D14 settled; D16–D19 and H5–H6 added). Evidence summaries committed in `docs/audit_evidence/`.
 
 **What we found [verified]:**
 - 64 WAV files: 8 REAL / 56 FAKE. All stereo. Sample rates 40 / 44.1 / 48 kHz.
@@ -130,7 +130,7 @@ Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
 
 ### Entry 6 — Stage 1: open TBDs resolved (2026-10-04)
 
-**What we did:** filled every TBD left in `docs/dataset_audit.md` (commit `c4a1b56`) and aligned D5 wording in `docs/decisions.md`.
+**What we did:** filled every TBD left in `docs/dataset_audit.md` (commit `c4a1b56`) and aligned D5 wording in `docs/decisions/README.md`.
 - **Provenance:**
   - Audit run by Donia Mabrouk.
   - DEEP-VOICE audit code commit `ae45e9f` (printed by notebook cell 1, same Colab session as the FoR run).
@@ -224,7 +224,7 @@ Not yet run in Colab.
 - Committed as-is (commit `8b7b679`).
 - Checked the draft (Claude Code):
   - every FR / NFR / PC / WH / UN ID against the SRS v3.0 text;
-  - every D* and H* against `docs/decisions.md`;
+  - every D* and H* against `docs/decisions/README.md`;
   - the cited audit facts against `docs/dataset_audit.md`;
   - Proposal §2.3;
   - the mermaid syntax.
@@ -255,10 +255,10 @@ Not yet run in Colab.
 - **§11:** new residual risk 7, analyst impersonation if FR-11 is not implemented.
 - **§8 T6:** cites D2 and D9.
 - **§12:** §8 row adds D9; §10 row cites D21 instead of D20.
-- **D21** added to `docs/decisions.md`: datasets are pinned (FoR-2sec HF revision, DEEP-VOICE zip SHA-256) in `configs/audit.yaml`; the notebook refuses unpinned or mismatched data; changing a pin requires a new decision entry.
+- **D21** added to `docs/decisions/README.md`: datasets are pinned (FoR-2sec HF revision, DEEP-VOICE zip SHA-256) in `configs/audit.yaml`; the notebook refuses unpinned or mismatched data; changing a pin requires a new decision entry.
 
 **Evidence [verified]:** citation check re-run on every changed line.
-- All cited IDs exist: SRS v3.0, plus D2, D9 and D21 in `docs/decisions.md`.
+- All cited IDs exist: SRS v3.0, plus D2, D9 and D21 in `docs/decisions/README.md`.
 - The D21 hashes equal the values in `configs/audit.yaml`.
 - `deepvoice_summary` confirms 56 FAKE `src-to-tgt` and 8 REAL `<speaker>-original` files.
 - The SRS lists FR-11 as Could (requirements table and MoSCoW table).
@@ -330,6 +330,58 @@ Not yet run in Colab.
 
 **Why it matters:** the review evidence for Stages 1 and 2 is now in the documents themselves. The stacked-PR mistake is understood and guarded against by a written rule.
 
+### Entry 15 — AI context and workflow structure (CS 488 template) (2026-10-11)
+
+**Authorship:** requested and specified by Donia Mabrouk. All files were drafted by **Claude Code** (Claude Opus 5.5), an AI tool, on branch `chore/ai-context`. **Not yet reviewed by the team** (human-in-the-loop: acceptance = PR review).
+
+**Context:** PR #5 (`docs/stage2-closeout`) was merged into `main` by Donia Mabrouk on 2026-10-06 (merge commit `1bb25c5`; the approver is not recorded in git).
+
+**What we did:** adopted the CS 488 starter-template AI-context and workflow structure. Docs and config only; no change in `src/`.
+- **`AGENTS.md`** (new): all content of the former `CLAUDE.md`, tool-neutral ("AI agents never merge"), with the roadmap (Stages 0–2 done, Stage 3 CURRENT). Branch naming updated to D23; pointers to `CONTRIBUTING.md` and the decision register.
+- **`CLAUDE.md`**: now `@AGENTS.md` plus a short "Claude-specific notes" section.
+- **`AI_CONTEXT.md`**: pointer to `AGENTS.md` and ADR 0003. **`.gemini/settings.json`**: `{"context": {"fileName": ["AGENTS.md"]}}`.
+- **`CONTRIBUTING.md`**: branch names `<type>/stage<N>-<name>`, Conventional Commits, one unit = one branch = one PR, PR + 1 approval, stacked-PR rule, human in the loop, AI agents never merge, responsible AI use. Written from the points in the request; the CS 488 template text itself was not available to the AI tool.
+- **`.github/`**: PR template (checkboxes: DEEP-VOICE untouched (D20), decision logged, AI assistance used), issue templates (feature request asks for the SRS ID; bug report), `CODEOWNERS` (`@Doniaa00 @kahlanzzi @malakbensalemm`).
+- **Decisions:** the single-file register (`decisions.md` directly under `docs/`) moved to **`docs/decisions/README.md`** (register; content unchanged except ADR links and new rows). Added `TEMPLATE.md` and ADRs 0001 (record decisions, D24), 0002 (tech stack, D15), 0003 (`AGENTS.md` single AI context, D22), 0004 (dataset pinning, D21), 0005 (DEEP-VOICE single use, D2/D3/D6/D20).
+- **Register rows added** (approved by the team, 2026-10-06): **D22** `AGENTS.md` single AI context; **D23** branch naming `<type>/stage<N>-<name>`; **D24** register + ADRs for major decisions only; **D25** MIT license for code only, datasets never redistributed.
+- **References updated:** every reference to the old register path replaced by `docs/decisions/README.md` in `README.md`, `KICKOFF_PROMPT.md`, `docs/dataset_audit.md`, `docs/threat_model.md` and this log. `README.md` now points to `AGENTS.md` instead of `CLAUDE.md`.
+
+**One-time exception to the append-only rule (approved by Donia):** the old register path was replaced by `docs/decisions/README.md` inside old log entries (10 occurrences in total in this file). Only the path changed; no other wording. Old entries that say "`CLAUDE.md`" now refer to rules that live in `AGENTS.md` (ADR 0003).
+
+**Evidence [verified]:** `pytest -q` passes; `git grep` for the old register path returns nothing; `CLAUDE.md` contains `@AGENTS.md`; `AGENTS.md` size recorded in the PR.
+
+**Why it matters:** every AI tool now reads the same rules, decisions have a durable home with reasoning for the major ones, and PRs carry the checks (DEEP-VOICE untouched, decision logged, AI use disclosed) by default.
+
+### Entry 16 — Review of `chore/ai-context` (2026-10-11)
+
+**Review (Donia Mabrouk):** `chore/ai-context` approved with changes. Changes applied on the same branch by **Claude Code** (Claude Opus 5.5); not yet re-reviewed.
+- `kahlanzzi` is confirmed as Iheb Zemzemi's GitHub account (`.github/CODEOWNERS` unchanged).
+- The path-only edit inside old log entries (Entry 15) is accepted as a **one-time exception**. Append-only applies again from now on.
+- **D20:** annotation appended, decision text unchanged: "(Since D22, this rule lives in AGENTS.md, which CLAUDE.md imports.)"
+- The stale bootstrap prompt file at the repo root (Stage 0 instructions that still pointed to `CLAUDE.md`) is **deleted**.
+- **Remote branches deleted:** `stage-1-audit-run` (`2d1d872`), `stage-2-threat-model` (`28255c1`), `stage-2-into-main` (`5e4bd2d`). Before deletion, each tip was re-checked: unchanged since the content check, and merging it into `main` changes nothing. `git ls-remote --heads origin` now lists only `main` and `chore/ai-context`.
+- **License:** the MIT `LICENSE` file (D25) goes in a separate PR ("PR B").
+- **Branch protection:** no code-owner review requirement.
+
+**Not done — CS 488 template comparison:** the template folder named in the review (`cs488-template` on the Desktop) does not exist on this machine. The only CS 488 file found is the course PDF, which does not contain the template files. `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 are therefore **not yet aligned**; the Open item stays open.
+
+**Evidence [verified]:** `pytest -q` passes (12 tests). `git grep` for the deleted file's name finds one remaining mention, inside Entry 15 (committed before this review). It is left unchanged because of the append-only rule.
+
+### Entry 17 — Repo structure: CS 488 template alignment, hygiene, CI, docs (2026-10-11)
+
+**Authorship:** requested and specified by Donia Mabrouk. All changes drafted by **Claude Code** (Claude Opus 5.5), an AI tool. **Not yet reviewed by the team** (acceptance = PR review).
+
+**Branch:** `chore/ai-context` renamed to **`chore/repo-structure`** (local and remote; old remote branch deleted; no PR existed). One PR, three topic commits on top of Entries 15–16:
+- **A — workflow docs:** `CONTRIBUTING.md`, PR template, issue templates, ADR `TEMPLATE.md` and ADR 0001 restructured on the CS 488 template (now found at `Desktop/cs488-template`, read only, not copied). Kept: D20 checkbox, stacked branches/PRs, D23 naming, human in the loop, AI agents never merge. ADRs 0002–0005 keep their table header (accepted ADRs are not rewritten).
+- **B — hygiene, CI, safety:** `.gitattributes` (LF; pdf/docx/png/wav/npy/pt binary; `--renormalize` changed no file), `.editorconfig`, `.env.example` (placeholders only), `.gitignore` merged with the template's secrets/editor/logs sections plus local AI-tool overrides (manifest CSVs now trackable), `scripts/setup.sh`, `check-docs.sh`, `update-structure.sh` (adapted: tree built from `git ls-files`, so `.venv/` and caches never appear), `.githooks/pre-push`, `.vscode/extensions.json`, CI (`.github/workflows/ci.yml`: Python 3.13, `pytest -q`, docs reminder, no dataset downloads), `requirements.txt` pinned to the versions in the local venv.
+- **Governance test** `tests/governance/test_deepvoice_access.py`: fails if a tracked or untracked (not ignored) file outside the permitted places references the DEEP-VOICE root (`deep_voice`), the Kaggle slug/owner or the `KAGGLE` subfolder; a second test proves it flags planted violations and ignores allowed files. **Allowlist addition to review:** `data/README.md` (documents the Drive layout `raw/deep_voice/`; no code), beyond the list in the request.
+- **C — docs:** `docs/README.md` (index), `docs/architecture.md` (SDD summary, one Mermaid diagram, deviations set by D2/D3/D9), `docs/setup.md`, `docs/CHANGELOG.md`, `docs/setup-report.md` (Lab 6 skeleton, TODOs only), MIT `LICENSE` (D25; standard text, the "code only" scope is stated in `README.md`), `README.md` in the template format with a generated structure tree. `data/README.md` pointers updated from `CLAUDE.md` to `AGENTS.md` and to D20.
+- **`AGENTS.md`:** Reports rule (max ~20 lines); docs index pointers; governance test under hard rule 1; secrets under hard rule 7; exact pins and CI path in Code rules; "CI must be green" in Git workflow.
+
+**Evidence [verified]:** `pytest -q` → `15 passed`. `bash scripts/setup.sh` → hooks enabled (`core.hooksPath = .githooks`). `git check-ignore`: `.env` ignored; `data/manifests/*.csv` and `docs/audit_evidence/*` not ignored. No `.env` in `git status`. `git grep KICKOFF_PROMPT` → only `docs/project_log.md`; `git grep` for the old register path → no match. `pip download --only-binary=:all:` resolves the full pinned set as Linux wheels for Python 3.13 and 3.14; local install verified on 3.14.7 only (no 3.13 locally; CI installs on 3.13).
+
+**Why it matters:** the repo now matches the course template, CI runs the tests on every PR, secrets and line endings are handled by default, and hard rule 1 has an automated guard.
+
 ---
 
 ## Open items
@@ -338,11 +390,15 @@ Not yet run in Colab.
 - [x] PR `stage-0-git-workflow`: merged as PR #1 (approved and merged by Malak, 2026-10-05).
 - [x] Iheb and Malak accept the collaborator invitations (accepted; Entry 14).
 - [ ] Branch protection on `main` is active [to verify]: PR + 1 approval, no force-push, no bypass. A rule exists (GitHub: "applies to 1 branch", 2026-10-06); its settings are not yet confirmed.
-- [ ] `.gitattributes` PR (LF line endings for Windows + Colab).
+- [x] `.gitattributes` (LF line endings for Windows + Colab): added on `chore/repo-structure` (Entry 17).
 - [ ] Transfer repo ownership to Iheb. Afterwards everyone runs `git remote set-url`, and we update repo URLs in the notebook and docs.
 - [x] `stage-1-audit-run` → PR + merge at the end of Stage 1 (PR #2, 2026-10-05).
 - [x] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). Done as PR #1 → #2 → #3. #3 landed on `stage-1-audit-run`, so it was re-delivered as PR #4 (Entry 14).
-- [ ] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`) after a content check against `main` and team OK.
+- [x] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted after the content check and team OK (Entry 16).
+- [ ] Review and merge PR `chore/repo-structure` (formerly `chore/ai-context`; Entries 15–17; AI-drafted, needs team review). Includes reviewing the `data/README.md` allowlist entry of the governance test.
+- [x] `LICENSE` (MIT, code only, D25) and the README statement that datasets are not redistributed: in `chore/repo-structure` instead of a separate PR B (Entry 17).
+- [x] Decide whether branch protection should require code-owner review: **no** (review of Entry 16).
+- [x] Compare `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 with the actual CS 488 template and align them (keep D20 checkbox, stacked PRs, D23 naming, human in the loop): done on `chore/repo-structure` (Entry 17).
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -362,7 +418,7 @@ Not yet run in Colab.
 - [x] HF dataset card checked 2026-10-04: empty; viewer shows only `audio` and `label`. No speaker / source / generator metadata; D14 stands.
 - [x] Remaining TBDs in `docs/dataset_audit.md` filled: run by Donia Mabrouk, DEEP-VOICE audit commit `ae45e9f`, download dates 2026-10-04, Drive locations of full outputs (`processed/metadata/stage1/`) and of the DEEP-VOICE zip (`raw/deep-voice-deepfake-voice-recognition.zip`). D5 wording amended.
 - [x] Codec-check and FoR ∩ DEEP-VOICE overlap outputs committed to `docs/audit_evidence/` (`for2sec_codec_check.csv/.json`, `cross_dataset_overlap.json`); "not yet archived" notes replaced in `docs/dataset_audit.md`.
-- [x] Log D13, D14, D9, D16, H5, H6 in `docs/decisions.md` and fill in `docs/dataset_audit.md` (done, with D17–D19).
+- [x] Log D13, D14, D9, D16, H5, H6 in `docs/decisions/README.md` and fill in `docs/dataset_audit.md` (done, with D17–D19).
 - [ ] Update Proposal and Execution Plan discrepancies after the audit (e.g., the DEEP-VOICE 628 / 4,425 counts).
   Also, from Entry 12:
   - DEEP-VOICE size 3.96 GB (Exec Plan: ~0.55 GB);
@@ -397,18 +453,18 @@ Not yet run in Colab.
 - [ ] Stage 17: verify the ModelBundle checkpoint hash at load (threat model §10, tampering recommendation).
 - [ ] Stage 6: re-run the shortcut screen *after* preprocessing (silence, bandwidth).
 - [ ] Stage 6: decide the silence / voice-activity detector explicitly (energy-based vs `silero-vad`) and record it as a decision; D17 depends on it.
-- [ ] Phase 0 leftovers: confirm ML lead (0.9), W&B project (0.6), pin `requirements.txt` for 3.13 + 3.14 (0.10).
+- [ ] Phase 0 leftovers: confirm ML lead (0.9), W&B project (0.6). `requirements.txt` pinned (Entry 17); confirm the 3.13 install on the first CI run of the PR.
 
 ---
 
-## Current status — updated 2026-10-06
+## Current status — updated 2026-10-11
 
 **What was done:**
-- Readiness audit and decisions D1–D21; hypotheses H5–H6 pre-registered.
-- **Stages 0, 1 and 2 done and merged into `main`** (PRs #1, #2, #4; PR #3 re-delivered through #4, Entry 14).
+- Readiness audit and decisions D1–D25; hypotheses H5–H6 pre-registered.
+- **Stages 0, 1 and 2 done and merged into `main`** (PRs #1, #2, #4; PR #3 re-delivered through #4; closeout PR #5, Entry 14).
 - Stage 1 dataset audit: complete, with every cited number backed by `docs/audit_evidence/`. **Signed off by Malak (PR #2)**; Iheb has not reviewed it yet.
 - Stage 2 threat model: **v1.0 reviewed** (Malak PR #3, Iheb PR #4). §13 open questions still open.
-- Git workflow hardened: stacked branches and the **Stacked PRs** rule in `CLAUDE.md`; human-in-the-loop rule for AI-produced work.
+- AI context and repo structure (Entries 15–17, PR `chore/repo-structure` pending): `AGENTS.md` as the single AI context, CS 488-aligned `CONTRIBUTING.md` and templates, decision register in `docs/decisions/README.md` with ADRs 0001–0005, CI on Python 3.13, DEEP-VOICE governance test, pinned requirements, MIT `LICENSE`, docs index / architecture / setup.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -416,18 +472,19 @@ Not yet run in Colab.
 - DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses, pinned by D21. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
 - A threat model that states the maximum claim per threat (T1–T7) and the residual risks.
 - A reproducible audit notebook that refuses to run on unpinned or changed data; full outputs archived in Drive.
+- One set of rules for every AI tool (`AGENTS.md`), a decision register with ADRs for the major decisions, and CI with an automated DEEP-VOICE access guard.
 
 **Branches:**
-- `main`: Stages 0–2.
-- `docs/stage2-closeout`: this closeout, PR pending.
-- `stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`: merged; deletion pending a content check and team OK.
+- `main`: Stages 0–2 and the closeout (PR #5).
+- `chore/repo-structure` (renamed from `chore/ai-context`): Entries 15–17, PR pending.
+- Old stage branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted (Entry 16). Remote heads: `main`, `chore/repo-structure`.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Merge the closeout PR; delete the merged branches after the content check.
-2. **Stage 3 (CURRENT): Experimental Protocol v1.0.** Drafted from `main` now; frozen after review. It also fixes the D17 silence threshold.
+1. Review and merge `chore/repo-structure` (check that CI is green on Python 3.13).
+2. **Stage 3 (CURRENT): Experimental Protocol v1.0**, on a `docs/stage3-...` branch (D23). Frozen after review. It also fixes the D17 silence threshold.
 3. Open team items: tracks (0.9), W&B (0.6), compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, branch-protection settings, threat model §13 questions, Iheb's review of the audit.
 4. Before Stage 8: compute benchmark. In Stage 6: explicit silence-detector decision.
