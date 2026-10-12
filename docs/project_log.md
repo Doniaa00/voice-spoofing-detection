@@ -400,8 +400,12 @@ Not yet run in Colab.
 - "track (ml / backend / frontend)" → "part (A–E) and owner (D26)" in `CONTRIBUTING.md` §8 and the feature-request template.
 - `data/README.md`: Drive tree redrawn as it really is (raw archives and hash files, `processed/metadata/stage1/`; manifests, features, checkpoints planned for Stage 4+). Only the comment on its governance-test allowlist entry changed.
 - Stale `CLAUDE.md` mentions → `AGENTS.md` in `configs/audit.yaml` and the notebook intro (outputs still stripped).
+- D26 completed with the four v2.1 §5 hand-overs.
+- Per-folder `CODEOWNERS` (owner + consumer reviewer).
+- Transfer decision (after Part A).
+- Kaggle token regenerated, stored only in local `.env`.
 
-**Evidence [verified]:** `pytest -q` output is in the PR description.
+**Evidence [verified]:** `pytest -q` → 15 passed (Python 3.14 local); CI result on the PR.
 
 ---
 
@@ -515,5 +519,5 @@ Not yet run in Colab.
 **What's next:**
 1. Review and merge `docs/stage3-repo-cleanup` (CI check `checks` green).
 2. **Stage 3 (CURRENT, lead Donia): Experimental Protocol v1.0**, on a `docs/stage3-...` branch (D23). It fixes the D17 silence threshold and the D26 interfaces (B→C, C→D, C→E). Frozen after sign-off by all four.
-3. Open team items: compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, threat model §13 questions, Iheb's review of the audit, Kaggle token, setup report + AI-tool answers, repo ownership decision.
+3. Open team items: compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, threat model §13 questions, Iheb's review of the audit, setup report + AI-tool answers, repo transfer to Iheb after Part A.
 4. Before Stage 8: W&B and the compute benchmark. In Stage 6: explicit silence-detector decision. Before Stage 13: governance allowlist decision.

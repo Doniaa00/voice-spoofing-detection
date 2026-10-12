@@ -86,8 +86,8 @@ documents, propose a fix, and wait for approval.
 - Small, reviewable changes. Fix the root cause of errors; do not rewrite unrelated code.
 
 ## Git workflow (details: `CONTRIBUTING.md`)
-GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected (PR + 1 approval + required CI check `checks`
-+ branch up to date; no direct pushes).
+GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected: PR, 1 approval,
+required CI check `checks`, branch up to date; no direct pushes.
 - Never commit to `main`. One meaningful unit = one branch = one PR. Branch names
   `<type>/stage<N>-<name>`, types `feat`, `fix`, `docs`, `chore` (D23); Conventional Commits.
 - Push the branch and tell the team to open a PR. CI must be green. **AI agents never merge.**
