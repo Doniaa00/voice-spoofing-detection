@@ -20,7 +20,7 @@ ALLOWED = (
     "notebooks/01_stage1_dataset_audit.ipynb",
     "docs/",
     "tests/",
-    "data/README.md",  # documents the Drive layout (raw/deep_voice/); no code
+    "data/README.md",  # documents the Drive layout; no code
 )
 
 PATTERNS = (

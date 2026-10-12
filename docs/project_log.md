@@ -1,7 +1,7 @@
 # Project Log — Voice-Spoofing Detection for Fraud Prevention
 
-Team: Donia Mabrouk · Iheb Zemzemi (backend lead) · Malak Ben Salem
-Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
+Team: Donia Mabrouk · Iheb Zemzemi · Malak Ben Salem · Khalil Dridi (ownership by part: D26)
+Repo: `Doniaa00/voice-spoofing-detection` (transfers to Iheb after Part A, Stage 3 merged)
 
 ---
 
@@ -382,6 +382,31 @@ Not yet run in Colab.
 
 **Why it matters:** the repo now matches the course template, CI runs the tests on every PR, secrets and line endings are handled by default, and hard rule 1 has an automated guard.
 
+### Entry 18 — Team of four, D26, repo cleanup before Stage 3 (2026-10-12)
+
+**Authorship:** requested and specified by Donia Mabrouk. All changes drafted by **Claude Code** (Claude Opus 5.5), an AI tool, on branch `docs/stage3-repo-cleanup`. **Not yet reviewed by the team** (acceptance = PR review).
+
+**Context:**
+- PR #6 (`chore/repo-structure`, Entries 15–17) merged into `main` (merge commit `549b34b`).
+- Branch protection on `main` confirmed: PR + 1 approval + required CI check `checks` + branch up to date; no direct pushes.
+- **Execution Plan v2.1** shared (`docs/reference/Execution_Plan_v2.1.pdf`, 2026-10-12). It supersedes the v1 `Execution_Plan.md`, which is kept for history.
+- **Khalil Dridi joined the team** (approved by the team and the professor).
+- **D26** (work distribution, Execution Plan v2.1) added to `docs/decisions/README.md`.
+
+**What we did (this cleanup PR; docs/config text only, no change in `src/`, dataset pins, test logic or the `ALLOWED` list):**
+- Team of four in `AGENTS.md`, `README.md`, `LICENSE`; `.github/CODEOWNERS` adds `@dridi-khalil`.
+- `AGENTS.md`: Owner column in the roadmap (D26), branch-protection line, Execution Plan pointer → v2.1.
+- Register header no longer limited to the readiness audit; `Execution_Plan.md` marked superseded.
+- "track (ml / backend / frontend)" → "part (A–E) and owner (D26)" in `CONTRIBUTING.md` §8 and the feature-request template.
+- `data/README.md`: Drive tree redrawn as it really is (raw archives and hash files, `processed/metadata/stage1/`; manifests, features, checkpoints planned for Stage 4+). Only the comment on its governance-test allowlist entry changed.
+- Stale `CLAUDE.md` mentions → `AGENTS.md` in `configs/audit.yaml` and the notebook intro (outputs still stripped).
+- D26 completed with the four v2.1 §5 hand-overs.
+- Per-folder `CODEOWNERS` (owner + consumer reviewer).
+- Transfer decision (after Part A).
+- Kaggle token regenerated, stored only in local `.env`.
+
+**Evidence [verified]:** `pytest -q` → 15 passed (Python 3.14 local); CI result on the PR.
+
 ---
 
 ## Open items
@@ -389,13 +414,15 @@ Not yet run in Colab.
 **GitHub / repo**
 - [x] PR `stage-0-git-workflow`: merged as PR #1 (approved and merged by Malak, 2026-10-05).
 - [x] Iheb and Malak accept the collaborator invitations (accepted; Entry 14).
-- [ ] Branch protection on `main` is active [to verify]: PR + 1 approval, no force-push, no bypass. A rule exists (GitHub: "applies to 1 branch", 2026-10-06); its settings are not yet confirmed.
+- [x] Branch protection on `main` is active: PR + 1 approval + required CI check `checks` + branch up to date; no direct pushes (confirmed, Entry 18).
 - [x] `.gitattributes` (LF line endings for Windows + Colab): added on `chore/repo-structure` (Entry 17).
-- [ ] Transfer repo ownership to Iheb. Afterwards everyone runs `git remote set-url`, and we update repo URLs in the notebook and docs.
+- [ ] Transfer repo ownership to Iheb after Part A (Stage 3 merged); then everyone runs `git remote set-url` and one PR updates `REPO_URL` in `README.md`, `AGENTS.md`, `docs/setup.md` and the notebook (team decision, 2026-10-12).
 - [x] `stage-1-audit-run` → PR + merge at the end of Stage 1 (PR #2, 2026-10-05).
 - [x] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). Done as PR #1 → #2 → #3. #3 landed on `stage-1-audit-run`, so it was re-delivered as PR #4 (Entry 14).
 - [x] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted after the content check and team OK (Entry 16).
-- [ ] Review and merge PR `chore/repo-structure` (formerly `chore/ai-context`; Entries 15–17; AI-drafted, needs team review). Includes reviewing the `data/README.md` allowlist entry of the governance test.
+- [x] Review and merge PR `chore/repo-structure` (formerly `chore/ai-context`; Entries 15–17): merged as PR #6 (Entry 18).
+- [ ] Review and merge PR `docs/stage3-repo-cleanup` (Entry 18; AI-drafted, needs team review).
+- [ ] Stage 13 governance: decide (new decision, before Stage 13) how the guarded external-run code is added to the DEEP-VOICE allowlist of `tests/governance/test_deepvoice_access.py`.
 - [x] `LICENSE` (MIT, code only, D25) and the README statement that datasets are not redistributed: in `chore/repo-structure` instead of a separate PR B (Entry 17).
 - [x] Decide whether branch protection should require code-owner review: **no** (review of Entry 16).
 - [x] Compare `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 with the actual CS 488 template and align them (keep D20 checkbox, stacked PRs, D23 naming, human in the loop): done on `chore/repo-structure` (Entry 17).
@@ -409,7 +436,10 @@ Not yet run in Colab.
 - [ ] Optional: exercise the archive-only path of cells 6 and 8 on the real Drive archive in a fresh Colab session (no local outputs).
 
 **Security**
-- [ ] Regenerate the Kaggle API token.
+- [x] Regenerate the Kaggle API token (done 2026-10-12; old token revoked; stored only in local `.env`, git-ignored).
+
+**Course deliverables**
+- [ ] Setup report (`docs/setup-report.md`, Lab 6 skeleton) and the AI-tool answers.
 
 **Documentation**
 - [ ] `docs/dataset_audit.md` §9: confirm Iheb and Malak really re-confirmed D14 on 2026-10-04 [to verify]; correct the line if not.
@@ -434,12 +464,14 @@ Not yet run in Colab.
 - [x] Collaborator invitations accepted (Iheb, Malak).
 - [x] Stage 1: `docs/dataset_audit.md` §10 sign-off (Malak, PR #2).
 - [x] Stage 2: threat model §14 sign-off (Malak PR #3, Iheb PR #4). §13 open questions still open (see Stage 2 gate).
-- [ ] Assign the three tracks (0.9), set up W&B (0.6), confirm compute per person (0.7), set the weekly sync + channel (0.8).
+- [x] Assign the three tracks (0.9): done via D26 (parts A–E with owners, Entry 18).
+- [ ] Confirm compute per person (0.7), set the weekly sync + channel (0.8).
+- [ ] Set up W&B (0.6) before Stage 8.
 - [x] Agree the PR merge order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (merged; Entry 14).
 
 **Execution Plan phases (from the Entry 12 comparison)**
 - [ ] Phase 0: compute per person (0.7); weekly sync + async channel (0.8); random-seed policy (0.10).
-- [ ] Phase 1: GitHub Issues board per the Execution Plan (Phase 1, task 5): one issue per SRS requirement (FR / NFR / PC IDs), tagged by track (`ml` / `backend` / `frontend`), grouped under one milestone per stage (Entry 13).
+- [ ] Phase 1: GitHub Issues board per the Execution Plan (Phase 1, task 5): one issue per SRS requirement (FR / NFR / PC IDs), tagged by part (A–E) and owner (D26), grouped under one milestone per stage (Entry 13).
 - [ ] Phase 2: compute benchmark before Stage 8. Train the CNN on a small subset and record GPU type, VRAM, batch size and time per epoch.
 
 **Stage 2 gate**
@@ -457,34 +489,35 @@ Not yet run in Colab.
 
 ---
 
-## Current status — updated 2026-10-11
+## Current status — updated 2026-10-12
 
 **What was done:**
-- Readiness audit and decisions D1–D25; hypotheses H5–H6 pre-registered.
+- Readiness audit and decisions D1–D26; hypotheses H5–H6 pre-registered.
 - **Stages 0, 1 and 2 done and merged into `main`** (PRs #1, #2, #4; PR #3 re-delivered through #4; closeout PR #5, Entry 14).
 - Stage 1 dataset audit: complete, with every cited number backed by `docs/audit_evidence/`. **Signed off by Malak (PR #2)**; Iheb has not reviewed it yet.
 - Stage 2 threat model: **v1.0 reviewed** (Malak PR #3, Iheb PR #4). §13 open questions still open.
-- AI context and repo structure (Entries 15–17, PR `chore/repo-structure` pending): `AGENTS.md` as the single AI context, CS 488-aligned `CONTRIBUTING.md` and templates, decision register in `docs/decisions/README.md` with ADRs 0001–0005, CI on Python 3.13, DEEP-VOICE governance test, pinned requirements, MIT `LICENSE`, docs index / architecture / setup.
+- Repo structure merged (PR #6, Entries 15–17): `AGENTS.md` as the single AI context, CS 488-aligned workflow docs, decision register with ADRs 0001–0005, CI on Python 3.13, DEEP-VOICE governance test, pinned requirements, MIT `LICENSE`. Branch protection on `main` confirmed.
+- **Team of four:** Khalil Dridi joined (2026-10-12). Execution Plan v2.1 shared; **D26** sets the owner of every part (A/C Donia, B Malak, D Khalil + Malak for Stage 14, E Iheb) and the hand-over interfaces fixed in Stage 3.
+- Pre-Stage 3 cleanup (Entry 18) on `docs/stage3-repo-cleanup`, PR pending.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
 - One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
-- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses, pinned by D21. Rules for the one external run fixed in D17–D19. MIT license; public-figure rights noted as a limitation.
+- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses, pinned by D21. Rules for the one external run fixed in D17–D19. Under D26 it is run by Khalil, who does not build the model.
 - A threat model that states the maximum claim per threat (T1–T7) and the residual risks.
-- A reproducible audit notebook that refuses to run on unpinned or changed data; full outputs archived in Drive.
-- One set of rules for every AI tool (`AGENTS.md`), a decision register with ADRs for the major decisions, and CI with an automated DEEP-VOICE access guard.
+- A reproducible audit notebook that refuses to run on unpinned or changed data; full outputs archived in Drive (layout in `data/README.md`).
+- One set of rules for every AI tool (`AGENTS.md`, now with owners per stage), a decision register with ADRs, and CI with an automated DEEP-VOICE access guard.
 
 **Branches:**
-- `main`: Stages 0–2 and the closeout (PR #5).
-- `chore/repo-structure` (renamed from `chore/ai-context`): Entries 15–17, PR pending.
-- Old stage branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted (Entry 16). Remote heads: `main`, `chore/repo-structure`.
+- `main`: Stages 0–2, closeout (PR #5) and repo structure (PR #6).
+- `docs/stage3-repo-cleanup`: Entry 18, PR pending.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Review and merge `chore/repo-structure` (check that CI is green on Python 3.13).
-2. **Stage 3 (CURRENT): Experimental Protocol v1.0**, on a `docs/stage3-...` branch (D23). Frozen after review. It also fixes the D17 silence threshold.
-3. Open team items: tracks (0.9), W&B (0.6), compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, branch-protection settings, threat model §13 questions, Iheb's review of the audit.
-4. Before Stage 8: compute benchmark. In Stage 6: explicit silence-detector decision.
+1. Review and merge `docs/stage3-repo-cleanup` (CI check `checks` green).
+2. **Stage 3 (CURRENT, lead Donia): Experimental Protocol v1.0**, on a `docs/stage3-...` branch (D23). It fixes the D17 silence threshold and the D26 interfaces (B→C, C→D, C→E). Frozen after sign-off by all four.
+3. Open team items: compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, threat model §13 questions, Iheb's review of the audit, setup report + AI-tool answers, repo transfer to Iheb after Part A.
+4. Before Stage 8: W&B and the compute benchmark. In Stage 6: explicit silence-detector decision. Before Stage 13: governance allowlist decision.

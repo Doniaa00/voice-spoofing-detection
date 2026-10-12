@@ -1,6 +1,6 @@
 # AGENTS.md — Voice-Spoofing Detection for Fraud Prevention
 
-Team: Donia Mabrouk, Iheb Zemzemi, Malak Ben Salem. Semester AI project (MUST University).
+Team: Donia Mabrouk, Iheb Zemzemi, Malak Ben Salem, Khalil Dridi. Semester AI project (MUST University).
 
 The standing brief for every AI agent session (any tool) and for human contributors. Read it fully
 before any task. It holds rules and pointers; details live in the linked documents.
@@ -20,7 +20,8 @@ documents, propose a fix, and wait for approval.
   overrides the documents below.** Major decisions also have an ADR in `docs/decisions/`.
 - `docs/reference/SRS_Voice_Spoofing_Detection.pdf` — requirements (FR-xx, NFR-xx, PC-xx)
 - `docs/reference/SDD_Voice_Spoofing_Detection_Lab5.pdf` — architecture, classes, interfaces
-- `docs/reference/Execution_Plan.md` — phase-by-phase tasks (partly superseded: D2, D3, D6, D10)
+- `docs/reference/Execution_Plan_v2.1.pdf` — stage-by-stage tasks, owners and hand-overs (D26).
+  The v1 `docs/reference/Execution_Plan.md` is kept for history, superseded.
 - `docs/reference/Voice_Spoofing_Detection_Project_Proposal.docx` — motivation and framing
 - `docs/dataset_audit.md` (Stage 1) · `docs/threat_model.md` (Stage 2) · `docs/project_log.md` (living log)
 - `docs/experimental_protocol.md` — Stage 3; does not exist yet
@@ -85,7 +86,8 @@ documents, propose a fix, and wait for approval.
 - Small, reviewable changes. Fix the root cause of errors; do not rewrite unrelated code.
 
 ## Git workflow (details: `CONTRIBUTING.md`)
-GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected (PR + 1 approval, no direct pushes).
+GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected: PR, 1 approval,
+required CI check `checks`, branch up to date; no direct pushes.
 - Never commit to `main`. One meaningful unit = one branch = one PR. Branch names
   `<type>/stage<N>-<name>`, types `feat`, `fix`, `docs`, `chore` (D23); Conventional Commits.
 - Push the branch and tell the team to open a PR. CI must be green. **AI agents never merge.**
@@ -96,22 +98,24 @@ GitHub: `Doniaa00/voice-spoofing-detection`. `main` is protected (PR + 1 approva
   merged. Never merge a PR whose base is not `main` unless that is intended.
 
 ## Roadmap and current status
-| # | Stage | Status |
-|---|---|---|
-| 0 | Repo scaffold + environment | done |
-| 1 | Dataset audit (FoR full, DEEP-VOICE metadata-only) → `docs/dataset_audit.md` | done |
-| 2 | Threat model → `docs/threat_model.md` | done |
-| 3 | Experimental Protocol v1.0 (freeze) | ← CURRENT |
-| 4–5 | Leakage-aware split + dataset freeze (manifests + hashes) | |
-| 6 | Preprocessing profile v1 + tests + compute benchmark | |
-| 7 | Evaluation harness + MFCC/SVM baseline | |
-| 8–9 | CNN training + model selection (FoR val-A) | |
-| 10 | Risk policy + calibration fit (FoR val-B) | |
-| 11 | FoR internal test (once) | |
-| 12 | **ModelBundle freeze** | |
-| 13 | **DEEP-VOICE external run (once, guarded)**, stores per-sample scores | |
-| 14–16 | Robustness (FoR only) · calibration analysis · error analysis | |
-| 17–19 | API (FastAPI) · dashboard (Streamlit) · tests/CI/Docker/docs | |
+| # | Stage | Owner (D26) | Status |
+|---|---|---|---|
+| 0 | Repo scaffold + environment | A · Donia | done |
+| 1 | Dataset audit (FoR full, DEEP-VOICE metadata-only) → `docs/dataset_audit.md` | A · Donia | done |
+| 2 | Threat model → `docs/threat_model.md` | A · Donia | done |
+| 3 | Experimental Protocol v1.0 (freeze) | A · Donia (lead); sign-off: all four | ← CURRENT |
+| 4–5 | Leakage-aware split + dataset freeze (manifests + hashes) | B · Malak | |
+| 6 | Preprocessing profile v1 + tests + compute benchmark | B · Malak | |
+| 7 | Evaluation harness + MFCC/SVM baseline | C · Donia | |
+| 8–9 | CNN training + model selection (FoR val-A) | C · Donia | |
+| 10 | Risk policy + calibration fit (FoR val-B) | C · Donia | |
+| 11 | FoR internal test (once) | C · Donia | |
+| 12 | **ModelBundle freeze** | C · Donia | |
+| 13 | **DEEP-VOICE external run (once, guarded)**, stores per-sample scores | D · Khalil; review: all four | |
+| 14–16 | Robustness (FoR only) · calibration analysis · error analysis | D · Malak (14), Khalil (15, 16) | |
+| 17–19 | API (FastAPI) · dashboard (Streamlit) · tests/CI/Docker/docs | E · Iheb; Stage 19 report: all four | |
+
+Review rule (D26): the consumer reviews the producer.
 
 Update the status column when a stage passes its gate.
 

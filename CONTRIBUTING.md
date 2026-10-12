@@ -99,8 +99,8 @@ It only warns; it never blocks.
 
 ## 8. Issues
 
-Features: one issue per SRS requirement (FR / NFR / PC ID), tagged by track (`ml` / `backend` /
-`frontend`), grouped under one milestone per stage. Use the issue templates.
+Features: one issue per SRS requirement (FR / NFR / PC ID), tagged by part (A–E) and owner (D26),
+grouped under one milestone per stage. Use the issue templates.
 
 ## 9. Resolving disagreements
 

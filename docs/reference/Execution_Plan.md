@@ -1,3 +1,5 @@
+Superseded by Execution_Plan_v2.1.pdf (D26); kept for history.
+
 # Voice-Spoofing Detection for Fraud Prevention — Execution Reference
 
 **How to use this document:** this is the working reference for the whole semester — not something to read start to finish. When you're ready to start a step, say the step name/number and we'll go deep on it: code, exact commands, file-by-file implementation, debugging, whatever it needs. Everything below is scoped so each step is genuinely startable without waiting on anything else, except where a dependency is explicitly flagged.
