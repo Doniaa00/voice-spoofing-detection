@@ -3,7 +3,7 @@
 > A **decision-support** control that flags short speech recordings as authentic / synthetic /
 > uncertain, with a confidence score and a LOW/MEDIUM/HIGH risk level.
 
-**Team:** Donia Mabrouk, Iheb Zemzemi, Malak Ben Salem
+**Team:** Donia Mabrouk, Iheb Zemzemi, Malak Ben Salem, Khalil Dridi
 **Course:** Semester AI project (MUST University); repository structure from the CS 488 template
 **Status:** 🚧 In development: Stages 0–2 done, Stage 3 (Experimental Protocol v1.0) current
 (roadmap in [AGENTS.md](AGENTS.md))

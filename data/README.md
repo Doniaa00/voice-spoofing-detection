@@ -13,13 +13,19 @@ Raw audio lives on the team's shared Google Drive:
 
 ```
 MyDrive/voice-spoofing-detection/
-├── raw/for_2sec/               # training, validation, in-domain test set
-├── raw/deep_voice/             # frozen external test set — never trained/tuned on
+├── raw/
+│   ├── for_2sec_ff8c82c7.tar                       # FoR-2sec archive (pinned HF revision, D21)
+│   ├── for_2sec_REVISION.txt                       # full HF revision of the archive
+│   ├── deep-voice-deepfake-voice-recognition.zip   # frozen external test set — never trained/tuned on
+│   └── deep_voice_ZIP_SHA256.txt                   # zip SHA-256 (D21)
 ├── processed/
-│   ├── manifests/               # mirrored into this repo's data/manifests/
-│   ├── features/                # cached extracted features
-│   └── metadata/                # dataset stats, audit outputs
-└── checkpoints/
+│   ├── metadata/stage1/                            # Stage 1 audit outputs
+│   │   ├── for2sec/
+│   │   ├── deepvoice/                              # metadata only (D20)
+│   │   └── cross_dataset_overlap.json
+│   ├── manifests/                                  # planned (Stage 4+)
+│   └── features/                                   # planned (Stage 4+)
+└── checkpoints/                                    # planned (Stage 4+)
 ```
 
 At the start of each Colab session, copy the working subset from Drive to `/content/data/`

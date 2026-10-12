@@ -18,10 +18,22 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
   pre-push docs reminder.
 - `docs/architecture.md`, `docs/setup.md`, `docs/README.md`, `docs/setup-report.md` (skeleton).
 - MIT `LICENSE` for the code only (D25).
+- Khalil Dridi in the team line (`AGENTS.md`, `README.md`), `LICENSE` and `.github/CODEOWNERS`.
+- D26 work distribution (Execution Plan v2.1) in the decision register.
+- Owner column (D26) in the `AGENTS.md` roadmap.
+- `docs/reference/Execution_Plan_v2.1.pdf`.
 
 ### Changed
 - `requirements.txt` pinned to exact versions (Python 3.13 + 3.14).
 - Branch naming `<type>/stage<N>-<name>` (D23).
+- Decision register header no longer limited to the readiness audit.
+- `AGENTS.md`: branch-protection line (required check `checks`, branch up to date); Execution Plan pointer → v2.1.
+- `Execution_Plan.md` marked superseded by v2.1 (kept for history).
+- Issues tagged by part (A–E) and owner (D26) instead of track (`CONTRIBUTING.md`, feature template).
+- `data/README.md`: Drive tree matches the real layout.
+
+### Fixed
+- Stale `CLAUDE.md` mentions → `AGENTS.md` in `configs/audit.yaml` and the Stage 1 notebook intro.
 
 ## 2026-10-06 — Stages 0–2
 

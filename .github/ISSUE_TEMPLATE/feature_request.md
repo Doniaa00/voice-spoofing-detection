@@ -12,9 +12,9 @@ _What should exist that doesn't yet?_
 _Required: the SRS ID(s) this implements, e.g. FR-05, NFR-04, PC-02, and related D-IDs from
 `docs/decisions/README.md`, if any._
 
-## Stage and track
+## Stage, part and owner
 - Stage: <!-- roadmap stage in AGENTS.md, e.g. Stage 7 -->
-- Track: <!-- ml / backend / frontend -->
+- Part and owner (D26): <!-- A–E, e.g. C / Donia -->
 
 ## Acceptance criteria
 - [ ] _Copy or refine the SRS acceptance criterion_

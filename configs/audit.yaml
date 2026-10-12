@@ -1,6 +1,6 @@
 # Stage 1 dataset audit — dataset pins, data roots and output dirs.
 #
-# Read only by notebooks/01_stage1_dataset_audit.ipynb. Per CLAUDE.md, no Colab/Drive path is
+# Read only by notebooks/01_stage1_dataset_audit.ipynb. Per AGENTS.md, no Colab/Drive path is
 # hardcoded in code: the paths below are the Colab defaults; change them if your session differs.
 # src/audit/*.py never reads this file; it takes root/out/revision from CLI args.
 
