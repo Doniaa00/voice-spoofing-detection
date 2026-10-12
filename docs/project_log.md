@@ -412,7 +412,7 @@ Not yet run in Colab.
 - [x] Iheb and Malak accept the collaborator invitations (accepted; Entry 14).
 - [x] Branch protection on `main` is active: PR + 1 approval + required CI check `checks` + branch up to date; no direct pushes (confirmed, Entry 18).
 - [x] `.gitattributes` (LF line endings for Windows + Colab): added on `chore/repo-structure` (Entry 17).
-- [ ] Decide whether to transfer repo ownership (the plan was: to Iheb). If yes, afterwards everyone runs `git remote set-url`, and we update repo URLs in the notebook and docs.
+- [ ] Transfer repo ownership to Iheb after Part A (Stage 3 merged); then everyone runs `git remote set-url` and one PR updates `REPO_URL` in `README.md`, `AGENTS.md`, `docs/setup.md` and the notebook (team decision, 2026-10-12).
 - [x] `stage-1-audit-run` → PR + merge at the end of Stage 1 (PR #2, 2026-10-05).
 - [x] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). Done as PR #1 → #2 → #3. #3 landed on `stage-1-audit-run`, so it was re-delivered as PR #4 (Entry 14).
 - [x] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted after the content check and team OK (Entry 16).
@@ -432,7 +432,7 @@ Not yet run in Colab.
 - [ ] Optional: exercise the archive-only path of cells 6 and 8 on the real Drive archive in a fresh Colab session (no local outputs).
 
 **Security**
-- [ ] Regenerate the Kaggle API token (still open, 2026-10-12).
+- [x] Regenerate the Kaggle API token (done 2026-10-12; old token revoked; stored only in local `.env`, git-ignored).
 
 **Course deliverables**
 - [ ] Setup report (`docs/setup-report.md`, Lab 6 skeleton) and the AI-tool answers.
