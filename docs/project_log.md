@@ -420,7 +420,7 @@ Not yet run in Colab.
 - `docs/experimental_protocol.md` v0.1: header (freezes at v1.0 = F1, D1), sections 0–14, each with owner, reviewer (consumer, D26), "Must decide" checkboxes citing a D-ID or source, and Status TODO. Nothing decided; v2.1 values marked "proposed in v2.1; to confirm". H5 and H6 copied unchanged from the register.
 - `AGENTS.md`, `docs/README.md`: protocol listed as draft v0.1. `docs/CHANGELOG.md`: one line.
 
-**Evidence [verified]:** `pytest -q` from the project venv (output in the PR).
+**Evidence [verified]:** `pytest -q` → 15 passed (local venv); CI result on the PR.
 
 ---
 
@@ -439,14 +439,14 @@ Not yet run in Colab.
 - [x] Review and merge PR `docs/stage3-repo-cleanup` (Entry 18): merged as PR #7 (Entry 19).
 - [x] Delete merged branches: remote has only `main` (Entry 19).
 - [ ] Review and merge PR `docs/stage3-protocol-skeleton` (Entry 19; AI-drafted, needs team review).
-
-**Stage 3 gate**
-- [ ] Each owner fills in their sections of `docs/experimental_protocol.md` (one PR per author, D26).
-- [ ] Integration by Donia; sign-off by all four (§13) → v1.0 = freeze F1.
 - [ ] Stage 13 governance: decide (new decision, before Stage 13) how the guarded external-run code is added to the DEEP-VOICE allowlist of `tests/governance/test_deepvoice_access.py`.
 - [x] `LICENSE` (MIT, code only, D25) and the README statement that datasets are not redistributed: in `chore/repo-structure` instead of a separate PR B (Entry 17).
 - [x] Decide whether branch protection should require code-owner review: **no** (review of Entry 16).
 - [x] Compare `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 with the actual CS 488 template and align them (keep D20 checkbox, stacked PRs, D23 naming, human in the loop): done on `chore/repo-structure` (Entry 17).
+
+**Stage 3 gate**
+- [ ] Each owner fills in their sections of `docs/experimental_protocol.md` (one PR per author, D26).
+- [ ] Integration by Donia; sign-off by all four (§13) → v1.0 = freeze F1.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
