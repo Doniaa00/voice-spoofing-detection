@@ -13,10 +13,9 @@ tools all read it. Project rules live in `../AGENTS.md`.
 | [dataset_audit.md](dataset_audit.md) | Stage 1 dataset audit (FoR-2sec full, DEEP-VOICE metadata only) | signed off; changes need a decision |
 | [audit_evidence/](audit_evidence/) | Machine-generated evidence behind every audit number | the audit is re-run |
 | [threat_model.md](threat_model.md) | Stage 2 threat model (v1.0 reviewed) | threats or claims change |
+| [experimental_protocol.md](experimental_protocol.md) | Stage 3 Experimental Protocol (draft v0.1; freezes at v1.0 = F1) | a section is filled in; after F1 only by decision |
 | [setup-report.md](setup-report.md) | Lab 6 setup report (skeleton) | the Lab 6 report is written |
 | [reference/](reference/) | SRS, SDD, Execution Plan, Proposal (read-only sources) | never edited here |
-
-`experimental_protocol.md` (Stage 3) does not exist yet.
 
 ## The one rule
 
