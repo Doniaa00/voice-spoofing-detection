@@ -1,1 +1,10 @@
 * @Doniaa00 @kahlanzzi @malakbensalemm @dridi-khalil
+
+# Per-folder owners (D26). Requests reviews only; code-owner approval is not required.
+/src/preprocessing/  @malakbensalemm @Doniaa00
+/data/manifests/     @malakbensalemm @Doniaa00
+/src/evaluation/     @Doniaa00 @dridi-khalil
+/src/models/         @Doniaa00 @dridi-khalil @kahlanzzi
+/src/risk/           @Doniaa00 @dridi-khalil @kahlanzzi
+/api/                @kahlanzzi @Doniaa00
+/dashboard/          @kahlanzzi @Doniaa00

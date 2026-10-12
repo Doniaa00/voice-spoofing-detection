@@ -1,7 +1,7 @@
 # Project Log — Voice-Spoofing Detection for Fraud Prevention
 
-Team: Donia Mabrouk · Iheb Zemzemi (backend lead) · Malak Ben Salem
-Repo: `Doniaa00/voice-spoofing-detection` (ownership to be transferred to Iheb)
+Team: Donia Mabrouk · Iheb Zemzemi · Malak Ben Salem · Khalil Dridi (ownership by part: D26)
+Repo: `Doniaa00/voice-spoofing-detection` (transfers to Iheb after Part A, Stage 3 merged)
 
 ---
 
@@ -467,7 +467,7 @@ Not yet run in Colab.
 
 **Execution Plan phases (from the Entry 12 comparison)**
 - [ ] Phase 0: compute per person (0.7); weekly sync + async channel (0.8); random-seed policy (0.10).
-- [ ] Phase 1: GitHub Issues board per the Execution Plan (Phase 1, task 5): one issue per SRS requirement (FR / NFR / PC IDs), tagged by track (`ml` / `backend` / `frontend`), grouped under one milestone per stage (Entry 13).
+- [ ] Phase 1: GitHub Issues board per the Execution Plan (Phase 1, task 5): one issue per SRS requirement (FR / NFR / PC IDs), tagged by part (A–E) and owner (D26), grouped under one milestone per stage (Entry 13).
 - [ ] Phase 2: compute benchmark before Stage 8. Train the CNN on a small subset and record GPU type, VRAM, batch size and time per epoch.
 
 **Stage 2 gate**

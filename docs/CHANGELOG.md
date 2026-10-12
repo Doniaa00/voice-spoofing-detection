@@ -31,6 +31,7 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
 - `Execution_Plan.md` marked superseded by v2.1 (kept for history).
 - Issues tagged by part (A–E) and owner (D26) instead of track (`CONTRIBUTING.md`, feature template).
 - `data/README.md`: Drive tree matches the real layout.
+- D26 completed with the v2.1 §5 hand-overs; per-folder `CODEOWNERS` (owner + consumer reviewer); project log header updated.
 
 ### Fixed
 - Stale `CLAUDE.md` mentions → `AGENTS.md` in `configs/audit.yaml` and the Stage 1 notebook intro.
