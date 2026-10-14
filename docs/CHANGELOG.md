@@ -23,6 +23,7 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
 - Owner column (D26) in the `AGENTS.md` roadmap.
 - `docs/reference/Execution_Plan_v2.1.pdf`.
 - `docs/experimental_protocol.md` v0.1: Stage 3 skeleton (owners, reviewers, items to decide).
+- `docs/experimental_protocol.md` v1.0 frozen (F1): all sections decided from the team-accepted defaults.
 
 ### Changed
 - Repo transferred to `kahlanzzi/voice-spoofing-detection` (2026-10-14); repo URLs updated.
