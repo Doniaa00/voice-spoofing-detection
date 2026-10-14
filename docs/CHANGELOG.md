@@ -22,6 +22,7 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
 - D26 work distribution (Execution Plan v2.1) in the decision register.
 - Owner column (D26) in the `AGENTS.md` roadmap.
 - `docs/reference/Execution_Plan_v2.1.pdf`.
+- `docs/experimental_protocol.md` v0.1: Stage 3 skeleton (owners, reviewers, items to decide).
 
 ### Changed
 - `requirements.txt` pinned to exact versions (Python 3.13 + 3.14).

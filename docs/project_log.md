@@ -407,6 +407,21 @@ Not yet run in Colab.
 
 **Evidence [verified]:** `pytest -q` → 15 passed (Python 3.14 local); CI result on the PR.
 
+### Entry 19 — Stage 3 started: protocol skeleton (2026-10-12)
+
+**Authorship:** requested and specified by Donia Mabrouk. Drafted by **Claude Code** (Claude Opus 5.5), an AI tool, on branch `docs/stage3-protocol-skeleton`. **Not yet reviewed by the team** (acceptance = PR review).
+
+**Context:**
+- PR #7 (`docs/stage3-repo-cleanup`, Entry 18) merged into `main` (merge commit `b03bfe1`).
+- All merged branches deleted; the remote has only `main` [verified: `git fetch --prune` → `origin/main` only].
+- **Stage 3 started.** Plan: (1) skeleton PR (this one) → (2) one PR per author for their sections (D26; v2.1 Stage 3 authors) → (3) integration by Donia + sign-off by all four (freeze F1).
+
+**What we did (docs only; no code, no data access):**
+- `docs/experimental_protocol.md` v0.1: header (freezes at v1.0 = F1, D1), sections 0–14, each with owner, reviewer (consumer, D26), "Must decide" checkboxes citing a D-ID or source, and Status TODO. Nothing decided; v2.1 values marked "proposed in v2.1; to confirm". H5 and H6 copied unchanged from the register.
+- `AGENTS.md`, `docs/README.md`: protocol listed as draft v0.1. `docs/CHANGELOG.md`: one line.
+
+**Evidence [verified]:** `pytest -q` → 15 passed (local venv); CI result on the PR.
+
 ---
 
 ## Open items
@@ -421,11 +436,17 @@ Not yet run in Colab.
 - [x] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). Done as PR #1 → #2 → #3. #3 landed on `stage-1-audit-run`, so it was re-delivered as PR #4 (Entry 14).
 - [x] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted after the content check and team OK (Entry 16).
 - [x] Review and merge PR `chore/repo-structure` (formerly `chore/ai-context`; Entries 15–17): merged as PR #6 (Entry 18).
-- [ ] Review and merge PR `docs/stage3-repo-cleanup` (Entry 18; AI-drafted, needs team review).
+- [x] Review and merge PR `docs/stage3-repo-cleanup` (Entry 18): merged as PR #7 (Entry 19).
+- [x] Delete merged branches: remote has only `main` (Entry 19).
+- [ ] Review and merge PR `docs/stage3-protocol-skeleton` (Entry 19; AI-drafted, needs team review).
 - [ ] Stage 13 governance: decide (new decision, before Stage 13) how the guarded external-run code is added to the DEEP-VOICE allowlist of `tests/governance/test_deepvoice_access.py`.
 - [x] `LICENSE` (MIT, code only, D25) and the README statement that datasets are not redistributed: in `chore/repo-structure` instead of a separate PR B (Entry 17).
 - [x] Decide whether branch protection should require code-owner review: **no** (review of Entry 16).
 - [x] Compare `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 with the actual CS 488 template and align them (keep D20 checkbox, stacked PRs, D23 naming, human in the loop): done on `chore/repo-structure` (Entry 17).
+
+**Stage 3 gate**
+- [ ] Each owner fills in their sections of `docs/experimental_protocol.md` (one PR per author, D26).
+- [ ] Integration by Donia; sign-off by all four (§13) → v1.0 = freeze F1.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -498,7 +519,8 @@ Not yet run in Colab.
 - Stage 2 threat model: **v1.0 reviewed** (Malak PR #3, Iheb PR #4). §13 open questions still open.
 - Repo structure merged (PR #6, Entries 15–17): `AGENTS.md` as the single AI context, CS 488-aligned workflow docs, decision register with ADRs 0001–0005, CI on Python 3.13, DEEP-VOICE governance test, pinned requirements, MIT `LICENSE`. Branch protection on `main` confirmed.
 - **Team of four:** Khalil Dridi joined (2026-10-12). Execution Plan v2.1 shared; **D26** sets the owner of every part (A/C Donia, B Malak, D Khalil + Malak for Stage 14, E Iheb) and the hand-over interfaces fixed in Stage 3.
-- Pre-Stage 3 cleanup (Entry 18) on `docs/stage3-repo-cleanup`, PR pending.
+- Pre-Stage 3 cleanup (Entry 18) merged as PR #7.
+- **Stage 3 started** (Entry 19): `docs/experimental_protocol.md` v0.1 skeleton (owners, reviewers, items to decide; nothing decided yet).
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -509,15 +531,15 @@ Not yet run in Colab.
 - One set of rules for every AI tool (`AGENTS.md`, now with owners per stage), a decision register with ADRs, and CI with an automated DEEP-VOICE access guard.
 
 **Branches:**
-- `main`: Stages 0–2, closeout (PR #5) and repo structure (PR #6).
-- `docs/stage3-repo-cleanup`: Entry 18, PR pending.
+- `main`: Stages 0–2, closeout (PR #5), repo structure (PR #6), pre-Stage 3 cleanup (PR #7). Only branch on the remote.
+- `docs/stage3-protocol-skeleton`: Entry 19, PR pending.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Review and merge `docs/stage3-repo-cleanup` (CI check `checks` green).
-2. **Stage 3 (CURRENT, lead Donia): Experimental Protocol v1.0**, on a `docs/stage3-...` branch (D23). It fixes the D17 silence threshold and the D26 interfaces (B→C, C→D, C→E). Frozen after sign-off by all four.
+1. Review and merge `docs/stage3-protocol-skeleton` (CI check `checks` green).
+2. **Stage 3 (CURRENT, lead Donia): Experimental Protocol v1.0.** Next: one PR per author for their sections (Malak §2, 3, 9; Khalil §8, 10; Iheb §11; Donia §0, 1, 4–7, 12), then integration and sign-off by all four (F1). It fixes the D17 silence threshold and the D26 interfaces.
 3. Open team items: compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, threat model §13 questions, Iheb's review of the audit, setup report + AI-tool answers, repo transfer to Iheb after Part A.
 4. Before Stage 8: W&B and the compute benchmark. In Stage 6: explicit silence-detector decision. Before Stage 13: governance allowlist decision.

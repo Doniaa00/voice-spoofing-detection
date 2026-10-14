@@ -24,7 +24,7 @@ documents, propose a fix, and wait for approval.
   The v1 `docs/reference/Execution_Plan.md` is kept for history, superseded.
 - `docs/reference/Voice_Spoofing_Detection_Project_Proposal.docx` — motivation and framing
 - `docs/dataset_audit.md` (Stage 1) · `docs/threat_model.md` (Stage 2) · `docs/project_log.md` (living log)
-- `docs/experimental_protocol.md` — Stage 3; does not exist yet
+- `docs/experimental_protocol.md` — Stage 3; draft v0.1
 - `CONTRIBUTING.md` — branches, commits, PRs, AI use
 - `docs/README.md` — docs index · `docs/architecture.md` (SDD summary) · `docs/setup.md` · `docs/CHANGELOG.md`
 
