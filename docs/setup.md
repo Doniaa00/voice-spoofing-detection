@@ -15,7 +15,7 @@ Everything a new teammate (or a reviewer) needs to run the project from scratch.
 
 ```bash
 # 1. Clone
-git clone https://github.com/Doniaa00/voice-spoofing-detection.git
+git clone https://github.com/kahlanzzi/voice-spoofing-detection.git
 cd voice-spoofing-detection
 
 # 2. One-time project setup (git hooks: docs reminder before push)

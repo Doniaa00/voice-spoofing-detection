@@ -1,7 +1,7 @@
 # Project Log — Voice-Spoofing Detection for Fraud Prevention
 
 Team: Donia Mabrouk · Iheb Zemzemi · Malak Ben Salem · Khalil Dridi (ownership by part: D26)
-Repo: `Doniaa00/voice-spoofing-detection` (transfers to Iheb after Part A, Stage 3 merged)
+Repo: `kahlanzzi/voice-spoofing-detection` (owner Iheb Zemzemi; transferred from Doniaa00 on 2026-10-14, Entry 20)
 
 ---
 
@@ -422,6 +422,22 @@ Not yet run in Colab.
 
 **Evidence [verified]:** `pytest -q` → 15 passed (local venv); CI result on the PR.
 
+### Entry 20 — Repo transferred to Iheb (2026-10-14)
+
+**Authorship:** drafted by **Claude Code** (Claude Opus 5.5), an AI tool, on branch `chore/stage3-repo-transfer`. **Not yet reviewed by the team** (acceptance = PR review).
+
+**Context:**
+- PR #8 (`docs/stage3-protocol-skeleton`, Entry 19) merged into `main` (merge commit `fe5bb07`); the merged remote branch `docs/stage3-protocol-skeleton` was deleted.
+- The repo moved from `Doniaa00/voice-spoofing-detection` to **`kahlanzzi/voice-spoofing-detection`** on 2026-10-14. This is earlier than planned ("after Part A", Entry 18): no PRs were open, so the team agreed to do it now.
+
+**What we did:**
+- Donia stays a collaborator with write access.
+- - Donia ran `git remote set-url origin https://github.com/kahlanzzi/voice-spoofing-detection.git`; a push to the new remote worked (deleting `docs/stage3-protocol-skeleton`). Iheb, Malak and Khalil must run the same command.
+- Repo URL updated in `AGENTS.md` (Git workflow), `README.md` and `docs/setup.md` (clone command), `notebooks/01_stage1_dataset_audit.ipynb` (`REPO_URL`; outputs still stripped, valid per `nbformat`), and this log's header. Not changed: `.github/CODEOWNERS` (`@Doniaa00` is a username), old log entries, `docs/audit_evidence/`, `docs/reference/`.
+- Collaborators, branch protection and Actions settings on the new repo: to be confirmed by Iheb [to verify].
+
+**Evidence [verified]:** `pytest -q` → 15 passed (local venv); `git grep -n "Doniaa00"` → only `.github/CODEOWNERS` and the log (header line and Entries 2, 15, 20).
+
 ---
 
 ## Open items
@@ -431,14 +447,15 @@ Not yet run in Colab.
 - [x] Iheb and Malak accept the collaborator invitations (accepted; Entry 14).
 - [x] Branch protection on `main` is active: PR + 1 approval + required CI check `checks` + branch up to date; no direct pushes (confirmed, Entry 18).
 - [x] `.gitattributes` (LF line endings for Windows + Colab): added on `chore/repo-structure` (Entry 17).
-- [ ] Transfer repo ownership to Iheb after Part A (Stage 3 merged); then everyone runs `git remote set-url` and one PR updates `REPO_URL` in `README.md`, `AGENTS.md`, `docs/setup.md` and the notebook (team decision, 2026-10-12).
+- [x] Transfer repo ownership to Iheb after Part A (Stage 3 merged); then everyone runs `git remote set-url` and one PR updates `REPO_URL` in `README.md`, `AGENTS.md`, `docs/setup.md` and the notebook (team decision, 2026-10-12): done early, Entry 20.
+- [ ] Iheb confirms collaborators, branch protection and Actions settings on `kahlanzzi/voice-spoofing-detection` (Entry 20).
 - [x] `stage-1-audit-run` → PR + merge at the end of Stage 1 (PR #2, 2026-10-05).
 - [x] Merge PRs in order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (stacked; see Entry 9). Done as PR #1 → #2 → #3. #3 landed on `stage-1-audit-run`, so it was re-delivered as PR #4 (Entry 14).
 - [x] Delete merged remote branches (`stage-1-audit-run`, `stage-2-threat-model`, `stage-2-into-main`): deleted after the content check and team OK (Entry 16).
 - [x] Review and merge PR `chore/repo-structure` (formerly `chore/ai-context`; Entries 15–17): merged as PR #6 (Entry 18).
 - [x] Review and merge PR `docs/stage3-repo-cleanup` (Entry 18): merged as PR #7 (Entry 19).
 - [x] Delete merged branches: remote has only `main` (Entry 19).
-- [ ] Review and merge PR `docs/stage3-protocol-skeleton` (Entry 19; AI-drafted, needs team review).
+- [x] Review and merge PR `docs/stage3-protocol-skeleton` (Entry 19): merged as PR #8; branch deleted (Entry 20).
 - [ ] Stage 13 governance: decide (new decision, before Stage 13) how the guarded external-run code is added to the DEEP-VOICE allowlist of `tests/governance/test_deepvoice_access.py`.
 - [x] `LICENSE` (MIT, code only, D25) and the README statement that datasets are not redistributed: in `chore/repo-structure` instead of a separate PR B (Entry 17).
 - [x] Decide whether branch protection should require code-owner review: **no** (review of Entry 16).
@@ -510,7 +527,7 @@ Not yet run in Colab.
 
 ---
 
-## Current status — updated 2026-10-12
+## Current status — updated 2026-10-14
 
 **What was done:**
 - Readiness audit and decisions D1–D26; hypotheses H5–H6 pre-registered.
@@ -520,7 +537,8 @@ Not yet run in Colab.
 - Repo structure merged (PR #6, Entries 15–17): `AGENTS.md` as the single AI context, CS 488-aligned workflow docs, decision register with ADRs 0001–0005, CI on Python 3.13, DEEP-VOICE governance test, pinned requirements, MIT `LICENSE`. Branch protection on `main` confirmed.
 - **Team of four:** Khalil Dridi joined (2026-10-12). Execution Plan v2.1 shared; **D26** sets the owner of every part (A/C Donia, B Malak, D Khalil + Malak for Stage 14, E Iheb) and the hand-over interfaces fixed in Stage 3.
 - Pre-Stage 3 cleanup (Entry 18) merged as PR #7.
-- **Stage 3 started** (Entry 19): `docs/experimental_protocol.md` v0.1 skeleton (owners, reviewers, items to decide; nothing decided yet).
+- **Stage 3 started** (Entry 19): `docs/experimental_protocol.md` v0.1 skeleton (owners, reviewers, items to decide; nothing decided yet), merged as PR #8.
+- **Repo transferred to Iheb** (Entry 20, 2026-10-14, earlier than planned): now `kahlanzzi/voice-spoofing-detection`; Donia stays a collaborator with write access. Repo URLs updated; new-repo settings to be confirmed by Iheb.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -531,15 +549,15 @@ Not yet run in Colab.
 - One set of rules for every AI tool (`AGENTS.md`, now with owners per stage), a decision register with ADRs, and CI with an automated DEEP-VOICE access guard.
 
 **Branches:**
-- `main`: Stages 0–2, closeout (PR #5), repo structure (PR #6), pre-Stage 3 cleanup (PR #7). Only branch on the remote.
-- `docs/stage3-protocol-skeleton`: Entry 19, PR pending.
+- `main` (on `kahlanzzi/voice-spoofing-detection`): Stages 0–2, closeout (PR #5), repo structure (PR #6), pre-Stage 3 cleanup (PR #7), protocol skeleton (PR #8).
+- `chore/stage3-repo-transfer`: Entry 20, local commit, not pushed yet.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Review and merge `docs/stage3-protocol-skeleton` (CI check `checks` green).
+1. Everyone runs `git remote set-url origin https://github.com/kahlanzzi/voice-spoofing-detection.git`; Iheb confirms collaborators, branch protection and Actions; push `chore/stage3-repo-transfer`, review and merge it (CI check `checks` green).
 2. **Stage 3 (CURRENT, lead Donia): Experimental Protocol v1.0.** Next: one PR per author for their sections (Malak §2, 3, 9; Khalil §8, 10; Iheb §11; Donia §0, 1, 4–7, 12), then integration and sign-off by all four (F1). It fixes the D17 silence threshold and the D26 interfaces.
-3. Open team items: compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, threat model §13 questions, Iheb's review of the audit, setup report + AI-tool answers, repo transfer to Iheb after Part A.
+3. Open team items: compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, threat model §13 questions, Iheb's review of the audit, setup report + AI-tool answers.
 4. Before Stage 8: W&B and the compute benchmark. In Stage 6: explicit silence-detector decision. Before Stage 13: governance allowlist decision.

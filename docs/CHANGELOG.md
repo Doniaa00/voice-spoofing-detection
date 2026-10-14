@@ -25,6 +25,7 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
 - `docs/experimental_protocol.md` v0.1: Stage 3 skeleton (owners, reviewers, items to decide).
 
 ### Changed
+- Repo transferred to `kahlanzzi/voice-spoofing-detection` (2026-10-14); repo URLs updated.
 - `requirements.txt` pinned to exact versions (Python 3.13 + 3.14).
 - Branch naming `<type>/stage<N>-<name>` (D23).
 - Decision register header no longer limited to the readiness audit.

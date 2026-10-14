@@ -31,7 +31,7 @@ Colab / Kaggle GPUs · Weights & Biases · pytest + GitHub Actions. Details: ADR
 
 ```bash
 # 1. Clone and enter the repo
-git clone https://github.com/Doniaa00/voice-spoofing-detection.git
+git clone https://github.com/kahlanzzi/voice-spoofing-detection.git
 cd voice-spoofing-detection
 
 # 2. One-time setup (installs git hooks; Windows: run in Git Bash)
