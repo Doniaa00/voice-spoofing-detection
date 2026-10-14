@@ -438,6 +438,24 @@ Not yet run in Colab.
 
 **Evidence [verified]:** `pytest -q` → 15 passed (local venv); `git grep -n "Doniaa00"` → only `.github/CODEOWNERS` and the log (header line and Entries 2, 15, 20).
 
+### Entry 21 — Stage 3: Experimental Protocol v1.0 drafted (2026-10-14)
+
+**Authorship:** requested and specified by Donia Mabrouk. Written by **Claude Code** (Claude Opus 5.5), an AI tool, on branch `docs/stage3-protocol-v1`, from the team-accepted defaults. **Pending four approvals** (§13 sign-off = PR review).
+
+**Context:**
+- PR #9 (`chore/stage3-repo-transfer`, Entry 20) merged into `main` (merge commit `7089b0e`).
+- Donia drafted "Stage 3 Protocol — Proposed Defaults" with Claude (claude.ai): one proposed value per open "Must decide" item, marked Fixed / Judgment / Team, with its basis. Shared with the team as a Claude doc; a Markdown export was used as input, kept outside the repo.
+- All four members accepted every row on 2026-10-14 in the team chat. So the protocol is written in one PR instead of one PR per author (Entry 19 plan).
+
+**What we did (docs only; no code, no data access):**
+- `docs/experimental_protocol.md` → **v1.0 (pending sign-off)**: in §0–§12 each "Must decide" checklist replaced by a "Decided" list (one bullet per accepted row, citing its D-ID / FR / basis; Judgment and Team rows marked "team choice, 2026-10-14"); every Status = Decided.
+- Key values: seeds 0/1/2 + split/bootstrap seed 2026; bundle seed = median val-A EER; Platt scaling, threshold at the val-B EER point, symmetric uncertain band deferring 10% of val-B; D17 speech-window filter ≥ 50% speech frames; robustness levels per §9; H5/H6 operational thresholds (≥ 5 points, CI excludes 0).
+- §12: Change control paragraph (Stage 6 deferred items → F3; other changes before data is seen → new decision D27+; no change after results are seen, extra analyses exploratory). §13: PR column "this PR", dates empty until approval. §14: row 1.0.
+- Not placed in the protocol: online handling of clips longer than 2 s (open in the SDD; to decide before Stage 17) and the meeting dates from the defaults file.
+- `docs/CHANGELOG.md`: one line.
+
+**Evidence [verified]:** `python -m pytest -q` → 15 passed (local venv, Python 3.14.7); `grep` of the protocol for the governance-test patterns → no match; CI result on the PR.
+
 ---
 
 ## Open items
@@ -462,8 +480,9 @@ Not yet run in Colab.
 - [x] Compare `CONTRIBUTING.md`, the `.github/` templates, `docs/decisions/TEMPLATE.md` and ADR 0001 with the actual CS 488 template and align them (keep D20 checkbox, stacked PRs, D23 naming, human in the loop): done on `chore/repo-structure` (Entry 17).
 
 **Stage 3 gate**
-- [ ] Each owner fills in their sections of `docs/experimental_protocol.md` (one PR per author, D26).
-- [ ] Integration by Donia; sign-off by all four (§13) → v1.0 = freeze F1.
+- [x] Each owner fills in their sections of `docs/experimental_protocol.md`: replaced by one integrated PR from the team-accepted defaults (2026-10-14, Entry 21).
+- [ ] Review of `docs/stage3-protocol-v1` and sign-off by all four (§13 dates) → v1.0 = freeze F1. Then mark Stage 3 done in `AGENTS.md`.
+- [ ] Before Stage 17: decide the online handling of clips longer than 2 s (reject, truncate or window-and-aggregate; open in the SDD).
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -508,14 +527,15 @@ Not yet run in Colab.
 - [x] Agree the PR merge order: `stage-0-git-workflow` → `stage-1-audit-run` → `stage-2-threat-model` (merged; Entry 14).
 
 **Execution Plan phases (from the Entry 12 comparison)**
-- [ ] Phase 0: compute per person (0.7); weekly sync + async channel (0.8); random-seed policy (0.10).
+- [ ] Phase 0: compute per person (0.7); weekly sync + async channel (0.8). Random-seed policy (0.10): set in protocol v1.0 §4 (CNN seeds 0, 1, 2; split and bootstrap seed 2026; Entry 21), final once v1.0 is signed off.
 - [ ] Phase 1: GitHub Issues board per the Execution Plan (Phase 1, task 5): one issue per SRS requirement (FR / NFR / PC IDs), tagged by part (A–E) and owner (D26), grouped under one milestone per stage (Entry 13).
 - [ ] Phase 2: compute benchmark before Stage 8. Train the CNN on a small subset and record GPU type, VRAM, batch size and time per epoch.
 
 **Stage 2 gate**
 - [x] Resolve the two v0.1 mismatches from Entry 10 (§3.2 REAL filenames; §10 D20 → D21) → v0.2 (Entry 11).
 - [x] Team review of `docs/threat_model.md` v0.2 → **v1.0 reviewed** (§14: Malak PR #3, Iheb PR #4).
-- [ ] Threat model §13 open questions: (1) confirm the primary / secondary scenarios; (2) access control (also below); (3) confirm both datasets are English-only.
+- [x] Threat model §13 Q1 (primary / secondary scenarios) and Q3 (English-only): answered in protocol v1.0 §0 (scenarios confirmed; "English speech" stated as [doc], not [verified]); final once v1.0 is signed off (Entry 21).
+- [ ] Threat model §13 Q2: access control (below).
 - [ ] Decide the access-control mechanism (SRS §7.4) before the API stage (Stage 17), at the latest. The oracle-abuse residual risk (threat model §10.1) depends on it.
 
 **Later stages (reminders)**
@@ -538,7 +558,8 @@ Not yet run in Colab.
 - **Team of four:** Khalil Dridi joined (2026-10-12). Execution Plan v2.1 shared; **D26** sets the owner of every part (A/C Donia, B Malak, D Khalil + Malak for Stage 14, E Iheb) and the hand-over interfaces fixed in Stage 3.
 - Pre-Stage 3 cleanup (Entry 18) merged as PR #7.
 - **Stage 3 started** (Entry 19): `docs/experimental_protocol.md` v0.1 skeleton (owners, reviewers, items to decide; nothing decided yet), merged as PR #8.
-- **Repo transferred to Iheb** (Entry 20, 2026-10-14, earlier than planned): now `kahlanzzi/voice-spoofing-detection`; Donia stays a collaborator with write access. Repo URLs updated; new-repo settings to be confirmed by Iheb.
+- **Repo transferred to Iheb** (Entry 20, 2026-10-14, earlier than planned): now `kahlanzzi/voice-spoofing-detection`; Donia stays a collaborator with write access. Repo URLs updated (PR #9); new-repo settings to be confirmed by Iheb.
+- **Experimental Protocol v1.0 drafted** (Entry 21, 2026-10-14): every section §0–§12 decided from the defaults all four accepted on 2026-10-14, plus a change-control rule. Written by Claude Code; **pending four approvals** (§13).
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -549,15 +570,15 @@ Not yet run in Colab.
 - One set of rules for every AI tool (`AGENTS.md`, now with owners per stage), a decision register with ADRs, and CI with an automated DEEP-VOICE access guard.
 
 **Branches:**
-- `main` (on `kahlanzzi/voice-spoofing-detection`): Stages 0–2, closeout (PR #5), repo structure (PR #6), pre-Stage 3 cleanup (PR #7), protocol skeleton (PR #8).
-- `chore/stage3-repo-transfer`: Entry 20, local commit, not pushed yet.
+- `main` (on `kahlanzzi/voice-spoofing-detection`): Stages 0–2, closeout (PR #5), repo structure (PR #6), pre-Stage 3 cleanup (PR #7), protocol skeleton (PR #8), repo transfer (PR #9).
+- `docs/stage3-protocol-v1`: protocol v1.0 (Entry 21), local commit, not pushed yet.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Everyone runs `git remote set-url origin https://github.com/kahlanzzi/voice-spoofing-detection.git`; Iheb confirms collaborators, branch protection and Actions; push `chore/stage3-repo-transfer`, review and merge it (CI check `checks` green).
-2. **Stage 3 (CURRENT, lead Donia): Experimental Protocol v1.0.** Next: one PR per author for their sections (Malak §2, 3, 9; Khalil §8, 10; Iheb §11; Donia §0, 1, 4–7, 12), then integration and sign-off by all four (F1). It fixes the D17 silence threshold and the D26 interfaces.
-3. Open team items: compute (0.7), weekly sync (0.8), seed policy (0.10), Issues board, threat model §13 questions, Iheb's review of the audit, setup report + AI-tool answers.
+1. Everyone runs `git remote set-url origin https://github.com/kahlanzzi/voice-spoofing-detection.git`; Iheb confirms collaborators, branch protection and Actions.
+2. **Stage 3 (CURRENT, lead Donia): Experimental Protocol v1.0.** Next: push `docs/stage3-protocol-v1`, open the PR, review by all four, §13 dates filled → freeze F1; then mark Stage 3 done in `AGENTS.md` and start Stage 4 (Malak).
+3. Open team items: compute (0.7), weekly sync (0.8), Issues board, threat model §13 Q2 (access control), Iheb's review of the audit, setup report + AI-tool answers.
 4. Before Stage 8: W&B and the compute benchmark. In Stage 6: explicit silence-detector decision. Before Stage 13: governance allowlist decision.
