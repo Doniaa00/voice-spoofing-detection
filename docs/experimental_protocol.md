@@ -1,6 +1,6 @@
 # Experimental Protocol — Voice-Spoofing Detection for Fraud Prevention
 
-**Version:** 1.0 (pending sign-off)
+**Version:** 1.0
 **Freezes at v1.0 = F1 (D1); after F1, changes need a decision (§12, Change control).**
 **Authors:** Donia Mabrouk (lead), Malak Ben Salem, Khalil Dridi, Iheb Zemzemi (D26).
 
@@ -137,7 +137,7 @@ on FoR only; nothing here touches DEEP-VOICE before Stage 13 (AGENTS.md hard rul
 - **Decided:**
   - Fitted on val-B only, for the bundle seed, before F4 (D2; D9).
   - Calibration: Platt scaling (logistic, 2 parameters) on val-B (FR-18) (team choice, 2026-10-14).
-  -   - Operating threshold: the val-B EER point on the calibrated probability p (D12; D9).
+  - Operating threshold: the val-B EER point on the calibrated probability p (D12; D9).
   - Uncertain band: symmetric around the threshold; width set so that 10% of val-B is deferred (D12)
     (team choice, 2026-10-14).
   - Maximum deferral rate: 10% on val-B (D12) (team choice, 2026-10-14).
@@ -261,14 +261,14 @@ on FoR only; nothing here touches DEEP-VOICE before Stage 13 (AGENTS.md hard rul
 
 | Member | Role | Date | PR |
 |---|---|---|---|
-| Donia Mabrouk | Lead; §0, 1, 4–7, 12 | | this PR |
-| Malak Ben Salem | §2, 3, 9 | | this PR |
-| Khalil Dridi | §8, 10 | | this PR |
-| Iheb Zemzemi | §11 | | this PR |
+| Donia Mabrouk | Lead (author); §0, 1, 4–7, 12 | 2026-10-14 | #10 |
+| Malak Ben Salem | §2, 3, 9 | 2026-10-14 | #10 |
+| Khalil Dridi | §8, 10 | 2026-10-14 | #10 |
+| Iheb Zemzemi | §11 | 2026-10-14 | #10 |
 
 ## 14. Change log
 
 | Version | Date | Change | PR |
 |---|---|---|---|
 | 0.1 | 2026-10-12 | Skeleton: sections, owners, reviewers, "Must decide" items. No content. | |
-| 1.0 | 2026-10-14 | All sections decided (team-accepted defaults). | |
+| 1.0 | 2026-10-14 | All sections decided (team-accepted defaults). | #10 |

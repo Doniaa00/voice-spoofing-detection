@@ -24,7 +24,7 @@ documents, propose a fix, and wait for approval.
   The v1 `docs/reference/Execution_Plan.md` is kept for history, superseded.
 - `docs/reference/Voice_Spoofing_Detection_Project_Proposal.docx` — motivation and framing
 - `docs/dataset_audit.md` (Stage 1) · `docs/threat_model.md` (Stage 2) · `docs/project_log.md` (living log)
-- `docs/experimental_protocol.md` — Stage 3; draft v0.1
+- `docs/experimental_protocol.md` — Stage 3, v1.0 frozen (F1)
 - `CONTRIBUTING.md` — branches, commits, PRs, AI use
 - `docs/README.md` — docs index · `docs/architecture.md` (SDD summary) · `docs/setup.md` · `docs/CHANGELOG.md`
 
@@ -103,8 +103,8 @@ required CI check `checks`, branch up to date; no direct pushes.
 | 0 | Repo scaffold + environment | A · Donia | done |
 | 1 | Dataset audit (FoR full, DEEP-VOICE metadata-only) → `docs/dataset_audit.md` | A · Donia | done |
 | 2 | Threat model → `docs/threat_model.md` | A · Donia | done |
-| 3 | Experimental Protocol v1.0 (freeze) | A · Donia (lead); sign-off: all four | ← CURRENT |
-| 4–5 | Leakage-aware split + dataset freeze (manifests + hashes) | B · Malak | |
+| 3 | Experimental Protocol v1.0 (freeze) | A · Donia (lead); sign-off: all four | done |
+| 4–5 | Leakage-aware split + dataset freeze (manifests + hashes) | B · Malak | ← CURRENT |
 | 6 | Preprocessing profile v1 + tests + compute benchmark | B · Malak | |
 | 7 | Evaluation harness + MFCC/SVM baseline | C · Donia | |
 | 8–9 | CNN training + model selection (FoR val-A) | C · Donia | |
