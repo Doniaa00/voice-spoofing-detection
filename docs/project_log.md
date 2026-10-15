@@ -479,6 +479,30 @@ policy-compatible environment. The focused governance suite passed: **3 passed i
 
 ---
 
+### Entry 23 — Local pytest failure diagnosis (2026-10-15)
+
+**What we did (read-only; synthetic fixtures only; no real dataset access):** reran the full local
+suite with complete tracebacks, ran each failing test separately, inspected the audit call paths and
+Windows Code Integrity events, and compared the installed package metadata with Python 3.13.
+
+**Evidence [verified]:** the full local suite remained **11 passed, 4 failed**. Windows Application
+Control blocked Numba 0.68.0's `_typeconv.cp313-win_amd64.pyd`. Two tests failed directly on that
+import; two reached `ValueError: cannot convert float NaN to integer` after the same blocked import
+made every otherwise-decodable synthetic FoR fixture appear undecodable. A controlled synthetic WAV
+decoded successfully with fingerprinting disabled and failed when fingerprinting triggered the
+blocked Numba import. The four failures therefore share one environment root cause. This is a Windows
+enterprise-signing-policy issue, not a Python 3.13 incompatibility or an independently reproduced
+repository defect.
+
+**Conclusion:** no repository-code fix is required for the environment problem. GitHub CI or another
+policy-compatible environment must provide the final full-suite verification. The audit's secondary
+error-reporting weakness is optional future hardening; if the team approves it, use a separate
+`fix/stage1-audit-error-propagation` branch.
+
+**AI assistance:** **Codex** performed the diagnosis. Human review is required before acceptance.
+
+---
+
 ## Open items
 
 **GitHub / repo**
@@ -522,9 +546,11 @@ policy-compatible environment. The focused governance suite passed: **3 passed i
 
 **Local verification**
 - [ ] Re-run `pytest -q` in CI or a policy-compatible environment: local Python 3.13 completed with
-  11 passed and 4 failed. Two failures had explicit Application Control DLL-import errors; two had
-  `ValueError` with zero decodable files. Their relationship is unconfirmed; CI must determine
-  whether the two `ValueError` failures reproduce (Entry 22).
+  11 passed and 4 failures sharing one verified environment root cause: Windows Application Control
+  blocked Numba 0.68.0's `_typeconv.cp313-win_amd64.pyd` (Entry 23). Do not claim CI passed until its
+  result is available.
+- [ ] Optional: decide whether to harden audit error reporting. If approved, use a separate
+  `fix/stage1-audit-error-propagation` branch (Entry 23).
 
 **Documentation**
 - [ ] `docs/dataset_audit.md` §9: confirm Iheb and Malak really re-confirmed D14 on 2026-10-04 [to verify]; correct the line if not.
@@ -590,10 +616,11 @@ policy-compatible environment. The focused governance suite passed: **3 passed i
 - **Stage 3 done: Experimental Protocol v1.0 frozen (F1)** (Entry 21, 2026-10-14): every section §0–§12 decided from the defaults all four accepted, plus a change-control rule. Written by Claude Code; signed off by all four via PR #10. **Part A (Stages 0–3) complete.**
 - Malak's Codex context test is documented in `docs/setup-report.md` Section 5 and passed on
   2026-10-15; human review is still required (Entry 22).
-- Local Python 3.13 verification completed with 11 passed and 4 failures: two explicit Application
-  Control DLL-import errors and two `ValueError` failures with zero decodable files. Their
-  relationship is unconfirmed; CI must determine whether the `ValueError` failures reproduce in a
-  policy-compatible environment (Entry 22).
+- Read-only diagnosis verified that all four local failures share one Windows environment root cause:
+  Application Control blocked Numba 0.68.0's `_typeconv.cp313-win_amd64.pyd`; two tests failed on the
+  import and two consequently reached a zero-decodable `ValueError`. This is not a Python 3.13
+  incompatibility or independently reproduced repository defect. Final full-suite verification must
+  come from GitHub CI or another policy-compatible environment (Entry 23).
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -606,7 +633,8 @@ policy-compatible environment. The focused governance suite passed: **3 passed i
 **Branches:**
 - `main` (on `kahlanzzi/voice-spoofing-detection`): Stages 0–2, closeout (PR #5), repo structure (PR #6), pre-Stage 3 cleanup (PR #7), protocol skeleton (PR #8), repo transfer (PR #9).
 - `docs/stage3-protocol-v1`: protocol v1.0 + sign-off commit (Entry 21), PR #10 approved; sign-off commit local, not pushed yet.
-- `docs/setup-report-malak`: Malak's setup-report context test and session-log update (Entry 22); local, not pushed.
+- `docs/setup-report-malak`: Malak's setup-report context test (Entry 22) and local failure diagnosis
+  (Entry 23); tracking `origin/docs/setup-report-malak`, awaiting PR, CI, and human review.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
