@@ -458,6 +458,27 @@ Not yet run in Colab.
 
 ---
 
+### Entry 22 — Malak's Codex context test (2026-10-15)
+
+**What we did (docs only; no data access):** added Malak Ben Salem's AI-tool test to
+`docs/setup-report.md` Section 5, preserving the exact question and Codex answer. Marked the test
+passed because the answer identified D20, the one-time external evaluation of DEEP-VOICE, and
+`src/preprocessing/`.
+
+**AI assistance:** **Codex** read `AGENTS.md`, `CONTRIBUTING.md`, the decision register, and the
+repository structure; it documented the test and updated this session log. Human review is required
+before acceptance (D22 and `CONTRIBUTING.md` Section 6).
+
+**Evidence [verified]:** repository inspection confirmed `src/preprocessing/`; the recorded answer
+names D20 and states that DEEP-VOICE is evaluated once after the ModelBundle freeze. Python 3.13
+`pytest -q` completed with **11 passed, 4 failed in 165.23 s**. Two tests failed with explicit Windows
+Application Control DLL-import errors. Two tests failed with `ValueError: cannot convert float NaN
+to integer` because the test state had zero decodable files. The relationship between these failures
+is not confirmed; CI must determine whether the two `ValueError` failures reproduce in a
+policy-compatible environment. The focused governance suite passed: **3 passed in 0.07 s**.
+
+---
+
 ## Open items
 
 **GitHub / repo**
@@ -496,7 +517,14 @@ Not yet run in Colab.
 - [x] Regenerate the Kaggle API token (done 2026-10-12; old token revoked; stored only in local `.env`, git-ignored).
 
 **Course deliverables**
-- [ ] Setup report (`docs/setup-report.md`, Lab 6 skeleton) and the AI-tool answers.
+- [ ] Setup report (`docs/setup-report.md`, Lab 6 skeleton): Malak's Codex test is recorded and
+  passed (Entry 22); the remaining sections and team members' AI-tool answers are still open.
+
+**Local verification**
+- [ ] Re-run `pytest -q` in CI or a policy-compatible environment: local Python 3.13 completed with
+  11 passed and 4 failed. Two failures had explicit Application Control DLL-import errors; two had
+  `ValueError` with zero decodable files. Their relationship is unconfirmed; CI must determine
+  whether the two `ValueError` failures reproduce (Entry 22).
 
 **Documentation**
 - [ ] `docs/dataset_audit.md` §9: confirm Iheb and Malak really re-confirmed D14 on 2026-10-04 [to verify]; correct the line if not.
@@ -547,7 +575,7 @@ Not yet run in Colab.
 
 ---
 
-## Current status — updated 2026-10-14
+## Current status — updated 2026-10-15
 
 **What was done:**
 - Readiness audit and decisions D1–D26; hypotheses H5–H6 pre-registered.
@@ -560,6 +588,12 @@ Not yet run in Colab.
 - **Stage 3 started** (Entry 19): `docs/experimental_protocol.md` v0.1 skeleton (owners, reviewers, items to decide; nothing decided yet), merged as PR #8.
 - **Repo transferred to Iheb** (Entry 20, 2026-10-14, earlier than planned): now `kahlanzzi/voice-spoofing-detection`; Donia stays a collaborator with write access. Repo URLs updated (PR #9); new-repo settings to be confirmed by Iheb.
 - **Stage 3 done: Experimental Protocol v1.0 frozen (F1)** (Entry 21, 2026-10-14): every section §0–§12 decided from the defaults all four accepted, plus a change-control rule. Written by Claude Code; signed off by all four via PR #10. **Part A (Stages 0–3) complete.**
+- Malak's Codex context test is documented in `docs/setup-report.md` Section 5 and passed on
+  2026-10-15; human review is still required (Entry 22).
+- Local Python 3.13 verification completed with 11 passed and 4 failures: two explicit Application
+  Control DLL-import errors and two `ValueError` failures with zero decodable files. Their
+  relationship is unconfirmed; CI must determine whether the `ValueError` failures reproduce in a
+  policy-compatible environment (Entry 22).
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -572,6 +606,7 @@ Not yet run in Colab.
 **Branches:**
 - `main` (on `kahlanzzi/voice-spoofing-detection`): Stages 0–2, closeout (PR #5), repo structure (PR #6), pre-Stage 3 cleanup (PR #7), protocol skeleton (PR #8), repo transfer (PR #9).
 - `docs/stage3-protocol-v1`: protocol v1.0 + sign-off commit (Entry 21), PR #10 approved; sign-off commit local, not pushed yet.
+- `docs/setup-report-malak`: Malak's setup-report context test and session-log update (Entry 22); local, not pushed.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
@@ -581,5 +616,5 @@ Not yet run in Colab.
 1. Everyone runs `git remote set-url origin https://github.com/kahlanzzi/voice-spoofing-detection.git`; Iheb confirms collaborators, branch protection and Actions.
 2. Push the sign-off commit to `docs/stage3-protocol-v1`; after CI is green, merge PR #10 (a human merges).
 3. **Stages 4–5 (CURRENT, owner Malak, Part B): leakage-aware split + dataset freeze** (manifests + hashes), following protocol v1.0 §2–3.
-4. Open team items: compute (0.7), weekly sync (0.8), Issues board, threat model §13 Q2 (access control), Iheb's review of the audit, setup report + AI-tool answers.
+4. Open team items: compute (0.7), weekly sync (0.8), Issues board, threat model §13 Q2 (access control), Iheb's review of the audit, remaining setup-report sections and AI-tool answers.
 5. Before Stage 8: W&B and the compute benchmark. In Stage 6: explicit silence-detector decision. Before Stage 13: governance allowlist decision.
