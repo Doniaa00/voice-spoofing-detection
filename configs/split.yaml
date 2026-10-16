@@ -1,0 +1,37 @@
+# Stage 4 leakage-aware FoR-2sec split.
+#
+# Paths are supplied through CLI arguments so this config works unchanged locally,
+# in Colab, and on shared storage. Changing any frozen value requires change
+# control under Experimental Protocol v1.0 section 12.
+
+protocol_version: "1.0"
+dataset: "FoR-2sec"
+revision: "ff8c82c79e7bbefef811941bac9775c9328e9055"
+seed: 2026
+
+columns:
+  path: "rel_path"
+  label: "label"
+  stem: "stem"
+  decode_ok: "decode_ok"
+  group: "neardup_group_095"
+
+splits:
+  train: 0.70
+  val-A: 0.075
+  val-B: 0.075
+  test: 0.15
+
+acceptance:
+  proportion_tolerance_percentage_points: 1.0
+
+expected:
+  files: 17721
+  labels:
+    REAL: 8800
+    FAKE: 8921
+  subgroups:
+    REAL: 8800
+    FAKE_mp3: 7592
+    FAKE_other: 1329
+  d14_selected_threshold: 0.95

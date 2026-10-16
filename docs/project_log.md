@@ -503,6 +503,81 @@ error-reporting weakness is optional future hardening; if the team approves it, 
 
 ---
 
+### Entry 24 — Stage 4 leakage-aware split implementation (2026-10-15)
+
+**Boundary [doc]:** Stage 4 is the FoR leakage-aware split and its automated checks. Stage 5
+creates and hashes the frozen manifests (F2); Stage 6 creates the preprocessing profile. Neither
+later stage was started.
+
+**What we did (FoR metadata only; no audio access):** added `configs/split.yaml` and reusable split
+code under `src/splitting/`. The code validates the pinned Stage 1 inventory/summary, applies the
+D16 subgroup rule, keeps D14 0.95 groups atomic, uses seed 2026 and the frozen
+70/7.5/7.5/15 ratios, and checks group isolation plus class/subgroup proportions within ±1 point.
+It emits a candidate assignment CSV and JSON/Markdown check reports at a caller-supplied path;
+it deliberately emits no Stage 5 manifest or hash. Added synthetic metadata-only tests and a
+changelog line. Review corrections make official runs refuse dirty Git worktrees, reject Windows,
+UNC and POSIX absolute paths plus traversal, and normalize validated split ratios to floats.
+
+**Evidence [verified locally]:** final focused Stage 4 suite: **18 passed in 4.37 s**. Final full suite:
+**33 passed in 6.36 s**; the Windows Application Control failure from Entries 22–23 did not
+recur. An official-scale synthetic metadata check (17,721 rows with the audited subgroup totals)
+passed every acceptance check: sizes 12,404 / 1,330 / 1,329 / 2,658 and maximum class/subgroup
+deviation 0.034537 percentage points. `git diff --check` produced no output. The connected Drive
+search exposed no accessible full `for2sec_inventory.csv`; the pinned summary already exists at
+`docs/audit_evidence/for2sec_summary.json`. The split has therefore not yet been run on the real
+inventory, and no real split report has been committed.
+
+**AI assistance:** **Codex** established the Stage 4 boundary, implemented the config/code/tests,
+ran the checks, and documented the session. Human review by Donia (consumer, D26) is required.
+
+**Gate:** implementation checks pass; real-data acceptance checks and human review remain open.
+
+---
+
+### Entry 25 — Corrected official Stage 4 FoR split run (2026-10-16)
+
+**Boundary [doc]:** Stage 4 FoR metadata only. No audio or DEEP-VOICE was accessed. No Stage 5
+manifest/hash freeze or Stage 6 preprocessing was started.
+
+**What we did:** Donia reviewed the first result and requested removal of four extra EOF blank
+lines, a final clean implementation commit, and a determinism rerun. The local branch was renamed
+to `feat/stage4-split` before its first push. The EOF-only correction is commit `10a5e68`; the
+worktree was clean before the official rerun. The candidate CSV remains outside Git.
+
+**Evidence [verified locally]:** the pre-rerun candidate had 17,721 rows and SHA-256
+`853d947499e76c4cc9da5b69df384588f0023c21ed93f6a2dec1940f8988aa20`. The regenerated candidate
+has the same row count and byte-identical SHA-256. Its intended destination is
+`MyDrive/voice-spoofing-detection/processed/metadata/stage4/for2sec_split_assignments.csv`; upload
+is pending Malak's confirmation. The reports cite clean commit
+`10a5e6809bb55484908cbcce547a75c14d33a908`, include split × class × subgroup counts, and record all
+checks passing. Focused tests: **18 passed in 10.83 s**. Full suite: **33 passed in 17.62 s**.
+Windows Application Control blocked the `.venv` launcher, so Python 3.13.14 used the existing
+pinned `.venv` site-packages; no dependency was installed.
+
+**AI assistance:** **Codex** preserved and compared the candidate fingerprints, made the approved
+EOF-only correction, performed the clean-commit rerun, ran tests and prepared the evidence. Donia
+reviewed the prior result; final evidence acceptance remains human-controlled.
+
+**Gate:** corrected Stage 4 evidence is ready for review. The Drive upload, evidence commit, PR and
+final Stage 4 acceptance remain pending; Stage 5 has not started.
+
+---
+
+### Entry 26 — Stage 4 candidate Drive upload confirmed (2026-10-16)
+
+**Evidence [verified by Malak]:** the final untracked 17,721-row candidate CSV was uploaded to
+`MyDrive/voice-spoofing-detection/processed/metadata/stage4/for2sec_split_assignments.csv`.
+Its recorded SHA-256 remains
+`853d947499e76c4cc9da5b69df384588f0023c21ed93f6a2dec1940f8988aa20`. The repository retains only
+the Markdown/JSON evidence; the candidate is ignored and untracked.
+
+**AI assistance:** **Codex** recorded the human-confirmed upload and prepared the restricted
+evidence commit and PR handoff. No dataset or candidate CSV is included in Git.
+
+**Gate:** ready for the evidence commit and Donia's GitHub review. Stage 5 has not started.
+
+---
+
 ## Open items
 
 **GitHub / repo**
@@ -529,6 +604,13 @@ error-reporting weakness is optional future hardening; if the team approves it, 
 - [x] Review of `docs/stage3-protocol-v1` and sign-off by all four (§13 dates) → v1.0 = freeze F1. Then mark Stage 3 done in `AGENTS.md`: PR #10 (Malak 2026-10-14, Khalil 2026-10-14, Iheb 2026-10-14); Stage 3 done (Entry 21).
 - [ ] Before Stage 17: decide the online handling of clips longer than 2 s (reject, truncate or window-and-aggregate; open in the SDD).
 
+**Stage 4 gate**
+- [x] Implement the FoR-only group-aware split and automated checks from Protocol v1.0 §2 (Entry 24).
+- [x] Run it from clean commit `10a5e68` against the full pinned Stage 1 inventory and summary;
+  all checks pass and the rerun is byte-identical (Entry 25).
+- [x] Malak uploaded the untracked candidate CSV to the exact Stage 4 Drive destination (Entry 26).
+- [ ] Donia reviews the corrected evidence; then authorize the evidence commit and PR before Stage 4 closes.
+
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
 - [x] Cell 2: download FoR to local disk (not Drive); print the folder/label structure; back up as one `.tar` + `REVISION.txt` in Drive.
@@ -545,10 +627,9 @@ error-reporting weakness is optional future hardening; if the team approves it, 
   passed (Entry 22); the remaining sections and team members' AI-tool answers are still open.
 
 **Local verification**
-- [ ] Re-run `pytest -q` in CI or a policy-compatible environment: local Python 3.13 completed with
-  11 passed and 4 failures sharing one verified environment root cause: Windows Application Control
-  blocked Numba 0.68.0's `_typeconv.cp313-win_amd64.pyd` (Entry 23). Do not claim CI passed until its
-  result is available.
+- [x] Re-run the full local suite: Python 3.13 completed with **33 passed in 6.36 s** during Stage 4;
+  the Windows Application Control failure from Entries 22–23 did not recur (Entry 24). The eventual
+  PR still requires its own green CI check before merge.
 - [ ] Optional: decide whether to harden audit error reporting. If approved, use a separate
   `fix/stage1-audit-error-propagation` branch (Entry 23).
 
@@ -601,7 +682,7 @@ error-reporting weakness is optional future hardening; if the team approves it, 
 
 ---
 
-## Current status — updated 2026-10-15
+## Current status — updated 2026-10-16
 
 **What was done:**
 - Readiness audit and decisions D1–D26; hypotheses H5–H6 pre-registered.
@@ -615,12 +696,16 @@ error-reporting weakness is optional future hardening; if the team approves it, 
 - **Repo transferred to Iheb** (Entry 20, 2026-10-14, earlier than planned): now `kahlanzzi/voice-spoofing-detection`; Donia stays a collaborator with write access. Repo URLs updated (PR #9); new-repo settings to be confirmed by Iheb.
 - **Stage 3 done: Experimental Protocol v1.0 frozen (F1)** (Entry 21, 2026-10-14): every section §0–§12 decided from the defaults all four accepted, plus a change-control rule. Written by Claude Code; signed off by all four via PR #10. **Part A (Stages 0–3) complete.**
 - Malak's Codex context test is documented in `docs/setup-report.md` Section 5 and passed on
-  2026-10-15; human review is still required (Entry 22).
+  2026-10-15; merged via PR #11 (Entry 22).
 - Read-only diagnosis verified that all four local failures share one Windows environment root cause:
   Application Control blocked Numba 0.68.0's `_typeconv.cp313-win_amd64.pyd`; two tests failed on the
   import and two consequently reached a zero-decodable `ValueError`. This is not a Python 3.13
-  incompatibility or independently reproduced repository defect. Final full-suite verification must
-  come from GitHub CI or another policy-compatible environment (Entry 23).
+  incompatibility or independently reproduced repository defect (Entry 23). The later Stage 4 full
+  run passed all 33 tests and the block did not recur (Entry 24); PR CI remains required before merge.
+- **Corrected Stage 4 official run passed deterministically** (Entry 25): frozen checks pass from
+  clean commit `10a5e68`; the regenerated 17,721-row candidate is byte-identical to the prior run.
+  The candidate upload is confirmed (Entry 26); evidence commit/PR and final human acceptance
+  remain open. Stage 5 and Stage 6 have not started.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -631,18 +716,21 @@ error-reporting weakness is optional future hardening; if the team approves it, 
 - One set of rules for every AI tool (`AGENTS.md`, now with owners per stage), a decision register with ADRs, and CI with an automated DEEP-VOICE access guard.
 
 **Branches:**
-- `main` (on `kahlanzzi/voice-spoofing-detection`): Stages 0–2, closeout (PR #5), repo structure (PR #6), pre-Stage 3 cleanup (PR #7), protocol skeleton (PR #8), repo transfer (PR #9).
-- `docs/stage3-protocol-v1`: protocol v1.0 + sign-off commit (Entry 21), PR #10 approved; sign-off commit local, not pushed yet.
-- `docs/setup-report-malak`: Malak's setup-report context test (Entry 22) and local failure diagnosis
-  (Entry 23); tracking `origin/docs/setup-report-malak`, awaiting PR, CI, and human review.
+- `main` (on `kahlanzzi/voice-spoofing-detection`): Stages 0–3 plus Malak's setup-report work,
+  through merged PR #11 (`077c45a`).
+- `feat/stage4-split`: renamed locally before first push; implementation commits are `11da6bd` and
+  EOF-only correction `10a5e68`. Corrected evidence is ready for its restricted commit and PR.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Everyone runs `git remote set-url origin https://github.com/kahlanzzi/voice-spoofing-detection.git`; Iheb confirms collaborators, branch protection and Actions.
-2. Push the sign-off commit to `docs/stage3-protocol-v1`; after CI is green, merge PR #10 (a human merges).
-3. **Stages 4–5 (CURRENT, owner Malak, Part B): leakage-aware split + dataset freeze** (manifests + hashes), following protocol v1.0 §2–3.
-4. Open team items: compute (0.7), weekly sync (0.8), Issues board, threat model §13 Q2 (access control), Iheb's review of the audit, remaining setup-report sections and AI-tool answers.
-5. Before Stage 8: W&B and the compute benchmark. In Stage 6: explicit silence-detector decision. Before Stage 13: governance allowlist decision.
+1. Commit and push the restricted Stage 4 evidence, open the PR against `main`, and wait for
+   Donia's GitHub review. Do not start Stage 5 before Stage 4 acceptance.
+2. After Stage 4 approval, Stage 5 may freeze the FoR and permitted metadata-only external manifest
+   with hashes (F2) on its own branch/unit of work.
+3. Open team items: Iheb confirms repo settings; compute (0.7), weekly sync (0.8), Issues board,
+   threat model §13 Q2, Iheb's audit review, and remaining setup-report sections/tool answers.
+4. Before Stage 8: W&B and compute benchmark. In Stage 6: silence-detector decision. Before
+   Stage 13: governance allowlist decision.

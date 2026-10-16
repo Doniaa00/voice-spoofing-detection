@@ -9,6 +9,7 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
 ## [Unreleased]
 
 ### Added
+- Stage 4 FoR-only leakage-aware split code, frozen split config, automated checks and tests.
 - `AGENTS.md` as the single AI context for all tools (D22); `CLAUDE.md` imports it.
 - Decision register moved to `docs/decisions/README.md`, with ADRs 0001–0005 (D24).
 - `CONTRIBUTING.md`, PR and issue templates aligned with the CS 488 template.
