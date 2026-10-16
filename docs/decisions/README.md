@@ -31,6 +31,7 @@ Any change needs a new entry with a reason and team approval.
 | D24 | Decisions = this register (every decision) + ADRs in `docs/decisions/` for major decisions only. — [ADR 0001](0001-record-architecture-decisions.md) | Approved (team, 2026-10-06) |
 | D25 | MIT license for the project code only. Datasets are never redistributed (not in the repo, not in releases). | Approved (team, 2026-10-06) |
 | D26 | Work distribution (Execution Plan v2.1). **Part A** (Stages 0–3): Stage 3 led by Donia. **Part B** (4–6): Malak. **Part C** (7–12): Donia. **Part D** (13–16): Khalil (13, 15, 16), Malak (14). **Part E** (17–19): Iheb. **All four:** Stage 3 sign-off, Stage 13 review, Stage 19 report. Review rule: the consumer reviews the producer. Interfaces (hand-overs, Execution Plan v2.1 §5) fixed in Stage 3: **B→C** manifest columns (path, label, subgroup, group, split, hash) and the preprocessing function's input/output (sample rate, length, feature shapes); **C→D** the ModelBundle format and `score(audio) → score`, plus the per-sample stored-score file format; **C→E** API response `{prediction, confidence, risk_level}` plus model/profile/policy versions, and how the bundle is loaded and its hash verified; **B→Stage 14** the degradation conditions and levels, applied through the same preprocessing profile. Changing an interface after Stage 3 needs a decision. | Approved (team, 2026-10-12) |
+| D27 | Shared AI tooling v1: one skill (`pr-prep`, `.claude/skills/`) and one MCP server (Context7, key via `${CONTEXT7_API_KEY}`, never committed). GitHub MCP excluded until read-only is guaranteed for every member; no Filesystem, Git or Fetch MCP; no MCP in Stage 13; later additions only by decision. — [ADR 0006](0006-shared-ai-tooling.md) | Proposed (2026-10-16) |
 
 ## Architecture Decision Records
 
@@ -43,6 +44,7 @@ Major decisions also have an ADR in this folder (D24). New ADRs start from [`TEM
 | [0003](0003-agents-md-single-ai-context.md) | AGENTS.md is the single AI context | D22 |
 | [0004](0004-dataset-pinning.md) | Dataset pinning | D21 |
 | [0005](0005-deep-voice-single-use.md) | DEEP-VOICE is used once, as a frozen external test | D2, D3, D6, D20 |
+| [0006](0006-shared-ai-tooling.md) | Shared AI tooling v1: one skill and one documentation MCP server | D27 |
 
 ## Pre-registered hypotheses
 
