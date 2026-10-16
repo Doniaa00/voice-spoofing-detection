@@ -75,6 +75,21 @@ def test_interpolated_threshold_between_roc_points():
     assert threshold == pytest.approx(0.7)
 
 
+def test_realised_rates_at_interpolated_threshold():
+    # Same data. At threshold 0.7 (spoof if score >= 0.7) only 0.9 is predicted spoof:
+    # bonafide 0.5 < 0.7 -> no false positive -> FPR 0/1 = 0.0;
+    # spoofs 0.4 (missed) and 0.9 (caught) -> FNR 1/2 = 0.5.
+    # The realised rates belong to a neighbouring ROC point, not to the interpolated EER 0.5.
+    labels = np.array([0, 1, 1])
+    scores = np.array([0.5, 0.4, 0.9])
+    _, threshold = eer(labels, scores)
+    predicted_spoof = scores >= threshold
+    fpr = predicted_spoof[labels == 0].mean()
+    fnr = (~predicted_spoof[labels == 1]).mean()
+    assert fpr == 0.0
+    assert fnr == 0.5
+
+
 def _random_case(n: int = 200):
     rng = np.random.default_rng(2026)
     labels = rng.integers(0, 2, size=n)

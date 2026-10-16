@@ -42,6 +42,14 @@ The harness is built in five steps; this document grows with each one.
   message on any of these inputs: labels and scores of different lengths, empty input, only one
   class, labels other than 0/1, or NaN/infinite scores.
 
+### Limitation
+The EER is an interpolated rate. Applying the returned threshold to the same data gives the error
+rates of a neighbouring ROC point, not exactly the EER. For example, in the 0.7 test, a threshold
+of 0.7 gives FPR 0 and FNR 0.5, while the EER is 0.5. On large sets (val-B ≈ 1,330 clips) the
+gap is small; on small sets (one DEEP-VOICE speaker) it can be large. Stage 11 therefore reports
+the realised FPR/FNR at the frozen threshold, and never reports the EER as the error rate at that
+threshold.
+
 ### Tests (`tests/evaluation/test_metrics.py`)
 Each case has its hand calculation as a comment.
 
@@ -50,6 +58,7 @@ Each case has its hand calculation as a comment.
 | Conventions, exact-match rule | `test_perfect_separation` (AUC 1, EER 0, threshold 0.8), `test_reversed_scores` (AUC 0, EER 1), `test_hand_calculated_case` (AUC 0.75, EER 0.5, threshold 0.6) |
 | (a) agreement with scikit-learn | `test_roc_auc_matches_sklearn_on_random_scores` (200 scores, seed 2026, tolerance 1e-12) |
 | (b) interpolation | `test_all_scores_equal` (EER 0.5 between the two only ROC points), `test_interpolated_threshold_between_roc_points` (EER 0.5, threshold 0.7 between 0.9 and 0.5) |
+| Limitation: realised rates | `test_realised_rates_at_interpolated_threshold` (threshold 0.7 gives FPR 0.0, FNR 0.5) |
 | (c) finite threshold | `test_all_scores_equal` (the +∞ threshold is replaced; result 0.5, asserted finite) |
 | (d) fail loudly | `test_invalid_input_raises` (each invalid input, for both functions) |
 | Ranking properties | `test_metrics_invariant_under_monotonic_transform` (logistic transform: calibration such as Platt scaling in Stage 10 is monotonic and must not change score-level metrics), `test_auc_of_negated_scores_is_complement` (AUC(s) + AUC(−s) = 1) |
