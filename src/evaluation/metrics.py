@@ -10,12 +10,19 @@ rules: fail loudly).
 """
 from __future__ import annotations
 
+import math
+from dataclasses import dataclass
+from numbers import Real
+
 import numpy as np
 from sklearn.metrics import roc_auc_score, roc_curve
 
 
-def _validate(labels, scores) -> tuple[np.ndarray, np.ndarray]:
-    """Return labels (int) and scores (float) as 1-D arrays, or raise ValueError."""
+def _validate(labels, scores, require_both_classes: bool = True) -> tuple[np.ndarray, np.ndarray]:
+    """Return labels (int) and scores (float) as 1-D arrays, or raise ValueError.
+
+    require_both_classes=False allows single-class input (e.g. spoof-only subsets for recall).
+    """
     y = np.asarray(labels)
     s = np.asarray(scores, dtype=float)
     if y.ndim != 1 or s.ndim != 1:
@@ -28,7 +35,7 @@ def _validate(labels, scores) -> tuple[np.ndarray, np.ndarray]:
         bad = sorted({repr(v) for v in y[~np.isin(y, [0, 1])].tolist()})[:5]
         raise ValueError(f"labels must be 0 (bonafide) or 1 (spoof), found {', '.join(bad)}")
     y = y.astype(int)
-    if len(np.unique(y)) < 2:
+    if require_both_classes and len(np.unique(y)) < 2:
         raise ValueError(f"labels contain only one class ({int(y[0])}); both 0 and 1 are needed")
     if not np.isfinite(s).all():
         raise ValueError(f"scores contain {int((~np.isfinite(s)).sum())} NaN or infinite values")
@@ -67,3 +74,58 @@ def eer(labels, scores) -> tuple[float, float]:
     rate = fpr[i - 1] + w * (fpr[i] - fpr[i - 1])
     threshold = thresholds[i - 1] + w * (thresholds[i] - thresholds[i - 1])
     return float(rate), float(threshold)
+
+
+@dataclass(frozen=True)
+class BinaryMetrics:
+    """Confusion counts and rates at one threshold. Rates are fractions in [0, 1], NaN if undefined."""
+
+    tp: int
+    fp: int
+    tn: int
+    fn: int
+    n_spoof: int
+    n_bonafide: int
+    accuracy: float
+    precision: float
+    recall: float
+    f1: float
+    fpr: float
+    fnr: float
+
+
+def _rate(numerator: int, denominator: int) -> float:
+    """numerator / denominator, or NaN (never 0) when the denominator is 0."""
+    return numerator / denominator if denominator else float("nan")
+
+
+def binary_metrics(labels, scores, threshold) -> BinaryMetrics:
+    """Forced binary decision metrics at a threshold: predict spoof if score >= threshold.
+
+    Same rule as eer(). Single-class input is allowed; any rate whose denominator is 0 is NaN.
+    F1 is computed from counts as 2TP / (2TP + FP + FN).
+    """
+    y, s = _validate(labels, scores, require_both_classes=False)
+    if isinstance(threshold, bool) or not isinstance(threshold, Real) or not math.isfinite(threshold):
+        raise ValueError(f"threshold must be a finite number, got {threshold!r}")
+
+    predicted_spoof = s >= threshold
+    is_spoof = y == 1
+    tp = int(np.sum(predicted_spoof & is_spoof))
+    fp = int(np.sum(predicted_spoof & ~is_spoof))
+    tn = int(np.sum(~predicted_spoof & ~is_spoof))
+    fn = int(np.sum(~predicted_spoof & is_spoof))
+    return BinaryMetrics(
+        tp=tp,
+        fp=fp,
+        tn=tn,
+        fn=fn,
+        n_spoof=tp + fn,
+        n_bonafide=fp + tn,
+        accuracy=_rate(tp + tn, len(y)),
+        precision=_rate(tp, tp + fp),
+        recall=_rate(tp, tp + fn),
+        f1=_rate(2 * tp, 2 * tp + fp + fn),
+        fpr=_rate(fp, fp + tn),
+        fnr=_rate(fn, fn + tp),
+    )

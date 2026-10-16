@@ -1,4 +1,6 @@
-"""Step 1 evaluation harness tests: EER and ROC-AUC on small synthetic arrays (no dataset access).
+"""Evaluation harness tests on small synthetic arrays (no dataset access).
+
+Step 1: EER and ROC-AUC. Step 2: decision-level metrics at a threshold (binary_metrics).
 
 Convention: label 1 = spoof (positive), 0 = bonafide; higher score = more spoof; spoof if
 score >= threshold. In the hand calculations, ROC rows are (threshold, FPR, TPR, FNR) as returned by
@@ -10,9 +12,9 @@ import math
 
 import numpy as np
 import pytest
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support, roc_auc_score
 
-from src.evaluation.metrics import eer, roc_auc
+from src.evaluation.metrics import binary_metrics, eer, roc_auc
 
 LABELS = [0, 0, 1, 1]
 
@@ -137,3 +139,109 @@ def test_auc_of_negated_scores_is_complement():
 def test_invalid_input_raises(metric, labels, scores, message):
     with pytest.raises(ValueError, match=message):
         metric(labels, scores)
+
+
+# --- Step 2: decision-level metrics at a threshold -------------------------------------------
+
+HAND_SCORES = [0.1, 0.6, 0.4, 0.9]  # with LABELS = [0, 0, 1, 1]
+
+
+def test_binary_metrics_hand_case():
+    # threshold 0.5: predicted spoof = [F, T, F, T].
+    # bonafide 0.1 -> TN, bonafide 0.6 -> FP, spoof 0.4 -> FN, spoof 0.9 -> TP.
+    # precision 1/2, recall 1/2, fpr 1/2, fnr 1/2, accuracy 2/4, f1 2/(2+1+1) = 0.5.
+    m = binary_metrics(LABELS, HAND_SCORES, 0.5)
+    assert (m.tp, m.fp, m.tn, m.fn) == (1, 1, 1, 1)
+    assert (m.n_spoof, m.n_bonafide) == (2, 2)
+    for rate in (m.accuracy, m.precision, m.recall, m.f1, m.fpr, m.fnr):
+        assert rate == 0.5
+
+
+def test_binary_metrics_nothing_predicted_spoof():
+    # threshold 0.95: no score >= 0.95 -> TP 0, FP 0, TN 2, FN 2.
+    # precision 0/0 -> NaN; recall 0/2 = 0; f1 0/(0+0+2) = 0; fpr 0/2 = 0; fnr 2/2 = 1;
+    # accuracy 2/4 = 0.5.
+    m = binary_metrics(LABELS, HAND_SCORES, 0.95)
+    assert (m.tp, m.fp, m.tn, m.fn) == (0, 0, 2, 2)
+    assert math.isnan(m.precision)
+    assert m.recall == 0.0
+    assert m.f1 == 0.0
+    assert m.fpr == 0.0
+    assert m.fnr == 1.0
+    assert m.accuracy == 0.5
+
+
+def test_binary_metrics_tie_counts_as_spoof():
+    # threshold 0.4: spoof 0.4 >= 0.4 -> predicted spoof (TP); 0.6 and 0.9 are also >= 0.4.
+    # TP 2 (0.4, 0.9), FP 1 (0.6), TN 1 (0.1), FN 0.
+    m = binary_metrics(LABELS, HAND_SCORES, 0.4)
+    assert (m.tp, m.fp, m.tn, m.fn) == (2, 1, 1, 0)
+
+
+def test_binary_metrics_single_class():
+    # labels [1,1,1], scores [0.2,0.6,0.9], threshold 0.5: TP 2 (0.6, 0.9), FN 1 (0.2), FP 0, TN 0.
+    # recall 2/3, fnr 1/3, fpr 0/0 -> NaN, precision 2/2 = 1.0, f1 4/(4+0+1) = 0.8, accuracy 2/3.
+    m = binary_metrics([1, 1, 1], [0.2, 0.6, 0.9], 0.5)
+    assert (m.tp, m.fp, m.tn, m.fn) == (2, 0, 0, 1)
+    assert m.n_bonafide == 0
+    assert m.recall == pytest.approx(2 / 3)
+    assert m.fnr == pytest.approx(1 / 3)
+    assert math.isnan(m.fpr)
+    assert m.precision == 1.0
+    assert m.f1 == pytest.approx(0.8)
+    assert m.accuracy == pytest.approx(2 / 3)
+
+
+def test_binary_metrics_consistent_with_sklearn():
+    # 200 random scores, seed 2026, threshold 0.5. Counts must sum to N, fnr == 1 - recall, and
+    # counts / precision / recall / f1 must equal scikit-learn's on the same predictions.
+    labels, scores = _random_case()
+    m = binary_metrics(labels, scores, 0.5)
+    predicted = (scores >= 0.5).astype(int)
+    assert m.tp + m.fp + m.tn + m.fn == len(labels)
+    assert m.fnr == pytest.approx(1.0 - m.recall, abs=1e-12)
+    tn, fp, fn, tp = confusion_matrix(labels, predicted, labels=[0, 1]).ravel()
+    assert (m.tp, m.fp, m.tn, m.fn) == (tp, fp, tn, fn)
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        labels, predicted, average="binary", pos_label=1
+    )
+    assert m.precision == pytest.approx(precision, abs=1e-12)
+    assert m.recall == pytest.approx(recall, abs=1e-12)
+    assert m.f1 == pytest.approx(f1, abs=1e-12)
+
+
+def test_binary_metrics_at_eer_threshold():
+    # Hand case: eer() gives EER 0.5 at threshold 0.6 (exact ROC point, see test_hand_calculated_case).
+    # At 0.6: 0.6 -> FP, 0.9 -> TP, 0.1 -> TN, 0.4 -> FN -> FPR 1/2 = FNR 1/2 = 0.5.
+    _, threshold = eer(LABELS, HAND_SCORES)
+    m = binary_metrics(LABELS, HAND_SCORES, threshold)
+    assert m.fpr == 0.5
+    assert m.fnr == 0.5
+
+
+@pytest.mark.parametrize("threshold", [float("nan"), float("inf"), float("-inf"), "0.5", None])
+def test_binary_metrics_invalid_threshold_raises(threshold):
+    with pytest.raises(ValueError, match="threshold must be a finite number"):
+        binary_metrics(LABELS, HAND_SCORES, threshold)
+
+
+@pytest.mark.parametrize(
+    ("labels", "scores", "message"),
+    [
+        ([0, 1, 1], [0.1, 0.9], "differ in length"),
+        ([], [], "empty"),
+        ([0, 1, 2], [0.1, 0.5, 0.9], "must be 0"),
+        (["bonafide", "spoof"], [0.1, 0.9], "must be 0"),
+        ([0, 1, 1], [0.1, float("nan"), 0.9], "NaN or infinite"),
+    ],
+)
+def test_binary_metrics_invalid_input_raises(labels, scores, message):
+    with pytest.raises(ValueError, match=message):
+        binary_metrics(labels, scores, 0.5)
+
+
+@pytest.mark.parametrize("metric", [roc_auc, eer])
+def test_score_metrics_still_require_both_classes(metric):
+    # Regression check after adding require_both_classes: the default stays True.
+    with pytest.raises(ValueError, match="only one class"):
+        metric([1, 1, 1], [0.2, 0.6, 0.9])

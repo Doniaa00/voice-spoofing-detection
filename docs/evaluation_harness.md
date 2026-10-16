@@ -62,3 +62,53 @@ Each case has its hand calculation as a comment.
 | (c) finite threshold | `test_all_scores_equal` (the +∞ threshold is replaced; result 0.5, asserted finite) |
 | (d) fail loudly | `test_invalid_input_raises` (each invalid input, for both functions) |
 | Ranking properties | `test_metrics_invariant_under_monotonic_transform` (logistic transform: calibration such as Platt scaling in Stage 10 is monotonic and must not change score-level metrics), `test_auc_of_negated_scores_is_complement` (AUC(s) + AUC(−s) = 1) |
+
+## Step 2: decision-level metrics at a threshold
+
+### Conventions
+- Same labels and scores as Step 1; positive class = spoof (D4, Protocol v1.0 §5).
+- Forced binary decision: predict spoof if `score >= threshold` (no uncertain band at this step).
+
+`binary_metrics(labels, scores, threshold) -> BinaryMetrics` returns a frozen dataclass with the
+counts `tp, fp, tn, fn, n_spoof, n_bonafide` (int) and the rates `accuracy, precision, recall, f1,
+fpr, fnr` (float, fractions in [0, 1]).
+
+### Formulas
+| Rate | Formula |
+|---|---|
+| accuracy | (TP + TN) / N |
+| precision | TP / (TP + FP) |
+| recall | TP / (TP + FN) |
+| F1 | 2TP / (2TP + FP + FN) |
+| FPR | FP / (FP + TN) |
+| FNR | FN / (FN + TP) |
+
+Any rate whose denominator is 0 is `NaN`, never 0, and no warning is emitted. The threshold must
+be a finite number, otherwise `ValueError` is raised. All Step 1 input checks still apply, except
+that a single class is allowed.
+
+### Why (team reasoning)
+- **(a) Same `>=` rule as the EER threshold.** A threshold returned by `eer()` (and later the
+  frozen risk-policy threshold) means the same thing when it is applied here.
+- **(b) NaN, not 0, for undefined rates.** A 0 looks like a real result (for example "precision 0"
+  when nothing is predicted spoof), and scikit-learn's default silently returns 0 in that case.
+  NaN keeps the undefined case visible.
+- **(c) One class allowed.** H5 subgroup recall is computed on spoof-only subsets, so
+  `binary_metrics` must accept them; rates that need the missing class come out as NaN. EER and
+  AUC still need both classes, so `roc_auc` and `eer` keep raising on a single class.
+- **(d) F1 from counts.** 2TP / (2TP + FP + FN) is defined in more cases than 2PR / (P + R): for
+  example it gives 0 when nothing is predicted spoof but spoofs exist, where precision is NaN.
+- **(e) Counts always returned.** Every rate can be recomputed and checked from the counts
+  (FR-14).
+
+### Tests (`tests/evaluation/test_metrics.py`)
+Each case has its hand calculation as a comment.
+
+| Point | Test |
+|---|---|
+| Formulas, hand case | `test_binary_metrics_hand_case` (TP = FP = TN = FN = 1; all six rates 0.5) |
+| (a) `>=` rule | `test_binary_metrics_tie_counts_as_spoof` (a score equal to the threshold is spoof), `test_binary_metrics_at_eer_threshold` (FPR = FNR = 0.5 at the `eer()` threshold) |
+| (b) NaN, (d) F1 from counts | `test_binary_metrics_nothing_predicted_spoof` (precision NaN, F1 0, recall 0, FNR 1) |
+| (c) one class | `test_binary_metrics_single_class` (recall 2/3, FPR NaN, `n_bonafide` 0), `test_score_metrics_still_require_both_classes` (`roc_auc`, `eer` still raise) |
+| Agreement with scikit-learn, (e) counts | `test_binary_metrics_consistent_with_sklearn` (200 scores, seed 2026: counts sum to N, FNR = 1 − recall, counts match `confusion_matrix`, precision/recall/F1 match `precision_recall_fscore_support`) |
+| Fail loudly | `test_binary_metrics_invalid_threshold_raises` (NaN, ±∞, string, None), `test_binary_metrics_invalid_input_raises` (lengths, empty, bad labels, NaN scores) |
