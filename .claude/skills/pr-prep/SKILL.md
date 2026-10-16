@@ -59,7 +59,7 @@ git diff --name-only origin/main...HEAD
 ## 4. Secrets and data check
 
 ```bash
-git grep -n -E "ghp_|github_pat_|ctx7sk|sk-[A-Za-z0-9]{20}" || echo "no token found"
+git grep -n -E "gh[p]_|github_[p]at_|ctx7s[k]|sk-[A-Za-z0-9]{20}" || echo "no token found"
 git diff --name-only origin/main...HEAD
 ```
 
