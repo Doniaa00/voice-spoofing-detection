@@ -13,7 +13,8 @@ tools all read it. Project rules live in `../AGENTS.md`.
 | [dataset_audit.md](dataset_audit.md) | Stage 1 dataset audit (FoR-2sec full, DEEP-VOICE metadata only) | signed off; changes need a decision |
 | [audit_evidence/](audit_evidence/) | Machine-generated evidence behind every audit number | the audit is re-run |
 | [threat_model.md](threat_model.md) | Stage 2 threat model (v1.0 reviewed) | threats or claims change |
-| [experimental_protocol.md](experimental_protocol.md) | Stage 3 Experimental Protocol (draft v0.1; freezes at v1.0 = F1) | a section is filled in; after F1 only by decision |
+| [experimental_protocol.md](experimental_protocol.md) | Stage 3 Experimental Protocol (v1.0, frozen (F1)) | a section is filled in; after F1 only by decision |
+| [evaluation_harness.md](evaluation_harness.md) | Shared metrics module (EER, ROC-AUC, ...): conventions, methods, tests | a harness step is added |
 | [setup-report.md](setup-report.md) | Lab 6 setup report (skeleton) | the Lab 6 report is written |
 | [reference/](reference/) | SRS, SDD, Execution Plan, Proposal (read-only sources) | never edited here |
 
