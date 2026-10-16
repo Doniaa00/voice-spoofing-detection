@@ -576,6 +576,24 @@ evidence commit and PR handoff. No dataset or candidate CSV is included in Git.
 
 **Gate:** ready for the evidence commit and Donia's GitHub review. Stage 5 has not started.
 
+### Entry 27 — Shared AI tooling v1: pr-prep skill and Context7 (2026-10-16)
+
+**What:** on `chore/stage5-ai-tooling` (Iheb), one PR sets up shared AI tooling (D27, ADR 0006):
+the `pr-prep` skill in `.claude/skills/pr-prep/SKILL.md` and one MCP server, Context7, in
+`.mcp.json` with its key referenced as `${CONTEXT7_API_KEY}` (no token committed). GitHub MCP is
+excluded from v1: read-only cannot be guaranteed at the token level for collaborators (ADR 0006).
+No Filesystem, Git or Fetch MCP; no MCP in Stage 13. Scope agreed with Donia and Malak before the PR.
+
+**Evidence [verified by Iheb]:** `python -m pytest -q` passes on the branch (33 passed); the new
+files contain none of the governance-test patterns; `.mcp.json` is valid JSON; `.gitignore`
+already covered `.env`, `.venv/` and `.claude/settings.local.json`, so it was not changed.
+
+**AI assistance:** **Claude** (claude.ai chat) researched GitHub token and MCP read-only behaviour,
+drafted ADR 0006, the `pr-prep` skill (with Anthropic's `skill-creator`), `.mcp.json` and these doc
+edits. Iheb reviewed every file and ran all checks.
+
+**Gate:** waiting for Donia's GitHub review. AI agents do not merge.
+
 ---
 
 ## Open items
@@ -594,6 +612,7 @@ evidence commit and PR handoff. No dataset or candidate CSV is included in Git.
 - [x] Review and merge PR `docs/stage3-repo-cleanup` (Entry 18): merged as PR #7 (Entry 19).
 - [x] Delete merged branches: remote has only `main` (Entry 19).
 - [x] Review and merge PR `docs/stage3-protocol-skeleton` (Entry 19): merged as PR #8; branch deleted (Entry 20).
+- [ ] Review and merge PR `chore/stage5-ai-tooling` (Entry 27); after merge each member sets `CONTEXT7_API_KEY` locally (never committed) and approves the project MCP server in their own tool.
 - [ ] Stage 13 governance: decide (new decision, before Stage 13) how the guarded external-run code is added to the DEEP-VOICE allowlist of `tests/governance/test_deepvoice_access.py`.
 - [x] `LICENSE` (MIT, code only, D25) and the README statement that datasets are not redistributed: in `chore/repo-structure` instead of a separate PR B (Entry 17).
 - [x] Decide whether branch protection should require code-owner review: **no** (review of Entry 16).
@@ -706,6 +725,8 @@ evidence commit and PR handoff. No dataset or candidate CSV is included in Git.
   clean commit `10a5e68`; the regenerated 17,721-row candidate is byte-identical to the prior run.
   The candidate upload is confirmed (Entry 26); evidence commit/PR and final human acceptance
   remain open. Stage 5 and Stage 6 have not started.
+- **AI tooling PR open** (Entry 27): `pr-prep` skill and Context7 (D27, ADR 0006) on
+  `chore/stage5-ai-tooling`, waiting for Donia's review.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
