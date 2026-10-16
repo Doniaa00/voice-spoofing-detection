@@ -35,4 +35,3 @@ expected:
     FAKE_mp3: 7592
     FAKE_other: 1329
   d14_selected_threshold: 0.95
-

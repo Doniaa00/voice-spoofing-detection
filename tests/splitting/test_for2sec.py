@@ -269,4 +269,3 @@ def test_main_runs_the_cli_contract(tmp_path, capsys, monkeypatch):
     for2sec.main(["--inventory", str(inventory_path), "--summary", str(summary_path),
                   "--config", str(config_path), "--out", str(out)])
     assert "Stage 4 FoR split passed" in capsys.readouterr().out
-
