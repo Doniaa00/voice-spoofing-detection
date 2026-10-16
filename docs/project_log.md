@@ -534,6 +534,50 @@ ran the checks, and documented the session. Human review by Donia (consumer, D26
 
 ---
 
+### Entry 25 — Corrected official Stage 4 FoR split run (2026-10-16)
+
+**Boundary [doc]:** Stage 4 FoR metadata only. No audio or DEEP-VOICE was accessed. No Stage 5
+manifest/hash freeze or Stage 6 preprocessing was started.
+
+**What we did:** Donia reviewed the first result and requested removal of four extra EOF blank
+lines, a final clean implementation commit, and a determinism rerun. The local branch was renamed
+to `feat/stage4-split` before its first push. The EOF-only correction is commit `10a5e68`; the
+worktree was clean before the official rerun. The candidate CSV remains outside Git.
+
+**Evidence [verified locally]:** the pre-rerun candidate had 17,721 rows and SHA-256
+`853d947499e76c4cc9da5b69df384588f0023c21ed93f6a2dec1940f8988aa20`. The regenerated candidate
+has the same row count and byte-identical SHA-256. Its intended destination is
+`MyDrive/voice-spoofing-detection/processed/metadata/stage4/for2sec_split_assignments.csv`; upload
+is pending Malak's confirmation. The reports cite clean commit
+`10a5e6809bb55484908cbcce547a75c14d33a908`, include split × class × subgroup counts, and record all
+checks passing. Focused tests: **18 passed in 10.83 s**. Full suite: **33 passed in 17.62 s**.
+Windows Application Control blocked the `.venv` launcher, so Python 3.13.14 used the existing
+pinned `.venv` site-packages; no dependency was installed.
+
+**AI assistance:** **Codex** preserved and compared the candidate fingerprints, made the approved
+EOF-only correction, performed the clean-commit rerun, ran tests and prepared the evidence. Donia
+reviewed the prior result; final evidence acceptance remains human-controlled.
+
+**Gate:** corrected Stage 4 evidence is ready for review. The Drive upload, evidence commit, PR and
+final Stage 4 acceptance remain pending; Stage 5 has not started.
+
+---
+
+### Entry 26 — Stage 4 candidate Drive upload confirmed (2026-10-16)
+
+**Evidence [verified by Malak]:** the final untracked 17,721-row candidate CSV was uploaded to
+`MyDrive/voice-spoofing-detection/processed/metadata/stage4/for2sec_split_assignments.csv`.
+Its recorded SHA-256 remains
+`853d947499e76c4cc9da5b69df384588f0023c21ed93f6a2dec1940f8988aa20`. The repository retains only
+the Markdown/JSON evidence; the candidate is ignored and untracked.
+
+**AI assistance:** **Codex** recorded the human-confirmed upload and prepared the restricted
+evidence commit and PR handoff. No dataset or candidate CSV is included in Git.
+
+**Gate:** ready for the evidence commit and Donia's GitHub review. Stage 5 has not started.
+
+---
+
 ## Open items
 
 **GitHub / repo**
@@ -562,9 +606,10 @@ ran the checks, and documented the session. Human review by Donia (consumer, D26
 
 **Stage 4 gate**
 - [x] Implement the FoR-only group-aware split and automated checks from Protocol v1.0 §2 (Entry 24).
-- [ ] Run it against the full pinned Stage 1 `for2sec_inventory.csv` and `for2sec_summary.json`;
-  retain the candidate assignment and check report outside `data/manifests/` until Stage 5.
-- [ ] Donia reviews the code and the real split report; all automated checks pass before Stage 4 closes.
+- [x] Run it from clean commit `10a5e68` against the full pinned Stage 1 inventory and summary;
+  all checks pass and the rerun is byte-identical (Entry 25).
+- [x] Malak uploaded the untracked candidate CSV to the exact Stage 4 Drive destination (Entry 26).
+- [ ] Donia reviews the corrected evidence; then authorize the evidence commit and PR before Stage 4 closes.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -637,7 +682,7 @@ ran the checks, and documented the session. Human review by Donia (consumer, D26
 
 ---
 
-## Current status — updated 2026-10-15
+## Current status — updated 2026-10-16
 
 **What was done:**
 - Readiness audit and decisions D1–D26; hypotheses H5–H6 pre-registered.
@@ -657,10 +702,10 @@ ran the checks, and documented the session. Human review by Donia (consumer, D26
   import and two consequently reached a zero-decodable `ValueError`. This is not a Python 3.13
   incompatibility or independently reproduced repository defect (Entry 23). The later Stage 4 full
   run passed all 33 tests and the block did not recur (Entry 24); PR CI remains required before merge.
-- **Stage 4 implementation is ready for real FoR metadata** (Entry 24): frozen config, group-aware
-  splitter, automated acceptance checks and tests are present. The pinned summary is committed;
-  the full real inventory, real split run and Donia's review remain open. Stage 5 and Stage 6 have
-  not started.
+- **Corrected Stage 4 official run passed deterministically** (Entry 25): frozen checks pass from
+  clean commit `10a5e68`; the regenerated 17,721-row candidate is byte-identical to the prior run.
+  The candidate upload is confirmed (Entry 26); evidence commit/PR and final human acceptance
+  remain open. Stage 5 and Stage 6 have not started.
 
 **What we have:**
 - FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
@@ -673,16 +718,16 @@ ran the checks, and documented the session. Human review by Donia (consumer, D26
 **Branches:**
 - `main` (on `kahlanzzi/voice-spoofing-detection`): Stages 0–3 plus Malak's setup-report work,
   through merged PR #11 (`077c45a`).
-- `feat/stage4-split-freeze-malak`: cleanly branched from that `main`; current uncommitted Stage 4
-  implementation, awaiting the real metadata run and human review.
+- `feat/stage4-split`: renamed locally before first push; implementation commits are `11da6bd` and
+  EOF-only correction `10a5e68`. Corrected evidence is ready for its restricted commit and PR.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
 - Then one honest, one-time external test on DEEP-VOICE.
 
 **What's next:**
-1. Supply the pinned FoR Stage 1 inventory and summary, run Stage 4, and have Donia review the
-   real split report. Do not start Stage 5 until this gate passes.
+1. Commit and push the restricted Stage 4 evidence, open the PR against `main`, and wait for
+   Donia's GitHub review. Do not start Stage 5 before Stage 4 acceptance.
 2. After Stage 4 approval, Stage 5 may freeze the FoR and permitted metadata-only external manifest
    with hashes (F2) on its own branch/unit of work.
 3. Open team items: Iheb confirms repo settings; compute (0.7), weekly sync (0.8), Issues board,

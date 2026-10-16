@@ -1,0 +1,212 @@
+{
+  "dataset": "FoR-2sec",
+  "revision": "ff8c82c79e7bbefef811941bac9775c9328e9055",
+  "protocol_version": "1.0",
+  "seed": 2026,
+  "group_column": "neardup_group_095",
+  "ratios": {
+    "train": 0.7,
+    "val-A": 0.075,
+    "val-B": 0.075,
+    "test": 0.15
+  },
+  "proportion_tolerance_percentage_points": 1.0,
+  "checks": {
+    "row_count_matches_source": true,
+    "paths_unique": true,
+    "path_set_matches_source": true,
+    "split_values_valid": true,
+    "groups_do_not_cross_splits": true,
+    "subgroup_proportions_within_1pp": true,
+    "class_proportions_within_1pp": true,
+    "all_pass": true
+  },
+  "split_sizes": {
+    "train": {
+      "count": 12404,
+      "fraction": 0.6999605,
+      "target_fraction": 0.7
+    },
+    "val-A": {
+      "count": 1330,
+      "fraction": 0.0750522,
+      "target_fraction": 0.075
+    },
+    "val-B": {
+      "count": 1329,
+      "fraction": 0.07499577,
+      "target_fraction": 0.075
+    },
+    "test": {
+      "count": 2658,
+      "fraction": 0.14999154,
+      "target_fraction": 0.15
+    }
+  },
+  "subgroup_proportions": {
+    "full": {
+      "REAL": 0.49658597,
+      "FAKE_mp3": 0.42841826,
+      "FAKE_other": 0.07499577
+    },
+    "train": {
+      "REAL": {
+        "fraction": 0.496614,
+        "deviation_percentage_points": 0.002802
+      },
+      "FAKE_mp3": {
+        "fraction": 0.42841019,
+        "deviation_percentage_points": 0.000807
+      },
+      "FAKE_other": {
+        "fraction": 0.07497581,
+        "deviation_percentage_points": 0.001995
+      }
+    },
+    "val-A": {
+      "REAL": {
+        "fraction": 0.4962406,
+        "deviation_percentage_points": 0.034537
+      },
+      "FAKE_mp3": {
+        "fraction": 0.42857143,
+        "deviation_percentage_points": 0.015317
+      },
+      "FAKE_other": {
+        "fraction": 0.07518797,
+        "deviation_percentage_points": 0.01922
+      }
+    },
+    "val-B": {
+      "REAL": {
+        "fraction": 0.496614,
+        "deviation_percentage_points": 0.002802
+      },
+      "FAKE_mp3": {
+        "fraction": 0.42814146,
+        "deviation_percentage_points": 0.02768
+      },
+      "FAKE_other": {
+        "fraction": 0.07524454,
+        "deviation_percentage_points": 0.024878
+      }
+    },
+    "test": {
+      "REAL": {
+        "fraction": 0.496614,
+        "deviation_percentage_points": 0.002802
+      },
+      "FAKE_mp3": {
+        "fraction": 0.42851768,
+        "deviation_percentage_points": 0.009942
+      },
+      "FAKE_other": {
+        "fraction": 0.07486832,
+        "deviation_percentage_points": 0.012745
+      }
+    }
+  },
+  "class_proportions": {
+    "full": {
+      "REAL": 0.49658597,
+      "FAKE": 0.50341403
+    },
+    "train": {
+      "REAL": {
+        "fraction": 0.496614,
+        "deviation_percentage_points": 0.002802
+      },
+      "FAKE": {
+        "fraction": 0.503386,
+        "deviation_percentage_points": 0.002802
+      }
+    },
+    "val-A": {
+      "REAL": {
+        "fraction": 0.4962406,
+        "deviation_percentage_points": 0.034537
+      },
+      "FAKE": {
+        "fraction": 0.5037594,
+        "deviation_percentage_points": 0.034537
+      }
+    },
+    "val-B": {
+      "REAL": {
+        "fraction": 0.496614,
+        "deviation_percentage_points": 0.002802
+      },
+      "FAKE": {
+        "fraction": 0.503386,
+        "deviation_percentage_points": 0.002802
+      }
+    },
+    "test": {
+      "REAL": {
+        "fraction": 0.496614,
+        "deviation_percentage_points": 0.002802
+      },
+      "FAKE": {
+        "fraction": 0.503386,
+        "deviation_percentage_points": 0.002802
+      }
+    }
+  },
+  "max_subgroup_deviation_percentage_points": 0.034537,
+  "max_class_deviation_percentage_points": 0.034537,
+  "code_version": {
+    "git_commit": "10a5e6809bb55484908cbcce547a75c14d33a908",
+    "git_dirty": false
+  },
+  "candidate_csv": {
+    "file": "for2sec_split_assignments.csv",
+    "git_tracked": false,
+    "row_count": 17721,
+    "sha256": "853d947499e76c4cc9da5b69df384588f0023c21ed93f6a2dec1940f8988aa20",
+    "drive_destination": "MyDrive/voice-spoofing-detection/processed/metadata/stage4/for2sec_split_assignments.csv",
+    "drive_upload_confirmed": true,
+    "drive_upload_confirmed_date": "2026-10-16"
+  },
+  "determinism": {
+    "pre_rerun_sha256": "853d947499e76c4cc9da5b69df384588f0023c21ed93f6a2dec1940f8988aa20",
+    "post_rerun_sha256": "853d947499e76c4cc9da5b69df384588f0023c21ed93f6a2dec1940f8988aa20",
+    "pre_rerun_row_count": 17721,
+    "post_rerun_row_count": 17721,
+    "sha256_identical": true,
+    "row_count_identical": true
+  },
+  "per_split_class_subgroup_counts": [
+    {"split": "train", "class": "REAL", "subgroup": "REAL", "count": 6160},
+    {"split": "train", "class": "FAKE", "subgroup": "FAKE_mp3", "count": 5314},
+    {"split": "train", "class": "FAKE", "subgroup": "FAKE_other", "count": 930},
+    {"split": "val-A", "class": "REAL", "subgroup": "REAL", "count": 660},
+    {"split": "val-A", "class": "FAKE", "subgroup": "FAKE_mp3", "count": 570},
+    {"split": "val-A", "class": "FAKE", "subgroup": "FAKE_other", "count": 100},
+    {"split": "val-B", "class": "REAL", "subgroup": "REAL", "count": 660},
+    {"split": "val-B", "class": "FAKE", "subgroup": "FAKE_mp3", "count": 569},
+    {"split": "val-B", "class": "FAKE", "subgroup": "FAKE_other", "count": 100},
+    {"split": "test", "class": "REAL", "subgroup": "REAL", "count": 1320},
+    {"split": "test", "class": "FAKE", "subgroup": "FAKE_mp3", "count": 1139},
+    {"split": "test", "class": "FAKE", "subgroup": "FAKE_other", "count": 199}
+  ],
+  "tests": {
+    "python": "3.13.14",
+    "environment_note": "Used the existing pinned .venv site-packages through the Python 3.13 launcher because Windows Application Control blocked the .venv launcher.",
+    "focused": {
+      "arguments": ["tests/splitting/test_for2sec.py", "-q"],
+      "exit_code": 0,
+      "output": "..................                                                       [100%]\n18 passed in 11.14s"
+    },
+    "full": {
+      "arguments": ["-q"],
+      "exit_code": 0,
+      "output": ".................................                                        [100%]\n33 passed in 19.83s"
+    },
+    "cross_split_guard": {
+      "test_file": "tests/splitting/test_for2sec.py",
+      "test_name": "test_check_split_detects_cross_split_group",
+      "node_id": "tests/splitting/test_for2sec.py::test_check_split_detects_cross_split_group",
+      "failed_validation_checks": ["groups_do_not_cross_splits", "all_pass"]
+    }
+  }
+}
