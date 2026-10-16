@@ -4,6 +4,8 @@ Conventions (Protocol v1.0 §5, D4):
 - labels: 1 = spoof (positive class), 0 = bonafide.
 - scores: higher score = more likely spoof.
 - decision rule: predict spoof if score >= threshold.
+- three-way decisions (FR-05): authentic / synthetic / uncertain, with a symmetric uncertain band
+  around the threshold (Protocol v1.0 §6, D12).
 
 All functions validate their input and raise ValueError on anything ambiguous (AGENTS.md code
 rules: fail loudly).
@@ -16,6 +18,40 @@ from numbers import Real
 
 import numpy as np
 from sklearn.metrics import roc_auc_score, roc_curve
+
+
+AUTHENTIC = "authentic"
+SYNTHETIC = "synthetic"
+UNCERTAIN = "uncertain"
+DECISIONS = (AUTHENTIC, SYNTHETIC, UNCERTAIN)  # FR-05 labels, in confusion-matrix column order
+
+
+def _validate_labels(labels, require_both_classes: bool = True) -> np.ndarray:
+    """Return labels as a 1-D int array of 0/1, or raise ValueError."""
+    y = np.asarray(labels)
+    if y.ndim != 1:
+        raise ValueError(f"labels must be 1-D, got shape {y.shape}")
+    if len(y) == 0:
+        raise ValueError("labels are empty")
+    if not np.isin(y, [0, 1]).all():
+        bad = sorted({repr(v) for v in y[~np.isin(y, [0, 1])].tolist()})[:5]
+        raise ValueError(f"labels must be 0 (bonafide) or 1 (spoof), found {', '.join(bad)}")
+    y = y.astype(int)
+    if require_both_classes and len(np.unique(y)) < 2:
+        raise ValueError(f"labels contain only one class ({int(y[0])}); both 0 and 1 are needed")
+    return y
+
+
+def _validate_scores(scores) -> np.ndarray:
+    """Return scores as a 1-D float array of finite values, or raise ValueError."""
+    s = np.asarray(scores, dtype=float)
+    if s.ndim != 1:
+        raise ValueError(f"scores must be 1-D, got shape {s.shape}")
+    if len(s) == 0:
+        raise ValueError("scores are empty")
+    if not np.isfinite(s).all():
+        raise ValueError(f"scores contain {int((~np.isfinite(s)).sum())} NaN or infinite values")
+    return s
 
 
 def _validate(labels, scores, require_both_classes: bool = True) -> tuple[np.ndarray, np.ndarray]:
@@ -31,12 +67,7 @@ def _validate(labels, scores, require_both_classes: bool = True) -> tuple[np.nda
         raise ValueError(f"labels and scores differ in length: {len(y)} != {len(s)}")
     if len(y) == 0:
         raise ValueError("labels and scores are empty")
-    if not np.isin(y, [0, 1]).all():
-        bad = sorted({repr(v) for v in y[~np.isin(y, [0, 1])].tolist()})[:5]
-        raise ValueError(f"labels must be 0 (bonafide) or 1 (spoof), found {', '.join(bad)}")
-    y = y.astype(int)
-    if require_both_classes and len(np.unique(y)) < 2:
-        raise ValueError(f"labels contain only one class ({int(y[0])}); both 0 and 1 are needed")
+    y = _validate_labels(y, require_both_classes)
     if not np.isfinite(s).all():
         raise ValueError(f"scores contain {int((~np.isfinite(s)).sum())} NaN or infinite values")
     return y, s
@@ -99,22 +130,8 @@ def _rate(numerator: int, denominator: int) -> float:
     return numerator / denominator if denominator else float("nan")
 
 
-def binary_metrics(labels, scores, threshold) -> BinaryMetrics:
-    """Forced binary decision metrics at a threshold: predict spoof if score >= threshold.
-
-    Same rule as eer(). Single-class input is allowed; any rate whose denominator is 0 is NaN.
-    F1 is computed from counts as 2TP / (2TP + FP + FN).
-    """
-    y, s = _validate(labels, scores, require_both_classes=False)
-    if isinstance(threshold, bool) or not isinstance(threshold, Real) or not math.isfinite(threshold):
-        raise ValueError(f"threshold must be a finite number, got {threshold!r}")
-
-    predicted_spoof = s >= threshold
-    is_spoof = y == 1
-    tp = int(np.sum(predicted_spoof & is_spoof))
-    fp = int(np.sum(predicted_spoof & ~is_spoof))
-    tn = int(np.sum(~predicted_spoof & ~is_spoof))
-    fn = int(np.sum(~predicted_spoof & is_spoof))
+def _metrics_from_counts(tp: int, fp: int, tn: int, fn: int) -> BinaryMetrics:
+    """Rates from confusion counts: the one rate formula behind the forced-binary and 3-way views."""
     return BinaryMetrics(
         tp=tp,
         fp=fp,
@@ -122,10 +139,119 @@ def binary_metrics(labels, scores, threshold) -> BinaryMetrics:
         fn=fn,
         n_spoof=tp + fn,
         n_bonafide=fp + tn,
-        accuracy=_rate(tp + tn, len(y)),
+        accuracy=_rate(tp + tn, tp + fp + tn + fn),
         precision=_rate(tp, tp + fp),
         recall=_rate(tp, tp + fn),
         f1=_rate(2 * tp, 2 * tp + fp + fn),
         fpr=_rate(fp, fp + tn),
         fnr=_rate(fn, fn + tp),
+    )
+
+
+def _require_finite_number(name: str, value) -> None:
+    if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+        raise ValueError(f"{name} must be a finite number, got {value!r}")
+
+
+def binary_metrics(labels, scores, threshold) -> BinaryMetrics:
+    """Forced binary decision metrics at a threshold: predict spoof if score >= threshold.
+
+    Same rule as eer(). Single-class input is allowed; any rate whose denominator is 0 is NaN.
+    F1 is computed from counts as 2TP / (2TP + FP + FN).
+    """
+    y, s = _validate(labels, scores, require_both_classes=False)
+    _require_finite_number("threshold", threshold)
+
+    predicted_spoof = s >= threshold
+    is_spoof = y == 1
+    return _metrics_from_counts(
+        tp=int(np.sum(predicted_spoof & is_spoof)),
+        fp=int(np.sum(predicted_spoof & ~is_spoof)),
+        tn=int(np.sum(~predicted_spoof & ~is_spoof)),
+        fn=int(np.sum(~predicted_spoof & is_spoof)),
+    )
+
+
+def three_way_decisions(scores, threshold, half_width) -> np.ndarray:
+    """Three-way decisions (FR-05) with a symmetric uncertain band around the threshold (D12).
+
+    - synthetic if score >= threshold + half_width
+    - uncertain if threshold - half_width <= score < threshold + half_width
+    - authentic if score < threshold - half_width
+
+    This is the single definition of the band rule. The Stage 10 risk policy must import it, not
+    re-implement it, so evaluation and deployment apply the same rule. half_width = 0 gives the
+    forced binary rule of binary_metrics (no case is uncertain). The bounds threshold +/- half_width
+    are computed in floating point.
+    """
+    s = _validate_scores(scores)
+    _require_finite_number("threshold", threshold)
+    _require_finite_number("half_width", half_width)
+    if half_width < 0:
+        raise ValueError(f"half_width must be >= 0, got {half_width!r}")
+
+    upper = threshold + half_width
+    lower = threshold - half_width
+    return np.where(s >= upper, SYNTHETIC, np.where(s < lower, AUTHENTIC, UNCERTAIN))
+
+
+@dataclass(frozen=True)
+class ThreeWayMetrics:
+    """Three-way confusion matrix, coverage / deferral and non-deferred metrics (D4, Protocol §5).
+
+    confusion: rows (bonafide, spoof), columns (authentic, synthetic, uncertain).
+    Rates are fractions in [0, 1], NaN if undefined. non_deferred: forced-binary metrics over the
+    non-deferred cases only, with synthetic = predicted spoof.
+    """
+
+    confusion: tuple[tuple[int, int, int], tuple[int, int, int]]
+    n: int
+    n_deferred: int
+    coverage: float
+    deferral_rate: float
+    deferral_rate_bonafide: float
+    deferral_rate_spoof: float
+    non_deferred: BinaryMetrics
+
+
+def three_way_metrics(labels, predictions) -> ThreeWayMetrics:
+    """Metrics of three-way predictions (AUTHENTIC / SYNTHETIC / UNCERTAIN) against 0/1 labels.
+
+    Takes predictions, not scores, so stored predictions can be evaluated without re-running the
+    model. Single-class input is allowed. If every case is deferred, non_deferred has zero counts
+    and NaN rates.
+    """
+    y = _validate_labels(labels, require_both_classes=False)
+    p = np.asarray(predictions, dtype=object)
+    if p.ndim != 1:
+        raise ValueError(f"predictions must be 1-D, got shape {p.shape}")
+    if len(p) != len(y):
+        raise ValueError(f"labels and predictions differ in length: {len(y)} != {len(p)}")
+    for value in p.tolist():
+        if not isinstance(value, str) or value not in DECISIONS:
+            raise ValueError(f"predictions must be one of {DECISIONS}, found {value!r}")
+
+    is_spoof = y == 1
+    confusion = tuple(
+        tuple(int(np.sum((p == d) & (is_spoof == row_is_spoof))) for d in DECISIONS)
+        for row_is_spoof in (False, True)
+    )
+    kept = p != UNCERTAIN
+    predicted_spoof = p == SYNTHETIC
+    n = len(y)
+    n_deferred = n - int(kept.sum())
+    return ThreeWayMetrics(
+        confusion=confusion,
+        n=n,
+        n_deferred=n_deferred,
+        coverage=_rate(n - n_deferred, n),
+        deferral_rate=_rate(n_deferred, n),
+        deferral_rate_bonafide=_rate(confusion[0][2], sum(confusion[0])),
+        deferral_rate_spoof=_rate(confusion[1][2], sum(confusion[1])),
+        non_deferred=_metrics_from_counts(
+            tp=int(np.sum(kept & predicted_spoof & is_spoof)),
+            fp=int(np.sum(kept & predicted_spoof & ~is_spoof)),
+            tn=int(np.sum(kept & ~predicted_spoof & ~is_spoof)),
+            fn=int(np.sum(kept & ~predicted_spoof & is_spoof)),
+        ),
     )

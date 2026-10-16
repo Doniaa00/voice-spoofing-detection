@@ -112,3 +112,63 @@ Each case has its hand calculation as a comment.
 | (c) one class | `test_binary_metrics_single_class` (recall 2/3, FPR NaN, `n_bonafide` 0), `test_score_metrics_still_require_both_classes` (`roc_auc`, `eer` still raise) |
 | Agreement with scikit-learn, (e) counts | `test_binary_metrics_consistent_with_sklearn` (200 scores, seed 2026: counts sum to N, FNR = 1 − recall, counts match `confusion_matrix`, precision/recall/F1 match `precision_recall_fscore_support`) |
 | Fail loudly | `test_binary_metrics_invalid_threshold_raises` (NaN, ±∞, string, None), `test_binary_metrics_invalid_input_raises` (lengths, empty, bad labels, NaN scores) |
+
+## Step 3: three-way decisions and metrics
+
+### Conventions
+- Same labels and scores as Steps 1–2; positive class = spoof (D4, Protocol v1.0 §5).
+- Decisions use the FR-05 labels, exported as constants: `AUTHENTIC = "authentic"`,
+  `SYNTHETIC = "synthetic"`, `UNCERTAIN = "uncertain"`.
+- The uncertain band is symmetric around the threshold (D12, Protocol v1.0 §6).
+
+`three_way_decisions(scores, threshold, half_width) -> np.ndarray` returns one decision per score:
+
+| Decision | Rule |
+|---|---|
+| synthetic | `score >= threshold + half_width` |
+| uncertain | `threshold - half_width <= score < threshold + half_width` |
+| authentic | `score < threshold - half_width` |
+
+`three_way_metrics(labels, predictions) -> ThreeWayMetrics` returns a frozen dataclass with:
+- `confusion`: 2 rows (bonafide, spoof) × 3 columns (authentic, synthetic, uncertain), as counts;
+- `n`, `n_deferred` (int); deferred = predicted uncertain;
+- `coverage` = (n − n_deferred) / n, `deferral_rate` = n_deferred / n;
+- `deferral_rate_bonafide`, `deferral_rate_spoof`: uncertain / class count, per class;
+- `non_deferred`: a `BinaryMetrics` over the non-deferred cases only, with synthetic = predicted
+  spoof.
+
+Rates are fractions in [0, 1]; any rate whose denominator is 0 is `NaN` and no warning is emitted
+(as in Step 2). If every case is deferred, `non_deferred` has zero counts and NaN rates, without an
+error. The threshold and `half_width` must be finite numbers and `half_width >= 0`; predictions
+must have the labels' length and each be one of the three constants, otherwise `ValueError` is
+raised naming the bad value. A single class is allowed, as in Step 2.
+
+### Why (team reasoning)
+- **(a) One definition of the band rule.** `three_way_decisions` is the only implementation; the
+  Stage 10 risk policy must import it. Evaluation and deployment therefore cannot drift apart.
+- **(b) Metrics take predictions, not scores.** The DEEP-VOICE external run stores its per-sample
+  outputs (Protocol §8), so they can be evaluated again without re-running the model, which keeps
+  the data touched exactly once (AGENTS.md hard rule 1).
+- **(c) Boundaries follow the `>=` rule.** A score equal to the upper bound is synthetic, as a
+  score equal to the threshold is spoof in Step 2. With `half_width = 0` the band is empty and the
+  decisions equal the forced binary decisions of `binary_metrics`.
+- **(d) Deferral per class.** A band that mostly defers genuine callers is the T4 concern of the
+  threat model (genuine callers treated as suspects). An overall deferral rate could hide it.
+- **(e) Both views (D4) from one rate formula.** The forced-binary metrics (`binary_metrics`) and
+  the non-deferred metrics both come from `_metrics_from_counts(tp, fp, tn, fn)`, so a rate means
+  the same thing in both views.
+
+### Tests (`tests/evaluation/test_metrics.py`)
+Each case has its hand calculation as a comment. Tests that produce a NaN rate (including the Step
+2 ones) run with `@pytest.mark.filterwarnings("error")`, so "no warning is emitted" is checked in
+CI.
+
+| Point | Test |
+|---|---|
+| (c) boundaries | `test_three_way_decisions_boundaries` (threshold 0.5, half_width 0.1: 0.39 authentic; 0.4, 0.5, 0.59 uncertain; 0.6, 0.7 synthetic) |
+| Formulas, hand case | `test_three_way_metrics_hand_case` (confusion (1, 1, 1) / (1, 1, 1); coverage 2/3; deferral 1/3 overall and per class; non-deferred TP = FP = TN = FN = 1, all rates 0.5) |
+| (c), (e) `half_width = 0` | `test_zero_half_width_equals_forced_binary` (200 scores, seed 2026: no uncertain, `non_deferred` equals `binary_metrics`) |
+| All deferred, NaN | `test_three_way_metrics_all_deferred` (coverage 0, deferral 1, non-deferred counts 0, rates NaN) |
+| (d) per-class deferral, one class | `test_three_way_metrics_single_class_deferral_nan` (spoof deferral 0.5, bonafide deferral NaN) |
+| Consistency | `test_three_way_metrics_consistency_on_random_scores` (200 scores, seed 2026: confusion sums to n, uncertain column = n_deferred, coverage + deferral = 1, row sums = class counts) |
+| Fail loudly | `test_three_way_decisions_invalid_half_width_raises` (negative, NaN, ±∞, string, None), `test_three_way_decisions_invalid_threshold_raises`, `test_three_way_decisions_invalid_scores_raises`, `test_three_way_metrics_invalid_input_raises` (bad prediction strings, non-strings, lengths, empty, bad labels) |
