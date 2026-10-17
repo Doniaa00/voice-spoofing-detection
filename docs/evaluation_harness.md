@@ -1,10 +1,11 @@
 # Evaluation harness
 
-The evaluation harness is one shared metrics module, `src/evaluation/metrics.py`, used by the
-MFCC/SVM baseline (Stage 7), the CNN (Stages 8–11) and the single DEEP-VOICE external run
-(Stage 13). Because every result comes from the same code, numbers are comparable across models
-and datasets (FR-12), and the positive class is the same everywhere: spoof (D4, Protocol v1.0 §5).
-The harness is built in five steps; this document grows with each one.
+The evaluation harness is three shared modules, `src/evaluation/metrics.py`,
+`src/evaluation/bootstrap.py` and `src/evaluation/seeds.py`, used by the MFCC/SVM baseline
+(Stage 7), the CNN (Stages 8–11) and the single DEEP-VOICE external run (Stage 13). Because every
+result comes from the same code, numbers are comparable across models and datasets (FR-12), and the
+positive class is the same everywhere: spoof (D4, Protocol v1.0 §5). The harness was built in five
+steps, one section each below.
 
 ## Step 1: EER and ROC-AUC
 
