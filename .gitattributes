@@ -8,3 +8,6 @@
 *.wav  binary
 *.npy  binary
 *.pt   binary
+
+# The run registry is hash-chained (D31): Git must never convert its line endings.
+*.jsonl -text
