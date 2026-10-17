@@ -50,3 +50,16 @@ def test_risk_does_not_import_evaluation():
         if name == "src.evaluation" or name.startswith("src.evaluation.") or name.startswith("evaluation")
     }
     assert offending == {}
+
+
+def test_risk_does_not_import_tuning():
+    # The policy fit (src/tuning, research tier) uses eer(); the core only applies and loads the policy.
+    files = sorted(RISK_DIR.glob("*.py"))
+    assert files, f"no source files found in {RISK_DIR}"
+    offending = {
+        f.name: name
+        for f in files
+        for name in _imported_modules(f)
+        if name == "src.tuning" or name.startswith("src.tuning.") or name.startswith("tuning")
+    }
+    assert offending == {}

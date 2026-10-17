@@ -72,7 +72,8 @@ load a bundle that the research tier has already frozen.
 | Dataset audit | Stage 1 audit of FoR-2sec (full) and DEEP-VOICE (metadata only, D6/D20) | `src/audit/` |
 | Preprocessing | Versioned profile: mono, 16 kHz (D18), silence handling, log-Mel / MFCC features | `src/preprocessing/` (Stage 6) |
 | Models | `Detector` interface; CNN on log-Mel (deployable) and MFCC + RBF-SVM baseline (evaluation only, D7) | `src/models/` (Stages 7–9) |
-| Risk | Risk policy: threshold at FoR-val EER point, uncertain band, calibration, fitted on val-B (D2, D9, D12) | `src/risk/` (Stage 10) |
+| Risk | Applies the frozen policy (core): calibration, threshold at the val-B EER point, uncertain band, confidence, risk level (D2, D9, D12) | `src/risk/` (Stage 10) |
+| Training & Tuning | Fits the risk policy on val-B (research tier) | `src/tuning/` (Stage 10) |
 | Evaluation | One harness for baseline and CNN; required metric set (D4); external-run guard | `src/evaluation/` (Stage 7, 13) |
 | API | FastAPI gateway, analysis facade, records, logs | `api/` (Stage 17) |
 | Dashboard | Streamlit UI; calls the API only, no detector logic | `dashboard/` (Stage 18) |
