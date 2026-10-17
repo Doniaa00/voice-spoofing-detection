@@ -30,6 +30,7 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
 - `docs/experimental_protocol.md` v1.0 frozen (F1): all sections decided from the team-accepted defaults.
 
 ### Changed
+- Protocol clarifications D29–D31 (baseline threshold, CNN search space with seed and tie rule, Stage 11 run once) and the Protocol §14 row.
 - Repo transferred to `kahlanzzi/voice-spoofing-detection` (2026-10-14); repo URLs updated.
 - `requirements.txt` pinned to exact versions (Python 3.13 + 3.14).
 - Branch naming `<type>/stage<N>-<name>` (D23).
