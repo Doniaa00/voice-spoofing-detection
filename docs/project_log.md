@@ -634,6 +634,30 @@ must review the implementation; Donia reviews the eventual F2 PR. AI does not ap
 **Gate:** implementation is ready for a human-approved commit. F2 remains open until a clean-commit
 official run produces reviewed manifests and hashes that merge through a green PR.
 
+### Entry 30 — Stage 5 official F2 run and deterministic evidence (2026-10-17)
+
+**What:** after Malak approved the implementation commit, commit
+`9e005b1e2b697bece73253b1871f2c98e0e5daa0` was created. Staging the evidence exposed
+platform-dependent report line endings and Markdown trailing spaces, so Malak approved correction
+commit `df1d6acab9df707b4702e038c45d5d22b38b8e66`. From that final clean commit, the official
+metadata-only run produced the FoR and external file manifests, their hash ledger, and JSON/Markdown
+reports. A second clean run from the same commit produced all five generated files byte-identically.
+D28 records the proposed F2 hashes; it becomes effective only after PR approval and merge.
+
+**Evidence [verified]:** FoR manifest: 17,721 unique paths, SHA-256
+`badfe948fb7b833357783dd18be00f6bb36253cf8699dc4c4beb4df2b07706f8`; external manifest:
+64 unique paths, SHA-256 `7c7a3e52ef254841f53bc08018bd3f9fe7ad83d6cd84531832513c616695355f`;
+hash ledger SHA-256 `c9fc2e230c0883028459d0b2b8de4f6ee537676cd5a4e259e9d0f545c60943cc`.
+All 14 manifest checks pass. The implementation suite passed 45 tests; the D20 governance test
+passed 3 tests. No audio was opened or decoded, and Stage 6 did not start.
+
+**AI assistance:** **Codex** implemented and tested the freezer, executed the approved metadata-only
+run, compared both runs byte-for-byte, and prepared the evidence and proposed decision entry. Malak
+approved the implementation commit. Donia must review the F2 artifacts; AI does not approve or merge.
+
+**Gate:** **WAITING FOR DONIA'S HUMAN REVIEW.** F2 is not effective and Stage 5 is not complete until
+the evidence commit is reviewed in a green PR and merged by a human. Do not begin Stage 6.
+
 ---
 
 ## Open items
@@ -673,8 +697,9 @@ official run produces reviewed manifests and hashes that merge through a green P
 **Stage 5 gate**
 - [x] Record the Stage 4 closeout before beginning Stage 5 (Entry 28).
 - [x] Implement and test the metadata-only manifest freezer (Entry 29).
-- [ ] Human approves the implementation commit; then run the official freeze from that clean commit.
-- [ ] Record the generated manifest hashes in the next decision entry and project-log evidence entry.
+- [x] Malak approved implementation commit `9e005b1` and correction commit `df1d6ac`; run the
+  official freeze twice from the final clean commit.
+- [x] Record the generated manifest hashes in proposed D28 and project-log Entry 30.
 - [ ] Donia reviews the F2 PR; after approval and human merge, mark Stage 5 done.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
@@ -754,8 +779,8 @@ official run produces reviewed manifests and hashes that merge through a green P
 - **Stages 0–3 and Part A are complete.** Protocol v1.0 is frozen as F1 (PR #10).
 - **Stage 4 is complete** (Entry 28): PR #12 merged as `865faf4` after review and green CI.
 - Shared AI tooling v1 merged through PR #14; `main` is at `d9907f3` for this branch point.
-- **Stage 5 implementation is prepared** on `feat/stage5-dataset-freeze-malak` (Entry 29): config,
-  metadata-only freezer and tests. The official F2 run has not happened and Stage 6 has not started.
+- **Stage 5 official metadata-only run passed deterministically** from clean commit `df1d6ac`
+  (Entry 30). F2 evidence and proposed D28 await review; Stage 6 has not started.
 
 **What we have:**
 - The approved 17,721-row FoR Stage 4 assignment with no group crossing splits.
@@ -766,14 +791,15 @@ official run produces reviewed manifests and hashes that merge through a green P
 
 **Branches:**
 - `main`: through PR #14 at `d9907f3`, including the merged Stage 4 work.
-- `feat/stage5-dataset-freeze-malak`: Stage 4 closeout plus uncommitted Stage 5 implementation.
+- `feat/stage5-dataset-freeze-malak`: implementation commit `9e005b1`, correction commit `df1d6ac`,
+  plus uncommitted F2 evidence.
 
 **What we want:**
 - Freeze F2 as reviewed, immutable small manifests before preprocessing or modeling begins.
 - A model that detects **synthetic voices**, not dataset accidents, followed by one honest external test.
 
 **What's next:**
-1. Human-review and commit the Stage 5 implementation; the official run requires that clean commit.
-2. Run F2 once from the clean commit, verify deterministic hashes, record the freeze decision and evidence.
-3. Open the PR for Donia's review. Only after approval and human merge is Stage 5 complete.
-4. Do not begin Stage 6 until the F2 gate passes. Later open items remain in the sections above.
+1. Human-review and commit the restricted Stage 5 evidence and proposed D28.
+2. Push the branch and open the PR for Donia's review; CI must be green.
+3. Only after Donia's approval and human merge is F2 effective and Stage 5 complete.
+4. Do not begin Stage 6 until that gate passes. Later open items remain in the sections above.
