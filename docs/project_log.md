@@ -594,6 +594,70 @@ edits. Iheb reviewed every file and ran all checks.
 
 **Gate:** waiting for Donia's GitHub review. AI agents do not merge.
 
+### Entry 28 — Stage 4 closeout: leakage-aware split merged (2026-10-17)
+
+**What:** Stage 4 is closed. PR #12 (`feat/stage4-split`) was merged into `main` as merge
+commit `865faf4` after human review and green CI. The approved implementation, deterministic
+split evidence and project-log updates are now on `main`; the candidate assignment CSV remains
+ignored and stored only at its recorded Drive path.
+
+**Evidence [verified]:** local history contains merge commit `865faf4`; the merged reports record
+17,721 unique paths, no group crossing splits, all eight checks passing, and byte-identical reruns
+with candidate SHA-256 `853d947499e76c4cc9da5b69df384588f0023c21ed93f6a2dec1940f8988aa20`.
+The Stage 5 branch starts from updated `main` at `d9907f3`; its baseline is 33 tests passing and a
+clean worktree.
+
+**AI assistance:** Codex helped implement and test the Stage 4 splitter, run the metadata-only
+checks and prepare the evidence. Malak reviewed the outputs; the PR required human approval and
+was merged by a human.
+
+**Gate:** **PASSED. Stage 4 is complete.** Stage 5 may create the F2 manifests and hashes; Stage 6
+has not started.
+
+### Entry 29 — Stage 5 F2 implementation prepared (2026-10-17)
+
+**What:** on `feat/stage5-dataset-freeze-malak`, added a metadata-only Stage 5 freeze generator,
+`configs/freeze.yaml` and synthetic tests. It validates the exact Stage 1 inventory hashes and the
+approved Stage 4 assignment hash, joins FoR hashes to the frozen split, builds the D20-permitted
+external metadata manifest, writes deterministic CSVs and records each manifest hash. The official
+run has not occurred and no Stage 5 output has been created or committed.
+
+**Evidence [verified]:** the complete suite passes (`45 passed in 14.68s`). The focused Stage 5
+suite passes (`12 passed in 0.85s`), and governance + splitting + freezing pass (`33 passed in
+7.14s`). A no-write dry validation of the real metadata accepted 17,721 FoR rows and 64 external
+rows with all 14 checks true. No audio was opened or decoded; Stage 6 did not start.
+
+**AI assistance:** **Codex** read the frozen protocol and Execution Plan, drafted the Stage 5 code,
+config and tests, validated the three metadata CSVs and prepared these documentation updates. Malak
+must review the implementation; Donia reviews the eventual F2 PR. AI does not approve or merge.
+
+**Gate:** implementation is ready for a human-approved commit. F2 remains open until a clean-commit
+official run produces reviewed manifests and hashes that merge through a green PR.
+
+### Entry 30 — Stage 5 official F2 run and deterministic evidence (2026-10-17)
+
+**What:** after Malak approved the implementation commit, commit
+`9e005b1e2b697bece73253b1871f2c98e0e5daa0` was created. Staging the evidence exposed
+platform-dependent report line endings and Markdown trailing spaces, so Malak approved correction
+commit `df1d6acab9df707b4702e038c45d5d22b38b8e66`. From that final clean commit, the official
+metadata-only run produced the FoR and external file manifests, their hash ledger, and JSON/Markdown
+reports. A second clean run from the same commit produced all five generated files byte-identically.
+D28 records the proposed F2 hashes; it becomes effective only after PR approval and merge.
+
+**Evidence [verified]:** FoR manifest: 17,721 unique paths, SHA-256
+`badfe948fb7b833357783dd18be00f6bb36253cf8699dc4c4beb4df2b07706f8`; external manifest:
+64 unique paths, SHA-256 `7c7a3e52ef254841f53bc08018bd3f9fe7ad83d6cd84531832513c616695355f`;
+hash ledger SHA-256 `c9fc2e230c0883028459d0b2b8de4f6ee537676cd5a4e259e9d0f545c60943cc`.
+All 14 manifest checks pass. The implementation suite passed 45 tests; the D20 governance test
+passed 3 tests. No audio was opened or decoded, and Stage 6 did not start.
+
+**AI assistance:** **Codex** implemented and tested the freezer, executed the approved metadata-only
+run, compared both runs byte-for-byte, and prepared the evidence and proposed decision entry. Malak
+approved the implementation commit. Donia must review the F2 artifacts; AI does not approve or merge.
+
+**Gate:** **WAITING FOR DONIA'S HUMAN REVIEW.** F2 is not effective and Stage 5 is not complete until
+the evidence commit is reviewed in a green PR and merged by a human. Do not begin Stage 6.
+
 ---
 
 ## Open items
@@ -628,7 +692,15 @@ edits. Iheb reviewed every file and ran all checks.
 - [x] Run it from clean commit `10a5e68` against the full pinned Stage 1 inventory and summary;
   all checks pass and the rerun is byte-identical (Entry 25).
 - [x] Malak uploaded the untracked candidate CSV to the exact Stage 4 Drive destination (Entry 26).
-- [ ] Donia reviews the corrected evidence; then authorize the evidence commit and PR before Stage 4 closes.
+- [x] Donia reviewed the corrected evidence; PR #12 merged as `865faf4` and Stage 4 closed (Entry 28).
+
+**Stage 5 gate**
+- [x] Record the Stage 4 closeout before beginning Stage 5 (Entry 28).
+- [x] Implement and test the metadata-only manifest freezer (Entry 29).
+- [x] Malak approved implementation commit `9e005b1` and correction commit `df1d6ac`; run the
+  official freeze twice from the final clean commit.
+- [x] Record the generated manifest hashes in proposed D28 and project-log Entry 30.
+- [ ] Donia reviews the F2 PR; after approval and human merge, mark Stage 5 done.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -701,57 +773,33 @@ edits. Iheb reviewed every file and ran all checks.
 
 ---
 
-## Current status — updated 2026-10-16
+## Current status — updated 2026-10-17
 
 **What was done:**
-- Readiness audit and decisions D1–D26; hypotheses H5–H6 pre-registered.
-- **Stages 0, 1 and 2 done and merged into `main`** (PRs #1, #2, #4; PR #3 re-delivered through #4; closeout PR #5, Entry 14).
-- Stage 1 dataset audit: complete, with every cited number backed by `docs/audit_evidence/`. **Signed off by Malak (PR #2)**; Iheb has not reviewed it yet.
-- Stage 2 threat model: **v1.0 reviewed** (Malak PR #3, Iheb PR #4). §13 open questions still open.
-- Repo structure merged (PR #6, Entries 15–17): `AGENTS.md` as the single AI context, CS 488-aligned workflow docs, decision register with ADRs 0001–0005, CI on Python 3.13, DEEP-VOICE governance test, pinned requirements, MIT `LICENSE`. Branch protection on `main` confirmed.
-- **Team of four:** Khalil Dridi joined (2026-10-12). Execution Plan v2.1 shared; **D26** sets the owner of every part (A/C Donia, B Malak, D Khalil + Malak for Stage 14, E Iheb) and the hand-over interfaces fixed in Stage 3.
-- Pre-Stage 3 cleanup (Entry 18) merged as PR #7.
-- **Stage 3 started** (Entry 19): `docs/experimental_protocol.md` v0.1 skeleton (owners, reviewers, items to decide; nothing decided yet), merged as PR #8.
-- **Repo transferred to Iheb** (Entry 20, 2026-10-14, earlier than planned): now `kahlanzzi/voice-spoofing-detection`; Donia stays a collaborator with write access. Repo URLs updated (PR #9); new-repo settings to be confirmed by Iheb.
-- **Stage 3 done: Experimental Protocol v1.0 frozen (F1)** (Entry 21, 2026-10-14): every section §0–§12 decided from the defaults all four accepted, plus a change-control rule. Written by Claude Code; signed off by all four via PR #10. **Part A (Stages 0–3) complete.**
-- Malak's Codex context test is documented in `docs/setup-report.md` Section 5 and passed on
-  2026-10-15; merged via PR #11 (Entry 22).
-- Read-only diagnosis verified that all four local failures share one Windows environment root cause:
-  Application Control blocked Numba 0.68.0's `_typeconv.cp313-win_amd64.pyd`; two tests failed on the
-  import and two consequently reached a zero-decodable `ValueError`. This is not a Python 3.13
-  incompatibility or independently reproduced repository defect (Entry 23). The later Stage 4 full
-  run passed all 33 tests and the block did not recur (Entry 24); PR CI remains required before merge.
-- **Corrected Stage 4 official run passed deterministically** (Entry 25): frozen checks pass from
-  clean commit `10a5e68`; the regenerated 17,721-row candidate is byte-identical to the prior run.
-  The candidate upload is confirmed (Entry 26); evidence commit/PR and final human acceptance
-  remain open. Stage 5 and Stage 6 have not started.
-- **AI tooling PR open** (Entry 27): `pr-prep` skill and Context7 (D27, ADR 0006) on
-  `chore/stage5-ai-tooling`, waiting for Donia's review.
+- **Stages 0–3 and Part A are complete.** Protocol v1.0 is frozen as F1 (PR #10).
+- **Stage 4 is complete** (Entry 28): PR #12 merged as `865faf4` after review and green CI.
+- Shared AI tooling v1 merged through PR #14; `main` is at `d9907f3` for this branch point.
+- **Stage 5 official metadata-only run passed deterministically** from clean commit `df1d6ac`
+  (Entry 30). F2 evidence and proposed D28 await review; Stage 6 has not started.
 
 **What we have:**
-- FoR-2sec: a clean, balanced development set (17,721 clips, no duplicates, no corrupt files, uniform 16 kHz mono 2 s). No speaker metadata in filenames or the HF card. Re-split with near-duplicate groups at 0.95, stratified by REAL / FAKE_mp3 / FAKE_other, with val-A / val-B.
-- One documented risk: MP3 history concentrated in FAKE, with bandwidth and silence differences between classes. H5 and H6 test whether the model exploits it.
-- DEEP-VOICE: 64 long stereo files from 8 speakers (1,870 REAL / 13,090 FAKE windows), no overlap with FoR, untouched beyond the D20 accesses, pinned by D21. Rules for the one external run fixed in D17–D19. Under D26 it is run by Khalil, who does not build the model.
-- A threat model that states the maximum claim per threat (T1–T7) and the residual risks.
-- A reproducible audit notebook that refuses to run on unpinned or changed data; full outputs archived in Drive (layout in `data/README.md`).
-- One set of rules for every AI tool (`AGENTS.md`, now with owners per stage), a decision register with ADRs, and CI with an automated DEEP-VOICE access guard.
+- The approved 17,721-row FoR Stage 4 assignment with no group crossing splits.
+- Pinned Stage 1 inventories containing existing byte hashes: 17,721 FoR rows and 64 external rows.
+- A tested Stage 5 implementation that validates pins, paths, schemas, counts, hashes and deterministic
+  output without opening audio.
+- Governance rules that keep the external set metadata-only until the one guarded Stage 13 run.
 
 **Branches:**
-- `main` (on `kahlanzzi/voice-spoofing-detection`): Stages 0–3 plus Malak's setup-report work,
-  through merged PR #11 (`077c45a`).
-- `feat/stage4-split`: renamed locally before first push; implementation commits are `11da6bd` and
-  EOF-only correction `10a5e68`. Corrected evidence is ready for its restricted commit and PR.
+- `main`: through PR #14 at `d9907f3`, including the merged Stage 4 work.
+- `feat/stage5-dataset-freeze-malak`: implementation commit `9e005b1`, correction commit `df1d6ac`,
+  plus uncommitted F2 evidence.
 
 **What we want:**
-- A model that detects **synthetic voices**, not dataset accidents, and the evidence to prove which one it learned.
-- Then one honest, one-time external test on DEEP-VOICE.
+- Freeze F2 as reviewed, immutable small manifests before preprocessing or modeling begins.
+- A model that detects **synthetic voices**, not dataset accidents, followed by one honest external test.
 
 **What's next:**
-1. Commit and push the restricted Stage 4 evidence, open the PR against `main`, and wait for
-   Donia's GitHub review. Do not start Stage 5 before Stage 4 acceptance.
-2. After Stage 4 approval, Stage 5 may freeze the FoR and permitted metadata-only external manifest
-   with hashes (F2) on its own branch/unit of work.
-3. Open team items: Iheb confirms repo settings; compute (0.7), weekly sync (0.8), Issues board,
-   threat model §13 Q2, Iheb's audit review, and remaining setup-report sections/tool answers.
-4. Before Stage 8: W&B and compute benchmark. In Stage 6: silence-detector decision. Before
-   Stage 13: governance allowlist decision.
+1. Human-review and commit the restricted Stage 5 evidence and proposed D28.
+2. Push the branch and open the PR for Donia's review; CI must be green.
+3. Only after Donia's approval and human merge is F2 effective and Stage 5 complete.
+4. Do not begin Stage 6 until that gate passes. Later open items remain in the sections above.
