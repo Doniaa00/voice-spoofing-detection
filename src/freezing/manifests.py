@@ -303,14 +303,14 @@ def write_outputs(
         "sha256": hashlib.sha256(ledger_data).hexdigest(),
     }
 
-    (report_dir / "freeze_report.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    (report_dir / "freeze_report.json").write_bytes(
+        (json.dumps(report, indent=2, sort_keys=True) + "\n").encode("utf-8")
     )
     lines = [
         "# Stage 5 dataset freeze (F2)",
         "",
-        f"Protocol: {report['protocol_version']}  ",
-        f"Code commit: `{report['code_version']['git_commit']}`  ",
+        f"Protocol: {report['protocol_version']}",
+        f"Code commit: `{report['code_version']['git_commit']}`",
         f"Git dirty during run: `{str(report['code_version']['git_dirty']).lower()}`",
         "",
         "## Inputs",
@@ -342,7 +342,9 @@ def write_outputs(
         "",
         "F2 becomes immutable only after human review and merge. Stage 6 has not started.",
     ]
-    (report_dir / "freeze_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (report_dir / "freeze_report.md").write_bytes(
+        ("\n".join(lines) + "\n").encode("utf-8")
+    )
     return report
 
 

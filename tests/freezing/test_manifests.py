@@ -109,6 +109,10 @@ def test_builds_frozen_contracts_and_hash_ledger(tmp_path, monkeypatch):
     assert report["all_checks_pass"] is True
     assert report["audio_access"] == "none; metadata CSV inputs only"
     assert report["stage6_started"] is False
+    for report_name in ("freeze_report.json", "freeze_report.md"):
+        report_bytes = (tmp_path / "reports" / report_name).read_bytes()
+        assert b"\r\n" not in report_bytes
+        assert all(not line.endswith(b" ") for line in report_bytes.splitlines())
 
 
 def test_run_checks_clean_worktree_before_reading_inputs(tmp_path, monkeypatch):
