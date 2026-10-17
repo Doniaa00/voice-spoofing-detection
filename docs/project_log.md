@@ -694,6 +694,30 @@ affect is seen (Protocol §12 change control; each gets the next free D-ID when 
 
 ---
 
+### Entry 32 — Protocol clarifications D29–D31 (2026-10-17)
+
+**Authorship:** decided by Donia Mabrouk. The decision-register rows, the Protocol §14 row and this
+entry were written by **Claude Code** from Donia's wording; reviewed by Donia before push.
+
+**What:** on `docs/stage7-protocol-clarifications`, three decisions in `docs/decisions/README.md`
+and one Protocol §14 change-history row:
+- **D29:** baseline threshold = its own val-B EER point, forced binary only.
+- **D30:** CNN model-selection search space: conv blocks {3, 4} × learning rate {1e-3, 3e-4};
+  search runs on seed 0, the chosen configuration then on seeds 0, 1, 2 (D11), reusing the seed-0
+  run; tie rule 3 blocks before 4, then 1e-3 before 3e-4.
+- **D31:** enforcement of "Stage 11 runs once".
+
+**Why:** these gaps were found while building the evaluation harness (Entry 31). The protocol left
+them open; no existing rule changed (Protocol §12 change control). Decided by Donia **before any
+Stage 7–11 data is seen**.
+
+**Still open:** file-level decisions for DEEP-VOICE (Khalil, before Stage 13); Colab install of
+scikit-learn 1.9.1.
+
+**Gate:** PR ready for human review; AI does not approve or merge.
+
+---
+
 ## Open items
 
 **GitHub / repo**
@@ -737,9 +761,9 @@ affect is seen (Protocol §12 change control; each gets the next free D-ID when 
 - [ ] Donia reviews the F2 PR; after approval and human merge, mark Stage 5 done.
 
 **Stage 7 harness: protocol clarifications (Entry 31; Protocol §12, next free D-ID when decided)**
-- [ ] Baseline threshold: own val-B EER point, forced binary only (Donia, before Stage 7 results).
-- [ ] Exact CNN model-selection search space in `configs/` (Donia, before Stage 8).
-- [ ] Enforcement of "Stage 11 runs once" (run registry) (Donia, before Stage 11).
+- [x] Baseline threshold: own val-B EER point, forced binary only (Donia, before Stage 7 results): D29 (Entry 32).
+- [x] Exact CNN model-selection search space in `configs/` (Donia, before Stage 8): D30 (Entry 32).
+- [x] Enforcement of "Stage 11 runs once" (run registry) (Donia, before Stage 11): D31 (Entry 32).
 - [ ] File-level decisions for DEEP-VOICE: frozen band on the file mean of p, secondary view (Khalil, before Stage 13).
 - [ ] Colab install of scikit-learn 1.9.1 [to verify] at the first Stage 7 Colab run.
 
@@ -820,24 +844,26 @@ affect is seen (Protocol §12 change control; each gets the next free D-ID when 
 - **Stages 0–3 and Part A are complete.** Protocol v1.0 is frozen as F1 (PR #10).
 - **Stage 4 is complete** (Entry 28): PR #12 merged as `865faf4`.
 - **Stage 5 F2 PR merged** as PR #15 (`main` at `89b37fc`).
-- **Stage 7 evaluation harness, steps 1–5, is ready for review** (Entry 31): metrics, cluster
-  bootstrap and seed rules, synthetic tests only, DEEP-VOICE untouched.
+- **Stage 7 evaluation harness, steps 1–5, is merged** as PR #13 (Entry 31).
+- **Protocol clarifications D29–D31 are ready for review** (Entry 32): baseline threshold, CNN
+  search space with seed and tie rule, "Stage 11 runs once".
 
 **What we have:**
 - The approved FoR split and the F2 manifests and hash ledger (D28).
 - One shared, tested evaluation harness (`src/evaluation/`) for the baseline, the CNN and the
   external run, documented in `docs/evaluation_harness.md`.
+- Pre-declared rules for the baseline threshold, CNN selection and the single Stage 11 run (D29–D31).
 - Governance rules that keep the external set metadata-only until the one guarded Stage 13 run.
 
 **Branches:**
-- `main`: through PR #15 at `89b37fc`.
-- `feat/stage7-eval-harness`: harness steps 1–5 and docs; draft PR, ready for human review.
+- `main`: through PR #13 at `bd8b67c`.
+- `docs/stage7-protocol-clarifications`: D29–D31, Protocol §14 row, Entry 32; ready for human review.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, followed by one honest external test.
 
 **What's next:**
-1. Human review of the harness PR; CI must be green on Python 3.13. AI does not merge.
+1. Human review of the D29–D31 PR; CI must be green on Python 3.13. AI does not merge.
 2. Malak is on Stage 6 (preprocessing profile v1 + tests + compute benchmark).
-3. Decide the four harness protocol clarifications (Open items) before the data each affects is seen.
+3. Khalil decides the DEEP-VOICE file-level view before Stage 13; verify the scikit-learn Colab install.
 4. Then the MFCC/SVM baseline (Stage 7) on the frozen preprocessing.
