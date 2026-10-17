@@ -15,6 +15,7 @@ tools all read it. Project rules live in `../AGENTS.md`.
 | [threat_model.md](threat_model.md) | Stage 2 threat model (v1.0 reviewed) | threats or claims change |
 | [experimental_protocol.md](experimental_protocol.md) | Stage 3 Experimental Protocol (v1.0, frozen (F1)) | only by a new decision (§12 change control) |
 | [evaluation_harness.md](evaluation_harness.md) | Shared metrics module (EER, ROC-AUC, ...): conventions, methods, tests | a harness step is added |
+| [risk_policy.md](risk_policy.md) | Risk policy (Stage 10): band rule in the core, Platt calibration, ... | a risk-policy step is added |
 | [setup-report.md](setup-report.md) | Lab 6 setup report (skeleton) | the Lab 6 report is written |
 | [reference/](reference/) | SRS, SDD, Execution Plan, Proposal (read-only sources) | never edited here |
 
