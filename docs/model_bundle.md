@@ -46,13 +46,17 @@ Build:
 3. Hash the checkpoint and profile sources (streamed, 1 MiB chunks) and build the manifest object, so
    every field is checked before anything is written.
 4. Copy the checkpoint and profile, re-hash the copies, write `policy.json`, write the manifest last.
+5. If any write step fails, remove every file this call wrote (and the folder, if this call created
+   it), then re-raise the original error: no half-built bundle is left behind.
 
 Load (read-only; nothing is returned until every check passes; any failure is a `ValueError` naming
 the check and the component):
-1. The manifest parses strictly (including plain-name checks on every component file).
+1. The manifest is read once and parses strictly (including plain-name checks on every component
+   file); `manifest_sha256` is computed from those same bytes.
 2. The folder holds exactly the manifest and the three component files; extra or missing → error.
 3. Each component is a regular file (no symlink) and its SHA-256 matches the manifest.
-4. `policy.json` loads as a `RiskPolicy` and its version equals `components["policy"].version`.
+   `policy.json` is read once: the bytes that are hashed are the bytes that are parsed.
+4. Those policy bytes load as a `RiskPolicy` and its version equals `components["policy"].version`.
 5. `manifest_sha256` = SHA-256 of the manifest's bytes.
 
 ## Why (team reasoning)
@@ -75,8 +79,18 @@ the check and the component):
   with the decision. Same inputs and `created_at` give byte-identical manifests, so the hash can be
   reproduced.
 
-**Limitation:** the profile version is recorded but not checked against the profile file; that check
-needs the F3 profile format and is added in Stage 12.
+- **(f) Single read.** A file read once to hash and again to parse could be swapped in between;
+  reading `policy.json` and the manifest once closes that gap for the parts the loader parses.
+
+**Limitations:**
+- The profile version is recorded but not checked against the profile file; that check needs the F3
+  profile format and is added in Stage 12.
+- **Check-then-use.** `load_bundle` verifies the checkpoint and profile by path and returns those
+  paths; a file replaced after the check is not detected here. Stage 12 and the API (Stage 17) must
+  load the checkpoint from the verified bytes or re-verify its hash at load time.
+- **Unsafe deserialization.** A PyTorch checkpoint saved with pickle can execute code when loaded.
+  Stage 8 saves checkpoints in a non-executable form (safetensors, or `torch.save` of a `state_dict`
+  loaded with `torch.load(..., weights_only=True)`), and Stage 12/17 load them that way.
 
 ## Tests (`tests/bundle/test_bundle.py`)
 Each case has its reasoning as a comment.
@@ -90,6 +104,7 @@ Each case has its reasoning as a comment.
 | (b) path safety | `test_unsafe_component_path_raises_and_reads_nothing` (`../x`, absolute POSIX and Windows paths, `sub/x`, `sub\x`, `..`, `.`; the hash function is never called) |
 | (a) folder contents | `test_extra_file_raises`, `test_missing_file_raises`, `test_missing_manifest_raises` |
 | (a) policy | `test_invalid_policy_json_at_build_raises`, `test_policy_version_mismatch_at_load_raises`, `test_invalid_policy_at_load_raises` |
-| (c) immutability | `test_build_into_non_empty_directory_raises` (folder bytes unchanged), `test_build_into_empty_directory_is_allowed` |
+| (f) single read | `test_policy_is_parsed_from_the_hashed_bytes` (policy.json swapped right after its one read; the verified policy is returned, the file is read once) |
+| (c) immutability | `test_build_into_non_empty_directory_raises` (folder bytes unchanged), `test_build_into_empty_directory_is_allowed`, `test_failed_build_removes_what_it_wrote` (second copy fails → error re-raised; created folder gone, pre-existing folder empty) |
 | (e) determinism | `test_build_is_deterministic` |
 | Layering | `test_bundle_does_not_import_research_code` (no import of `src.evaluation` or `src.tuning`) |

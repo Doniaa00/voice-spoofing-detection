@@ -15,8 +15,20 @@ the API loads (SDD Model Registry, C->E interface).
   freeze decision records it; that external anchor also covers fields load_bundle cannot check
   (e.g. the model version).
 
-Limitation: the profile version is recorded but not checked against the profile file; that check
-needs the F3 profile format and is added in Stage 12.
+- Single read: policy.json and the manifest are read once; the bytes that are hashed are the bytes
+  that are parsed, so a file swapped between the check and the parse cannot slip through.
+- Partial build cleanup: if build_bundle fails after it starts writing, every file it wrote (and the
+  folder, if it created it) is removed before the error is re-raised.
+
+Limitations:
+- The profile version is recorded but not checked against the profile file; that check needs the
+  F3 profile format and is added in Stage 12.
+- Check-then-use: load_bundle verifies the checkpoint and profile by path and returns those paths.
+  A file replaced after the check is not detected here, so Stage 12 and the API (Stage 17) must load
+  the checkpoint from the verified bytes or re-verify its hash at load time.
+- Unsafe deserialization: a PyTorch checkpoint saved with pickle can execute code when loaded. Stage
+  8 saves checkpoints in a non-executable form (safetensors, or torch.save of a state_dict loaded
+  with torch.load(..., weights_only=True)), and Stage 12/17 load them that way.
 
 Part of the shared core (SDD Fig. 1): the API loads bundles, so this module must not import
 src.evaluation or src.tuning (research code).
@@ -251,15 +263,28 @@ def build_bundle(
         components=components,
     )
 
-    directory.mkdir(parents=True, exist_ok=True)
-    for name, src in sources.items():
-        dest = directory / components[name].file
-        shutil.copyfile(src, dest)
-        if sha256_file(dest) != components[name].sha256:
-            raise ValueError(f"{name}: copied file {dest} does not match its source (source changed?)")
-    (directory / POLICY_FILE).write_bytes(policy_bytes)
-    manifest_path = directory / MANIFEST_NAME
-    manifest_path.write_bytes(manifest.to_json().encode("utf-8"))
+    created_dir = not directory.exists()
+    written: list[Path] = []
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+        for name, src in sources.items():
+            dest = directory / components[name].file
+            written.append(dest)  # before the copy, so a half-written file is removed too
+            shutil.copyfile(src, dest)
+            if sha256_file(dest) != components[name].sha256:
+                raise ValueError(f"{name}: copied file {dest} does not match its source (source changed?)")
+        written.append(directory / POLICY_FILE)
+        (directory / POLICY_FILE).write_bytes(policy_bytes)
+        manifest_path = directory / MANIFEST_NAME
+        written.append(manifest_path)
+        manifest_path.write_bytes(manifest.to_json().encode("utf-8"))
+    except BaseException:
+        # No half-built bundle is left behind: remove what this call wrote, then re-raise.
+        for path in written:
+            path.unlink(missing_ok=True)
+        if created_dir and directory.is_dir():
+            directory.rmdir()
+        raise
     return manifest_path
 
 
@@ -285,11 +310,17 @@ def load_bundle(directory) -> LoadedBundle:
             f"bundle contents differ from the manifest: missing {sorted(expected - present)}, "
             f"extra {sorted(present - expected)}"
         )
+    policy_bytes = b""
     for name, component in manifest.components.items():
         path = directory / component.file
         if path.is_symlink() or not path.is_file():
             raise ValueError(f"{name}: {component.file} is not a regular file")
-        actual = sha256_file(path)
+        if name == "policy":
+            # Read once: these bytes are hashed here and parsed below, never re-read from disk.
+            policy_bytes = path.read_bytes()
+            actual = hashlib.sha256(policy_bytes).hexdigest()
+        else:
+            actual = sha256_file(path)
         if actual != component.sha256:
             raise ValueError(
                 f"{name}: SHA-256 mismatch for {component.file} (manifest {component.sha256}, file {actual})"
@@ -297,7 +328,7 @@ def load_bundle(directory) -> LoadedBundle:
 
     policy_component = manifest.components["policy"]
     try:
-        policy = RiskPolicy.from_json((directory / policy_component.file).read_bytes().decode("utf-8"))
+        policy = RiskPolicy.from_json(policy_bytes.decode("utf-8"))
     except (ValueError, TypeError) as e:
         raise ValueError(f"policy: invalid policy file {policy_component.file}: {e}") from None
     if policy.version != policy_component.version:

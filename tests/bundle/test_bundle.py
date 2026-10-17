@@ -243,6 +243,34 @@ def test_invalid_policy_at_load_raises(bundle_dir: Path):
         load_bundle(bundle_dir)
 
 
+def test_policy_is_parsed_from_the_hashed_bytes(bundle_dir: Path, monkeypatch):
+    # policy.json must be read once: the bytes that are hashed are the bytes that are parsed. Right
+    # after that read, the file is swapped for a valid policy-v2; a loader that read the file again
+    # to parse it would return (or reject) policy-v2. Reading once, it returns the verified policy-v1.
+    policy_path = bundle_dir / "policy.json"
+    other = _policy("policy-v2").to_json().encode("utf-8")
+    real_read_bytes = Path.read_bytes
+    reads = []
+
+    def read_bytes(self):
+        data = real_read_bytes(self)
+        if self == policy_path:
+            reads.append(self)
+            real_write_bytes(self, other)
+        return data
+
+    real_write_bytes = Path.write_bytes
+    hashed = []
+    real_sha256_file = bundle_module.sha256_file
+    monkeypatch.setattr(Path, "read_bytes", read_bytes)
+    monkeypatch.setattr(bundle_module, "sha256_file", lambda p: hashed.append(p) or real_sha256_file(p))
+
+    loaded = load_bundle(bundle_dir)
+    assert loaded.policy == _policy("policy-v1")
+    assert reads == [policy_path]
+    assert policy_path not in hashed
+
+
 # 7. Immutability.
 def test_build_into_non_empty_directory_raises(tmp_path: Path, bundle_dir: Path):
     # Bundles are never overwritten: the existing folder keeps exactly its bytes.
@@ -250,6 +278,35 @@ def test_build_into_non_empty_directory_raises(tmp_path: Path, bundle_dir: Path)
     with pytest.raises(ValueError, match="not empty"):
         _build(bundle_dir, tmp_path / "src2", bundle_version="bundle-v2")
     assert {p.name: p.read_bytes() for p in bundle_dir.iterdir()} == before
+
+
+@pytest.mark.parametrize("pre_create", [False, True])
+def test_failed_build_removes_what_it_wrote(tmp_path: Path, monkeypatch, pre_create: bool):
+    # The second copy (the profile) fails after the checkpoint was written. No half-built bundle may
+    # remain: a folder build_bundle created is removed, a pre-existing empty folder is empty again,
+    # and the original error is re-raised.
+    directory = tmp_path / "bundle"
+    if pre_create:
+        directory.mkdir()
+    real_copyfile = bundle_module.shutil.copyfile
+    calls = []
+
+    def copyfile(src, dst):
+        calls.append(dst)
+        if len(calls) == 2:
+            Path(dst).write_bytes(b"half")  # a partly written file must be removed too
+            raise OSError("disk full")
+        return real_copyfile(src, dst)
+
+    monkeypatch.setattr(bundle_module.shutil, "copyfile", copyfile)
+    with pytest.raises(OSError, match="disk full"):
+        _build(directory, tmp_path / "src")
+    assert len(calls) == 2
+    if pre_create:
+        assert directory.is_dir()
+        assert list(directory.iterdir()) == []
+    else:
+        assert not directory.exists()
 
 
 def test_build_into_empty_directory_is_allowed(tmp_path: Path):
