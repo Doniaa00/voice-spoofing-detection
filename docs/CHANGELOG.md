@@ -9,6 +9,7 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
 ## [Unreleased]
 
 ### Added
+- ModelBundle format and verifying loader (hashes, versions, path safety, immutability, provenance).
 - Append-only, hash-chained run registry for D31 (claim before run).
 - Stage 10 risk policy: Platt calibration with smoothed targets, val-B EER threshold, uncertain band with ≤ 10% deferral, confidence, risk level, strict JSON policy file.
 - Stage 7 evaluation harness (EER/AUC, decision metrics, three-way decisions, cluster bootstrap CIs, seed rules) and the scikit-learn 1.9.1 pin.
