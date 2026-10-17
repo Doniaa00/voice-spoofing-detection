@@ -718,6 +718,39 @@ scikit-learn 1.9.1.
 
 ---
 
+### Entry 33 — Stage 10 risk policy, steps R1–R2 (2026-10-17)
+
+**Authorship:** specified and reviewed by Donia Mabrouk. Code, tests and the design note were
+written by **Claude Code**. Every commit's diff was reviewed by Donia with Claude (claude.ai) before
+push.
+
+**What:** on `feat/stage10-risk-policy`, the risk policy (design note `docs/risk_policy.md`):
+- **R1:** the band rule moved from the harness to the core (`src/risk/decisions.py`; the harness
+  re-exports it), and Platt calibration with smoothed targets, fitted by Newton's method
+  (`src/risk/calibration.py`).
+- **R2:** the fit in `src/tuning/risk_fit.py` (calibration, val-B EER threshold on p, largest band
+  with deferral ≤ 10%); apply (confidence, risk level) and the strict JSON policy file in
+  `src/risk/policy.py`. A follow-up fix rejects self-inconsistent policies (fit counts ≠
+  calibration counts, or deferral on fit > target), in the constructor and through `from_json`.
+
+**Why the layering:** SDD Fig. 1 puts Risk & Confidence in the API container but not Evaluation, so
+the band rule and the policy application live in the core `src/risk`, which imports neither
+`src.evaluation` nor `src.tuning`. The new `src/tuning` package is the SDD Training & Tuning
+component (research tier); the fit lives there because it uses the harness `eer()`.
+
+All tests use synthetic scores; no dataset was accessed and DEEP-VOICE was not touched.
+
+**Evidence [verified]:** `.venv` `python -m pytest -q`: `207 passed in 10.99s`; governance test
+`3 passed in 0.15s`.
+
+**Watch item:** Platt's stopping rule is an absolute gradient norm (< 1e-10). Fine at val-B size;
+on much larger fit sets it may not be reached, and the fit then fails loudly (`ValueError` after
+100 iterations), never silently.
+
+**Gate:** PR ready for human review; AI does not approve or merge.
+
+---
+
 ## Open items
 
 **GitHub / repo**
@@ -766,6 +799,11 @@ scikit-learn 1.9.1.
 - [x] Enforcement of "Stage 11 runs once" (run registry) (Donia, before Stage 11): D31 (Entry 32).
 - [ ] File-level decisions for DEEP-VOICE: frozen band on the file mean of p, secondary view (Khalil, before Stage 13).
 - [ ] Colab install of scikit-learn 1.9.1 [to verify] at the first Stage 7 Colab run.
+
+**Stage 10 risk policy (Entry 33)**
+- [ ] Human review of `feat/stage10-risk-policy` (R1–R2); CI green on Python 3.13.
+- [ ] Watch: Platt's absolute gradient-norm stop; if the real val-B fit fails to converge, propose a
+  relative criterion (no silent change).
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -845,25 +883,28 @@ scikit-learn 1.9.1.
 - **Stage 4 is complete** (Entry 28): PR #12 merged as `865faf4`.
 - **Stage 5 F2 PR merged** as PR #15 (`main` at `89b37fc`).
 - **Stage 7 evaluation harness, steps 1–5, is merged** as PR #13 (Entry 31).
-- **Protocol clarifications D29–D31 are ready for review** (Entry 32): baseline threshold, CNN
-  search space with seed and tie rule, "Stage 11 runs once".
+- **Protocol clarifications D29–D31 are merged** as PR #16 (Entry 32).
+- **Stage 10 risk policy, steps R1–R2, is ready for review** (Entry 33): Platt calibration, val-B
+  EER threshold, band with ≤ 10% deferral, confidence, risk level, strict JSON policy file.
 
 **What we have:**
 - The approved FoR split and the F2 manifests and hash ledger (D28).
 - One shared, tested evaluation harness (`src/evaluation/`) for the baseline, the CNN and the
   external run, documented in `docs/evaluation_harness.md`.
 - Pre-declared rules for the baseline threshold, CNN selection and the single Stage 11 run (D29–D31).
+- A tested risk-policy fit (`src/tuning`) and core apply / save / load (`src/risk`), documented in
+  `docs/risk_policy.md`; not yet fitted on real val-B scores.
 - Governance rules that keep the external set metadata-only until the one guarded Stage 13 run.
 
 **Branches:**
-- `main`: through PR #13 at `bd8b67c`.
-- `docs/stage7-protocol-clarifications`: D29–D31, Protocol §14 row, Entry 32; ready for human review.
+- `main`: through PR #16 at `1cd6cdb`.
+- `feat/stage10-risk-policy`: risk policy R1–R2, Entry 33; ready for human review.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, followed by one honest external test.
 
 **What's next:**
-1. Human review of the D29–D31 PR; CI must be green on Python 3.13. AI does not merge.
+1. Human review of the risk-policy PR; CI must be green on Python 3.13. AI does not merge.
 2. Malak is on Stage 6 (preprocessing profile v1 + tests + compute benchmark).
 3. Khalil decides the DEEP-VOICE file-level view before Stage 13; verify the scikit-learn Colab install.
 4. Then the MFCC/SVM baseline (Stage 7) on the frozen preprocessing.
