@@ -17,7 +17,10 @@ Conventions (D31):
 
 Limitation: the code protects one copy of the file. Someone can delete the file, or start another
 copy, and the code cannot see it. The team-level guarantee is that the real registry is committed
-through a reviewed PR right after Stage 11.
+through a reviewed PR right after Stage 11. The hash chain also cannot detect removal of the last
+line(s): a truncated file is still a valid chain. Mitigation (procedure): right after Stage 11, the
+registry's SHA-256 and line count are recorded in the project-log entry and the results PR, so a
+shortened file no longer matches.
 
 All functions validate their input and raise ValueError on anything ambiguous (AGENTS.md code
 rules: fail loudly).

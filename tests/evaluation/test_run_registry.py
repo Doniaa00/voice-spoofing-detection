@@ -109,6 +109,22 @@ def test_tampering_detected(tmp_path, tamper):
         RunRegistry(path)
 
 
+def test_truncation_is_not_detected_by_the_chain(tmp_path):
+    # Limitation (D31): each line only hashes the line before it, so dropping the last line leaves
+    # a valid chain and the registry still loads. The mitigation is procedural: the file's SHA-256
+    # and line count are recorded right after Stage 11, and a truncated file no longer matches.
+    path = tmp_path / "runs.jsonl"
+    registry = RunRegistry(path)
+    run_id = registry.claim("for", "test", MODELS, COMMIT)
+    registry.complete(run_id, "results/a.json")
+    recorded_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+    lines = _lines(path)
+    path.write_bytes(b"".join(lines[:-1]))
+    assert [r.status for r in RunRegistry(path).records()] == ["started"]
+    assert hashlib.sha256(path.read_bytes()).hexdigest() != recorded_sha256
+    assert len(_lines(path)) != len(lines)
+
+
 def _rewrite_first(path, change):
     # Change the first record and write it back; first line, so the chain check itself still passes
     # and only the strict parsing can reject it.

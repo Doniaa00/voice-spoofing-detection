@@ -299,6 +299,8 @@ Each case has its hand calculation as a comment.
 - A run is identified by `(dataset, split, model_set)`; `model_set` is stored sorted.
 - The real registry file for Stage 11 is `docs/audit_evidence/run_registry.jsonl`. It is committed
   by PR right after the run. The path is passed by the caller; the code hard-codes none.
+- Right after Stage 11, the registry's SHA-256 and line count are recorded in the project-log entry
+  and the results PR (mitigation for truncation, see (e)).
 
 `RunRegistry(path)` lives in `src/evaluation/run_registry.py` (research tier; the core `src/risk`
 does not import it). `claim(dataset, split, model_set, code_commit) -> run_id`,
@@ -337,6 +339,9 @@ dataclass: `run_id` (uuid4 hex), `status` (`"started"` | `"completed"`), `datase
 - **(e) Limitation.** The code protects one copy of the file: it cannot see a deleted file or a
   second copy. The team-level guarantee is that the real registry is committed through a reviewed
   PR right after Stage 11.
+  The hash chain also cannot detect removal of the last line(s): a truncated file is still a valid
+  chain. Mitigation (procedure): right after Stage 11, the registry's SHA-256 and line count are
+  recorded in the project-log entry and the results PR, so a shortened file no longer matches.
 
 ### Tests (`tests/evaluation/test_run_registry.py`)
 Each test has its reasoning as a comment.
@@ -349,5 +354,6 @@ Each test has its reasoning as a comment.
 | Complete once | `test_complete_once` (second complete, unknown run_id refused; a completed run blocks a claim) |
 | Append-only | `test_append_only` (earlier bytes are a prefix after each write; genesis and chain hashes) |
 | (b) hash chain | `test_tampering_detected` (edit, delete, reorder an earlier line → "edited") |
+| (e) truncation limitation | `test_truncation_is_not_detected_by_the_chain` (last line removed → still loads; file SHA-256 differs from the recorded one) |
 | Strict parsing | `test_malformed_record_raises` (unknown/missing key, bad commit, bad status, unsorted model set, non-UTC time, started with a results_ref), `test_malformed_line_raises` (not JSON, not an object, empty line, no final newline), `test_bad_claim_arguments_raise` (nothing written) |
 | State in the file | `test_state_lives_in_the_file` (a new `RunRegistry` on the same path sees and enforces earlier claims) |
