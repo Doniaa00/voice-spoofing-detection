@@ -290,3 +290,64 @@ Each case has its hand calculation as a comment.
 | Order independence | `test_order_independence` (reversed insertion order → same seed and summary) |
 | (d) odd count | `test_select_bundle_seed_even_count_raises` (2 and 4 seeds) |
 | Fail loudly | `test_seed_summary_one_seed_raises`, `test_invalid_input_raises` (empty, NaN, ±∞, string and bool values, bool and float seeds, a list instead of a mapping; both functions) |
+
+## Run registry (D31)
+
+### Conventions
+- Stage 11 runs once (D31): every FoR test-split evaluation is recorded in an append-only run
+  registry, and the code refuses a second run for the same model set.
+- A run is identified by `(dataset, split, model_set)`; `model_set` is stored sorted.
+- The real registry file for Stage 11 is `docs/audit_evidence/run_registry.jsonl`. It is committed
+  by PR right after the run. The path is passed by the caller; the code hard-codes none.
+
+`RunRegistry(path)` lives in `src/evaluation/run_registry.py` (research tier; the core `src/risk`
+does not import it). `claim(dataset, split, model_set, code_commit) -> run_id`,
+`complete(run_id, results_ref)` and `records() -> tuple[RunRecord, ...]`. `RunRecord` is a frozen
+dataclass: `run_id` (uuid4 hex), `status` (`"started"` | `"completed"`), `dataset`, `split`,
+`model_set` (sorted tuple), `code_commit` (40 lowercase hex), `timestamp` (ISO 8601 UTC),
+`results_ref` (`""` while started), `prev_sha256` (64 hex; `"0" * 64` for the first line).
+
+### Method
+1. The file is JSON Lines: one record per line, JSON with sorted keys and compact separators,
+   UTF-8, terminated by `"\n"`. A missing or empty file is an empty registry.
+2. Loading (on construction and on every call) parses each line strictly: unknown or missing keys
+   and bad values raise `ValueError` naming the line. It then checks the hash chain: each
+   `prev_sha256` must equal the SHA-256 of the previous line's exact bytes, including its `"\n"`.
+   A mismatch raises `ValueError` ("registry was edited"). It also replays the rules below, so a
+   file the code would never write (a second claim, a completed record without its start) is
+   rejected.
+3. `claim`: if any record, started or completed, has the same dataset, split and sorted model set,
+   `ValueError` ("already run: a second run needs a new decision"). Otherwise one `"started"`
+   record is appended and its `run_id` returned.
+4. `complete`: appends one `"completed"` record (same dataset, split, model set and commit as the
+   start) for a run that is started and not yet completed; otherwise `ValueError`.
+5. Writing opens the file in `"a"` mode (UTF-8, no newline translation) and adds one line; the file
+   is never rewritten.
+
+### Why (team reasoning)
+- **(a) Claim before run.** The claim is written before the evaluation runs. A run that crashes
+  part-way may already have shown test results, so its started record still blocks a rerun; a
+  second run needs a new decision.
+- **(b) Hash chain.** Each line carries the hash of the previous one, so editing, deleting or
+  reordering an earlier line (for example to erase a claim) is detected on the next load.
+- **(c) Order-independent model set.** The model set is stored sorted, so listing the same models
+  in another order cannot pass as a new run.
+- **(d) Path from the caller.** No Colab or Drive path is hard-coded (AGENTS.md code rules); tests
+  use a temporary file, and Stage 11 passes the committed evidence path.
+- **(e) Limitation.** The code protects one copy of the file: it cannot see a deleted file or a
+  second copy. The team-level guarantee is that the real registry is committed through a reviewed
+  PR right after Stage 11.
+
+### Tests (`tests/evaluation/test_run_registry.py`)
+Each test has its reasoning as a comment.
+
+| Point | Test |
+|---|---|
+| One run per model set, (c) order | `test_second_claim_same_run_raises` (same models; reversed order and another commit also refused) |
+| (a) claim before run | `test_crashed_run_still_blocks` (started, never completed → second claim refused) |
+| Key = dataset, split, model set | `test_other_model_set_or_split_can_be_claimed` |
+| Complete once | `test_complete_once` (second complete, unknown run_id refused; a completed run blocks a claim) |
+| Append-only | `test_append_only` (earlier bytes are a prefix after each write; genesis and chain hashes) |
+| (b) hash chain | `test_tampering_detected` (edit, delete, reorder an earlier line → "edited") |
+| Strict parsing | `test_malformed_record_raises` (unknown/missing key, bad commit, bad status, unsorted model set, non-UTC time, started with a results_ref), `test_malformed_line_raises` (not JSON, not an object, empty line, no final newline), `test_bad_claim_arguments_raise` (nothing written) |
+| State in the file | `test_state_lives_in_the_file` (a new `RunRegistry` on the same path sees and enforces earlier claims) |
