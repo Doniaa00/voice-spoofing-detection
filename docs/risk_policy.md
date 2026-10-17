@@ -95,7 +95,9 @@ Step R2 is tested on synthetic scores only; no dataset is read.
   n_bonafide_fit, deferral_on_fit)`, a frozen dataclass. The constructor raises `ValueError` on an
   empty version, a threshold not finite or not strictly inside (0, 1), a negative or non-finite
   `half_width`, `target_deferral` outside [0, 1), a count that is not an int ≥ 1, or
-  `deferral_on_fit` outside [0, 1].
+  `deferral_on_fit` outside [0, 1]. It also raises if the policy contradicts itself:
+  `n_spoof_fit != calibration.n_spoof`, `n_bonafide_fit != calibration.n_bonafide`, or
+  `deferral_on_fit > target_deferral`. The fit never produces these.
 - `RiskPolicy.decide(scores)`: one `Decision` per score.
 - `RiskPolicy.to_json()` / `RiskPolicy.from_json(text)`: one JSON object with `schema_version` and
   every field (calibration as `{a, b, n_spoof, n_bonafide}`).
@@ -134,7 +136,9 @@ Step R2 is tested on synthetic scores only; no dataset is read.
   likely class. **Limitation:** an uncertain case can show a confidence up to about
   `0.5 + half_width`, so the dashboard must show the prediction next to the confidence.
 - **(e) Strict JSON.** Exact floats, a schema version and no unknown or missing keys, so the frozen
-  bundle (F4) loads exactly what was fitted (NFR-09).
+  bundle (F4) loads exactly what was fitted (NFR-09). The file also cannot contradict itself: the
+  fit counts must match the calibration counts and the achieved deferral cannot exceed the target,
+  so a hand-edited or mixed-up file fails loudly at load instead of running.
 
 ### Tests (`tests/risk/test_policy.py`, `tests/tuning/test_risk_fit.py`, `tests/risk/test_decisions.py`)
 Each case has its hand reasoning as a comment.

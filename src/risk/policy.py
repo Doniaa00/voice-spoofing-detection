@@ -73,6 +73,20 @@ class RiskPolicy:
         _require_finite_number("deferral_on_fit", self.deferral_on_fit)
         if not 0 <= self.deferral_on_fit <= 1:
             raise ValueError(f"deferral_on_fit must be in [0, 1], got {self.deferral_on_fit!r}")
+        # The fit never produces these; a policy that does contradicts itself.
+        if self.n_spoof_fit != self.calibration.n_spoof:
+            raise ValueError(
+                f"n_spoof_fit ({self.n_spoof_fit}) != calibration.n_spoof ({self.calibration.n_spoof})"
+            )
+        if self.n_bonafide_fit != self.calibration.n_bonafide:
+            raise ValueError(
+                f"n_bonafide_fit ({self.n_bonafide_fit}) != calibration.n_bonafide "
+                f"({self.calibration.n_bonafide})"
+            )
+        if self.deferral_on_fit > self.target_deferral:
+            raise ValueError(
+                f"deferral_on_fit ({self.deferral_on_fit!r}) > target_deferral ({self.target_deferral!r})"
+            )
 
     def decide(self, scores) -> tuple[Decision, ...]:
         """Apply the policy: p = calibration(s), the core band rule on p, confidence and risk level.

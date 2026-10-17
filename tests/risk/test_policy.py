@@ -104,6 +104,31 @@ def test_constructor_rejects_invalid(overrides):
         _policy(**overrides)
 
 
+_INCONSISTENT = [
+    {"n_spoof_fit": 11},                              # calibration.n_spoof is 10
+    {"n_bonafide_fit": 13},                           # calibration.n_bonafide is 12
+    {"deferral_on_fit": 0.15},                        # above target_deferral 0.10
+]
+
+
+@pytest.mark.parametrize("overrides", _INCONSISTENT)
+def test_constructor_rejects_inconsistent(overrides):
+    with pytest.raises(ValueError):
+        _policy(**overrides)
+
+
+@pytest.mark.parametrize("overrides", _INCONSISTENT)
+def test_from_json_rejects_inconsistent(overrides):
+    # Same contradictions written into an otherwise valid file.
+    with pytest.raises(ValueError):
+        RiskPolicy.from_json(_mutated(lambda d: d.update(overrides)))
+
+
+def test_deferral_equal_to_target_is_accepted():
+    # The fit's bound is <=, so deferral_on_fit == target_deferral is consistent.
+    assert _policy(deferral_on_fit=0.10).deferral_on_fit == 0.10
+
+
 def test_policy_is_frozen():
     with pytest.raises(dataclasses.FrozenInstanceError):
         _policy().threshold = 0.3
