@@ -783,6 +783,48 @@ recorded in the project-log entry and the results PR, so a shortened file no lon
 
 ---
 
+### Entry 35 — Stage 12 prep: ModelBundle format and verifying loader (2026-10-17)
+
+**Authorship:** specified and reviewed by Donia Mabrouk. Code, tests and the design note were
+written by **Claude Code**. Every commit's diff was reviewed by Donia with Claude (claude.ai) before
+push.
+
+**What:** on `feat/stage12-bundle-format`, the ModelBundle format and its verifying loader in
+`src/bundle/bundle.py` (design note: `docs/model_bundle.md`):
+- **Format:** one folder with the checkpoint, the preprocessing profile, `policy.json` and
+  `bundle_manifest.json` (SHA-256 and version of each part, code commit, protocol version, F2
+  ledger hash D28); strict manifest parsing, deterministic bytes.
+- **Verify before use:** `load_bundle` checks folder contents, every SHA-256 and the policy version
+  before returning anything, and returns `manifest_sha256` for the F4 freeze decision.
+- **Path safety:** component files must be plain names inside the bundle, checked before any file
+  is opened. **Immutability:** `build_bundle` never writes into a non-empty folder; `load_bundle`
+  only reads.
+- **Follow-up fix:** `policy.json` (like the manifest) is read once, so the parsed bytes are the
+  hashed bytes; a failed build removes every file it wrote (and the folder it created).
+
+**Why:** threat model §10 (tampering: model, profile or thresholds replaced) and NFR-09 require a
+refusal at load; the bundle is the C→D (Stage 13) and C→E (API) hand-over of Protocol v1.0 §11,
+so both consumers must get exactly the frozen parts (D2).
+
+All tests use dummy files; no dataset was accessed, no PyTorch is needed, and DEEP-VOICE was not
+touched.
+
+**Limitations:**
+- The profile version is recorded but not checked against the profile file; added in Stage 12
+  once the F3 profile format is frozen.
+- Check-then-use: the checkpoint and profile are verified by path; Stage 12 and the API (Stage 17)
+  must load the checkpoint from the verified bytes or re-verify its hash at load.
+- A pickled PyTorch checkpoint can execute code when loaded: Stage 8 saves checkpoints in a
+  non-executable form (safetensors, or a `state_dict` loaded with `torch.load(...,
+  weights_only=True)`), and Stage 12/17 load them that way.
+
+**Evidence [verified]:** `.venv` `python -m pytest -q`: `266 passed in 13.34s`; governance test
+`3 passed in 0.25s`. The two new tests fail against the pre-fix loader.
+
+**Gate:** PR ready for human review; AI does not approve or merge.
+
+---
+
 ## Open items
 
 **GitHub / repo**
@@ -838,9 +880,16 @@ recorded in the project-log entry and the results PR, so a shortened file no lon
   relative criterion (no silent change).
 
 **Stage 11 run registry (Entry 34)**
-- [ ] Human review of `feat/stage11-run-registry`; CI green on Python 3.13.
+- [x] Human review of `feat/stage11-run-registry`; CI green on Python 3.13: merged as PR #18.
 - [ ] Stage 11: record the registry SHA-256 and line count right after the run (project-log entry
   and results PR).
+
+**Stage 12 ModelBundle (Entry 35)**
+- [ ] Human review of `feat/stage12-bundle-format`; CI green on Python 3.13.
+- [ ] Stage 12: add the profile-version check once the F3 profile format is frozen.
+- [ ] Stage 12/17: load the checkpoint from verified bytes (or re-verify at load).
+- [ ] Stage 8: save checkpoints in a non-executable form (safetensors or state_dict + weights_only=True).
+- [ ] F4: record manifest_sha256 in the freeze decision.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -922,9 +971,10 @@ recorded in the project-log entry and the results PR, so a shortened file no lon
 - **Stage 7 evaluation harness, steps 1–5, is merged** as PR #13 (Entry 31).
 - **Protocol clarifications D29–D31 are merged** as PR #16 (Entry 32).
 - **Stage 10 risk policy, steps R1–R2, is merged** as PR #17 (Entry 33).
-- **Stage 11 run registry (D31) is ready for review** (Entry 34): claim before run, hash chain,
-  rule replay on load, strict parsing; truncation is caught by recording the file's SHA-256 and
-  line count right after the run.
+- **Stage 11 run registry (D31) is merged** as PR #18 (Entry 34).
+- **Stage 12 prep, ModelBundle format and verifying loader, is ready for review** (Entry 35). With
+  it, the **Part C prep is complete**: harness, risk policy, run registry and bundle format are
+  built and tested on synthetic data; the real Part C runs wait for F3 (preprocessing profile v1).
 
 **What we have:**
 - The approved FoR split and the F2 manifests and hash ledger (D28).
@@ -935,17 +985,19 @@ recorded in the project-log entry and the results PR, so a shortened file no lon
   `docs/risk_policy.md`; not yet fitted on real val-B scores.
 - A tested append-only run registry (`src/evaluation/run_registry.py`) that refuses a second
   Stage 11 run for the same model set.
+- A tested ModelBundle format (`src/bundle/`) whose loader verifies every part before use,
+  documented in `docs/model_bundle.md`.
 - Governance rules that keep the external set metadata-only until the one guarded Stage 13 run.
 
 **Branches:**
-- `main`: through PR #17 at `bc27360`.
-- `feat/stage11-run-registry`: run registry for D31, Entry 34; ready for human review.
+- `main`: through PR #18 at `6fc4528`.
+- `feat/stage12-bundle-format`: ModelBundle format and loader, Entry 35; ready for human review.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, followed by one honest external test.
 
 **What's next:**
-1. Human review of the run-registry PR; CI must be green on Python 3.13. AI does not merge.
-2. Malak is on Stage 6 (preprocessing profile v1 + tests + compute benchmark).
+1. Human review of the bundle-format PR; CI must be green on Python 3.13. AI does not merge.
+2. **Waiting for F3:** Malak is on Stage 6 (preprocessing profile v1 + tests + compute benchmark).
 3. Khalil decides the DEEP-VOICE file-level view before Stage 13; verify the scikit-learn Colab install.
 4. Then the MFCC/SVM baseline (Stage 7) on the frozen preprocessing.
