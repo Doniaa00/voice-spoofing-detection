@@ -172,3 +172,65 @@ CI.
 | (d) per-class deferral, one class | `test_three_way_metrics_single_class_deferral_nan` (spoof deferral 0.5, bonafide deferral NaN) |
 | Consistency | `test_three_way_metrics_consistency_on_random_scores` (200 scores, seed 2026: confusion sums to n, uncertain column = n_deferred, coverage + deferral = 1, row sums = class counts) |
 | Fail loudly | `test_three_way_decisions_invalid_half_width_raises` (negative, NaN, ±∞, string, None), `test_three_way_decisions_invalid_threshold_raises`, `test_three_way_decisions_invalid_scores_raises`, `test_three_way_metrics_invalid_input_raises` (bad prediction strings, non-strings, lengths, empty, bad labels) |
+
+## Step 4: bootstrap confidence intervals
+
+### Conventions
+- 95% percentile intervals, 2,000 resamples, seed 2026 (Protocol v1.0 §5, D11); these are the
+  defaults of `bootstrap_ci`.
+- Resampling by cluster: FoR near-duplicate groups, DEEP-VOICE source speakers (D11).
+- Same metric conventions as Steps 1–3; the bootstrap wraps the harness metrics, it does not
+  redefine them.
+
+`bootstrap_ci(statistic, n, *, clusters=None, n_resamples=2000, seed=2026, confidence=0.95)
+-> BootstrapCI` returns a frozen dataclass with `estimate, low, high, confidence` (float) and
+`n_resamples, n_invalid` (int).
+
+### Method
+1. `statistic(indices) -> float` receives row indices into the caller's arrays.
+2. `estimate = statistic(np.arange(n))`, on the full data. If it raises or is NaN, `ValueError`.
+3. Generator: `np.random.default_rng(seed)`, so results are deterministic.
+4. Each resample:
+   - `clusters=None`: draw `n` row indices with replacement;
+   - `clusters` given (length `n`, any hashable ids): draw the unique cluster ids with replacement,
+     as many draws as there are clusters, and concatenate all rows of each drawn cluster.
+5. A resample is invalid if the statistic raises `ValueError` or returns NaN. It is excluded and
+   counted in `n_invalid`. If every resample is invalid, `ValueError`.
+6. `low`, `high` = `np.percentile` of the valid statistics at `(1 − confidence)/2` and
+   `1 − (1 − confidence)/2`, method `"linear"`.
+
+`ValueError` is also raised for: `n` or `n_resamples` not an int ≥ 1 (bools and floats rejected),
+`seed` not an int, `confidence` outside (0, 1), or `clusters` whose length is not `n`.
+
+### Why (team reasoning)
+- **(a) Statistic of indices.** One index set per resample feeds both systems of a paired
+  difference, so H1, H5 and H6 compare them on the same rows, and a single metric uses the same
+  interface.
+- **(b) Cluster bootstrap.** Rows inside a cluster (near-duplicates, one speaker's clips) are not
+  independent. Resampling rows would treat them as independent and give falsely narrow intervals
+  (D11).
+- **(c) Protocol values.** Percentile method, 2,000 resamples, seed 2026, 95%, as frozen in
+  Protocol v1.0 §5; they are the defaults, so a caller does not repeat them.
+- **(d) Estimate on the full data.** The reported number is the metric of the actual test set; the
+  resamples only give its uncertainty.
+- **(e) Invalid resamples excluded and counted.** A resample with one class has no EER or AUC. It is
+  dropped from the percentiles, and `n_invalid` is returned so the drop is visible, never hidden.
+
+### Limitation
+With few clusters the percentile interval is approximate and wide. DEEP-VOICE has 8 source
+speakers (dataset_audit §8, limitation 4), so its resamples can only recombine 8 clusters. Its
+intervals are reported as approximate, with the number of clusters next to them.
+
+### Tests (`tests/evaluation/test_bootstrap.py`)
+Each test has its reasoning as a comment.
+
+| Point | Test |
+|---|---|
+| Determinism | `test_deterministic_for_a_seed` (same seed → identical `BootstrapCI`; seed 7 → different bounds) |
+| (d) estimate | `test_estimate_is_statistic_on_full_data` (mean of [1, 2, 3, 4, 10] = 4.0) |
+| (c) sanity vs theory | `test_mean_ci_matches_normal_theory` (400 N(0, 1) values, seed 2026: CI contains the mean, width within ±20% of 2·1.96·sd/√n) |
+| (b) cluster rule | `test_cluster_resampling_keeps_clusters_whole_and_widens_ci` (20 clusters × 10 identical values: whole clusters only, cluster CI ≥ 2× row CI) |
+| (a) paired difference | `test_paired_difference_on_same_resample_is_zero` (low = high = estimate = 0) |
+| Harness integration | `test_works_with_harness_eer` (200 random scores, seed 2026: low ≤ EER ≤ high) |
+| (e) invalid resamples | `test_invalid_resamples_are_excluded_and_counted` (labels [0, 1], `roc_auc`: 0 < `n_invalid` < 2,000, CI [1, 1]), `test_all_resamples_invalid_raises` |
+| Fail loudly | `test_invalid_parameters_raise` (`n_resamples` 0, 10.0, True; confidence 0, 1; clusters of wrong length; float seed; `n` 0, True), `test_nan_estimate_raises` |
