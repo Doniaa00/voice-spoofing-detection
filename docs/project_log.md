@@ -658,6 +658,40 @@ approved the implementation commit. Donia must review the F2 artifacts; AI does 
 **Gate:** **WAITING FOR DONIA'S HUMAN REVIEW.** F2 is not effective and Stage 5 is not complete until
 the evidence commit is reviewed in a green PR and merged by a human. Do not begin Stage 6.
 
+### Entry 31 — Stage 7 evaluation harness, steps 1–5 (2026-10-17)
+
+**Authorship:** specified and reviewed by Donia Mabrouk. Code, tests and the design note were
+written by **Claude Code**. Every commit's diff was reviewed by Donia with Claude (claude.ai) before
+push.
+
+**What:** on `feat/stage7-eval-harness`, the shared evaluation harness (`src/evaluation/`), built in
+five steps:
+1. EER (with threshold rule) and ROC-AUC, with input validation (`metrics.py`).
+2. Decision-level metrics at a threshold: accuracy, precision, recall, F1, confusion matrix (`metrics.py`).
+3. Three-way decisions with the uncertain band, coverage and deferral (`metrics.py`).
+4. Cluster bootstrap confidence intervals, with limitations near 0 and `n_invalid` reporting (`bootstrap.py`).
+5. Seed summary across CNN seeds and the bundle-seed rule (`seeds.py`).
+
+Design note: `docs/evaluation_harness.md`. All tests use synthetic data; no dataset was accessed and
+DEEP-VOICE was not touched.
+
+**Dependency:** `scikit-learn==1.9.1` pinned in `requirements.txt` (already a transitive dependency
+of librosa). The wheel check used manylinux_2_28 (manylinux2014 has no 1.9.1 wheels). Install on
+Python 3.13 [verified] by CI on the PR; Colab install [to verify] at the first Stage 7 Colab run.
+
+**Evidence [verified]:** `.venv` (Python 3.14.7) `python -m pytest -q`: `161 passed in 20.62s`;
+governance test `3 passed in 0.28s`.
+
+**Open protocol clarifications** found while building the harness, to decide before the data they
+affect is seen (Protocol §12 change control; each gets the next free D-ID when decided):
+1. Baseline threshold: its own val-B EER point, forced binary only (Donia, before Stage 7 results).
+2. Exact CNN model-selection search space in `configs/` (Donia, before Stage 8).
+3. Enforcement of "Stage 11 runs once" (run registry) (Donia, before Stage 11).
+4. File-level decisions for DEEP-VOICE: apply the frozen band to the file mean of p, as a secondary
+   view (Khalil, before Stage 13).
+
+**Gate:** harness PR ready for human review; AI does not approve or merge.
+
 ---
 
 ## Open items
@@ -701,6 +735,13 @@ the evidence commit is reviewed in a green PR and merged by a human. Do not begi
   official freeze twice from the final clean commit.
 - [x] Record the generated manifest hashes in proposed D28 and project-log Entry 30.
 - [ ] Donia reviews the F2 PR; after approval and human merge, mark Stage 5 done.
+
+**Stage 7 harness: protocol clarifications (Entry 31; Protocol §12, next free D-ID when decided)**
+- [ ] Baseline threshold: own val-B EER point, forced binary only (Donia, before Stage 7 results).
+- [ ] Exact CNN model-selection search space in `configs/` (Donia, before Stage 8).
+- [ ] Enforcement of "Stage 11 runs once" (run registry) (Donia, before Stage 11).
+- [ ] File-level decisions for DEEP-VOICE: frozen band on the file mean of p, secondary view (Khalil, before Stage 13).
+- [ ] Colab install of scikit-learn 1.9.1 [to verify] at the first Stage 7 Colab run.
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -777,29 +818,26 @@ the evidence commit is reviewed in a green PR and merged by a human. Do not begi
 
 **What was done:**
 - **Stages 0–3 and Part A are complete.** Protocol v1.0 is frozen as F1 (PR #10).
-- **Stage 4 is complete** (Entry 28): PR #12 merged as `865faf4` after review and green CI.
-- Shared AI tooling v1 merged through PR #14; `main` is at `d9907f3` for this branch point.
-- **Stage 5 official metadata-only run passed deterministically** from clean commit `df1d6ac`
-  (Entry 30). F2 evidence and proposed D28 await review; Stage 6 has not started.
+- **Stage 4 is complete** (Entry 28): PR #12 merged as `865faf4`.
+- **Stage 5 F2 PR merged** as PR #15 (`main` at `89b37fc`).
+- **Stage 7 evaluation harness, steps 1–5, is ready for review** (Entry 31): metrics, cluster
+  bootstrap and seed rules, synthetic tests only, DEEP-VOICE untouched.
 
 **What we have:**
-- The approved 17,721-row FoR Stage 4 assignment with no group crossing splits.
-- Pinned Stage 1 inventories containing existing byte hashes: 17,721 FoR rows and 64 external rows.
-- A tested Stage 5 implementation that validates pins, paths, schemas, counts, hashes and deterministic
-  output without opening audio.
+- The approved FoR split and the F2 manifests and hash ledger (D28).
+- One shared, tested evaluation harness (`src/evaluation/`) for the baseline, the CNN and the
+  external run, documented in `docs/evaluation_harness.md`.
 - Governance rules that keep the external set metadata-only until the one guarded Stage 13 run.
 
 **Branches:**
-- `main`: through PR #14 at `d9907f3`, including the merged Stage 4 work.
-- `feat/stage5-dataset-freeze-malak`: implementation commit `9e005b1`, correction commit `df1d6ac`,
-  plus uncommitted F2 evidence.
+- `main`: through PR #15 at `89b37fc`.
+- `feat/stage7-eval-harness`: harness steps 1–5 and docs; draft PR, ready for human review.
 
 **What we want:**
-- Freeze F2 as reviewed, immutable small manifests before preprocessing or modeling begins.
 - A model that detects **synthetic voices**, not dataset accidents, followed by one honest external test.
 
 **What's next:**
-1. Human-review and commit the restricted Stage 5 evidence and proposed D28.
-2. Push the branch and open the PR for Donia's review; CI must be green.
-3. Only after Donia's approval and human merge is F2 effective and Stage 5 complete.
-4. Do not begin Stage 6 until that gate passes. Later open items remain in the sections above.
+1. Human review of the harness PR; CI must be green on Python 3.13. AI does not merge.
+2. Malak is on Stage 6 (preprocessing profile v1 + tests + compute benchmark).
+3. Decide the four harness protocol clarifications (Open items) before the data each affects is seen.
+4. Then the MFCC/SVM baseline (Stage 7) on the frozen preprocessing.
