@@ -9,6 +9,8 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
 ## [Unreleased]
 
 ### Added
+- Stage 5 metadata-only F2 freeze generator, pinned config, deterministic manifests, hash ledger and tests.
+- Shared AI tooling v1 (D27, ADR 0006): `pr-prep` skill, Context7 in `.mcp.json` (key via env var); GitHub MCP excluded.
 - Stage 4 FoR-only leakage-aware split code, frozen split config, automated checks and tests.
 - `AGENTS.md` as the single AI context for all tools (D22); `CLAUDE.md` imports it.
 - Decision register moved to `docs/decisions/README.md`, with ADRs 0001–0005 (D24).

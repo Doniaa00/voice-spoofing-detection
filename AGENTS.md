@@ -104,7 +104,8 @@ required CI check `checks`, branch up to date; no direct pushes.
 | 1 | Dataset audit (FoR full, DEEP-VOICE metadata-only) → `docs/dataset_audit.md` | A · Donia | done |
 | 2 | Threat model → `docs/threat_model.md` | A · Donia | done |
 | 3 | Experimental Protocol v1.0 (freeze) | A · Donia (lead); sign-off: all four | done |
-| 4–5 | Leakage-aware split + dataset freeze (manifests + hashes) | B · Malak | ← CURRENT |
+| 4 | Leakage-aware split | B · Malak; review: Donia | done |
+| 5 | Dataset freeze (F2: manifests + hashes) | B · Malak; review: Donia | ← CURRENT |
 | 6 | Preprocessing profile v1 + tests + compute benchmark | B · Malak | |
 | 7 | Evaluation harness + MFCC/SVM baseline | C · Donia | |
 | 8–9 | CNN training + model selection (FoR val-A) | C · Donia | |
@@ -132,3 +133,5 @@ folder holds only `manifests/` and a README.
 `AGENTS.md` (this file) is the single AI context for all tools (D22): read natively by Codex and
 Antigravity, imported by Claude Code via `CLAUDE.md`, read by Gemini CLI via `.gemini/settings.json`.
 Edit rules here, not in tool-specific files.
+
+Shared AI tooling (D27, ADR 0006): one skill, `.claude/skills/pr-prep/SKILL.md` (Codex and Gemini users: read it as instructions before every PR), and one MCP server, Context7, in `.mcp.json` (key via `${CONTEXT7_API_KEY}`, never committed). No other MCP servers, none in Stage 13; additions only by decision.

@@ -1,0 +1,13 @@
+{
+  "freeze_id": "F2",
+  "implementation_commit": "df1d6acab9df707b4702e038c45d5d22b38b8e66",
+  "clean_runs": 2,
+  "all_files_byte_identical": true,
+  "files": {
+    "deepvoice_frozen_manifest.csv": "7c7a3e52ef254841f53bc08018bd3f9fe7ad83d6cd84531832513c616695355f",
+    "for2sec_frozen_manifest.csv": "badfe948fb7b833357783dd18be00f6bb36253cf8699dc4c4beb4df2b07706f8",
+    "freeze_report.json": "3c2f8a65e5c4503e9546a4943f909fff790a3c18aeecd722f0df51bd4af999af",
+    "freeze_report.md": "0353376b54d2518ee9627d6cbeccd60b30467ca639881b887a940d9d29ddc861",
+    "manifest_hashes.csv": "c9fc2e230c0883028459d0b2b8de4f6ee537676cd5a4e259e9d0f545c60943cc"
+  }
+}
