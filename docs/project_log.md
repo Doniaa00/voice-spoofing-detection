@@ -825,6 +825,18 @@ touched.
 
 ---
 
+### Entry 36 — Khalil local setup and AI-tool answer (2026-10-17)
+
+**What we did:** Khalil prepared the Windows checkout and virtual environment on `docs/stage0-lab6-closeout`. Updated `docs/setup-report.md` with his setup evidence, command-resolution problems and Codex answer.
+
+**Evidence:** Khalil supplied terminal screenshots showing Python 3.13.16, Git 2.56.0.windows.2 and `266 passed in 299.59s (0:04:59)` [verified from screenshots]. This is the earlier local run, not a new test run by Codex and not GitHub CI evidence.
+
+**AI assistance:** Codex guided setup, inspected local project instructions and drafted documentation. The AI-tool question was answered in the existing conversation; fresh-session automatic context loading was not tested. Teammate review remains pending.
+
+**Open issues:** Remaining report sections and team AI-tool responses; Iheb's audit review and explicit D14 response; passing PR CI and human review. No approval or stage closure is claimed.
+
+**Gate:** Lab 6 closeout remains incomplete; waiting for remaining evidence and team review.
+
 ## Open items
 
 **GitHub / repo**
@@ -904,7 +916,8 @@ touched.
 
 **Course deliverables**
 - [ ] Setup report (`docs/setup-report.md`, Lab 6 skeleton): Malak's Codex test is recorded and
-  passed (Entry 22); the remaining sections and team members' AI-tool answers are still open.
+  passed (Entry 22); Khalil's local setup evidence and Codex answer are recorded (Entry 36).
+  Remaining sections, other team answers, Iheb's review and D14 response, and team acceptance are still open.
 
 **Local verification**
 - [x] Re-run the full local suite: Python 3.13 completed with **33 passed in 6.36 s** during Stage 4;
@@ -965,6 +978,7 @@ touched.
 ## Current status — updated 2026-10-17
 
 **What was done:**
+- **Lab 6 closeout in progress:** Khalil's local setup and Codex answer are documented (Entry 36); remaining evidence and review are pending.
 - **Stages 0–3 and Part A are complete.** Protocol v1.0 is frozen as F1 (PR #10).
 - **Stage 4 is complete** (Entry 28): PR #12 merged as `865faf4`.
 - **Stage 5 F2 PR merged** as PR #15 (`main` at `89b37fc`).
