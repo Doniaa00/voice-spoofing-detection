@@ -9,6 +9,7 @@ Categories: **Added**, **Changed**, **Fixed**, **Removed**.
 ## [Unreleased]
 
 ### Added
+- Append-only, hash-chained run registry for D31 (claim before run).
 - Stage 10 risk policy: Platt calibration with smoothed targets, val-B EER threshold, uncertain band with ≤ 10% deferral, confidence, risk level, strict JSON policy file.
 - Stage 7 evaluation harness (EER/AUC, decision metrics, three-way decisions, cluster bootstrap CIs, seed rules) and the scikit-learn 1.9.1 pin.
 - Stage 5 metadata-only F2 freeze generator, pinned config, deterministic manifests, hash ledger and tests.

@@ -751,6 +751,38 @@ on much larger fit sets it may not be reached, and the fit then fails loudly (`V
 
 ---
 
+### Entry 34 — Stage 11 run registry for D31 (2026-10-17)
+
+**Authorship:** specified and reviewed by Donia Mabrouk. Code, tests and the design note were
+written by **Claude Code**. Every commit's diff was reviewed by Donia with Claude (claude.ai) before
+push.
+
+**What:** on `feat/stage11-run-registry`, the run registry that enforces "Stage 11 runs once" (D31),
+in `src/evaluation/run_registry.py` (design note: `docs/evaluation_harness.md`, "Run registry (D31)"):
+- **Claim before run:** a `"started"` record is appended before the evaluation and a `"completed"`
+  record after it; any record for the same (dataset, split, sorted model set) blocks a second
+  claim, so a crashed run still blocks a rerun.
+- **Hash chain:** each line carries the SHA-256 of the previous line's exact bytes; editing,
+  deleting or reordering an earlier line is detected on load.
+- **Rule replay on load and strict parsing:** a file the code would never write is rejected;
+  unknown or missing keys and bad values raise `ValueError` naming the line.
+- `*.jsonl -text` in `.gitattributes`, so Git never converts the registry's line endings (the
+  chain hashes exact bytes).
+
+All tests use temporary files; no dataset was accessed and DEEP-VOICE was not touched.
+
+**Limitation and mitigation:** the hash chain cannot detect removal of the last line(s): a
+truncated file is still a valid chain (`test_truncation_is_not_detected_by_the_chain` documents
+it). Mitigation (procedure): right after Stage 11, the registry's SHA-256 and line count are
+recorded in the project-log entry and the results PR, so a shortened file no longer matches.
+
+**Evidence [verified]:** `.venv` `python -m pytest -q`: `230 passed in 12.68s`; governance test
+`3 passed in 0.19s`.
+
+**Gate:** PR ready for human review; AI does not approve or merge.
+
+---
+
 ## Open items
 
 **GitHub / repo**
@@ -801,9 +833,14 @@ on much larger fit sets it may not be reached, and the fit then fails loudly (`V
 - [ ] Colab install of scikit-learn 1.9.1 [to verify] at the first Stage 7 Colab run.
 
 **Stage 10 risk policy (Entry 33)**
-- [ ] Human review of `feat/stage10-risk-policy` (R1–R2); CI green on Python 3.13.
+- [x] Human review of `feat/stage10-risk-policy` (R1–R2); CI green on Python 3.13: merged as PR #17.
 - [ ] Watch: Platt's absolute gradient-norm stop; if the real val-B fit fails to converge, propose a
   relative criterion (no silent change).
+
+**Stage 11 run registry (Entry 34)**
+- [ ] Human review of `feat/stage11-run-registry`; CI green on Python 3.13.
+- [ ] Stage 11: record the registry SHA-256 and line count right after the run (project-log entry
+  and results PR).
 
 **Notebook (ported to the repo, `f8af88a`; pins and guards added in Entry 7)**
 - [x] Cell 1: real `REPO_URL`; clone with `-b <branch>`; print Python version and commit hash; capture and print the `pytest` output.
@@ -884,8 +921,10 @@ on much larger fit sets it may not be reached, and the fit then fails loudly (`V
 - **Stage 5 F2 PR merged** as PR #15 (`main` at `89b37fc`).
 - **Stage 7 evaluation harness, steps 1–5, is merged** as PR #13 (Entry 31).
 - **Protocol clarifications D29–D31 are merged** as PR #16 (Entry 32).
-- **Stage 10 risk policy, steps R1–R2, is ready for review** (Entry 33): Platt calibration, val-B
-  EER threshold, band with ≤ 10% deferral, confidence, risk level, strict JSON policy file.
+- **Stage 10 risk policy, steps R1–R2, is merged** as PR #17 (Entry 33).
+- **Stage 11 run registry (D31) is ready for review** (Entry 34): claim before run, hash chain,
+  rule replay on load, strict parsing; truncation is caught by recording the file's SHA-256 and
+  line count right after the run.
 
 **What we have:**
 - The approved FoR split and the F2 manifests and hash ledger (D28).
@@ -894,17 +933,19 @@ on much larger fit sets it may not be reached, and the fit then fails loudly (`V
 - Pre-declared rules for the baseline threshold, CNN selection and the single Stage 11 run (D29–D31).
 - A tested risk-policy fit (`src/tuning`) and core apply / save / load (`src/risk`), documented in
   `docs/risk_policy.md`; not yet fitted on real val-B scores.
+- A tested append-only run registry (`src/evaluation/run_registry.py`) that refuses a second
+  Stage 11 run for the same model set.
 - Governance rules that keep the external set metadata-only until the one guarded Stage 13 run.
 
 **Branches:**
-- `main`: through PR #16 at `1cd6cdb`.
-- `feat/stage10-risk-policy`: risk policy R1–R2, Entry 33; ready for human review.
+- `main`: through PR #17 at `bc27360`.
+- `feat/stage11-run-registry`: run registry for D31, Entry 34; ready for human review.
 
 **What we want:**
 - A model that detects **synthetic voices**, not dataset accidents, followed by one honest external test.
 
 **What's next:**
-1. Human review of the risk-policy PR; CI must be green on Python 3.13. AI does not merge.
+1. Human review of the run-registry PR; CI must be green on Python 3.13. AI does not merge.
 2. Malak is on Stage 6 (preprocessing profile v1 + tests + compute benchmark).
 3. Khalil decides the DEEP-VOICE file-level view before Stage 13; verify the scikit-learn Colab install.
 4. Then the MFCC/SVM baseline (Stage 7) on the frozen preprocessing.
