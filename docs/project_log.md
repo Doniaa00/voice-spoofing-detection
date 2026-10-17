@@ -838,8 +838,8 @@ member (and the professor) must be able to answer questions on any stage.
 - `docs/stages/TEMPLATE.md`: header block (stage, owner, reviewer(s), status, date, related PRs) and
   8 sections with guidance and target lengths (2–4 pages in total).
 - `docs/stages/README.md`: purpose, how briefs differ from the log, the register and the design
-  notes, the process (owner writes at stage close; teach-back review; 5-minute teach-back in the
-  weekly sync; Stage 19 report assembled from the briefs), a Mermaid overview of Stages 0–19 with
+  notes, the process (owner writes at stage close; teach-back review; 5-minute teach-back by a
+  member who did not write the stage; Stage 19 report assembled from the briefs), a Mermaid overview of Stages 0–19 with
   the four D26 hand-overs, and the table of all 20 brief files.
 - D32 (proposed) in `docs/decisions/README.md`; one line each in `CONTRIBUTING.md` §7, `AGENTS.md`
   (Working mode) and the `docs/README.md` index; CHANGELOG line.

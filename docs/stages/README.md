@@ -26,7 +26,8 @@ copying them. The rule is decision D32 (`docs/decisions/README.md`); the format 
 2. **Teach-back review:** the reviewer (D26: the consumer reviews the producer) must be able to
    answer the brief's section 7 questions without asking the author. A question they cannot answer
    means the brief is not clear yet: the author revises it before approval.
-3. **Weekly sync:** the owner gives a 5-minute teach-back of the closed stage.
+3. **Weekly sync:** a member who did not write the stage explains it back in 5 minutes; the owner
+   only corrects. If they cannot, the brief is revised.
 4. **Stage 19:** the final report is assembled largely from the briefs.
 
 ## Pipeline overview
@@ -58,6 +59,7 @@ flowchart LR
   S12 -- "C→D: bundle + score(audio)" --> S13
   S12 -- "C→E: API response + bundle loading" --> S17
   S6 -- "B→Stage 14: degradations via the same profile" --> S14
+  S12 --> S14
   S13 --> S15
   S13 --> S16
 ```
