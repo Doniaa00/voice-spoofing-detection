@@ -272,3 +272,4 @@ on FoR only; nothing here touches DEEP-VOICE before Stage 13 (AGENTS.md hard rul
 |---|---|---|---|
 | 0.1 | 2026-10-12 | Skeleton: sections, owners, reviewers, "Must decide" items. No content. | |
 | 1.0 | 2026-10-14 | All sections decided (team-accepted defaults). | #10 |
+| 1.0 | 2026-10-17 | Clarifications D29 (baseline threshold), D30 (search space), D31 (Stage 11 run once); no rule changed | (this PR) |
