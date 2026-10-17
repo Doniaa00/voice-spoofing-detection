@@ -240,3 +240,52 @@ Each test has its reasoning as a comment.
 | Harness integration | `test_works_with_harness_eer` (200 random scores, seed 2026: low ≤ EER ≤ high) |
 | (e) invalid resamples | `test_invalid_resamples_are_excluded_and_counted` (labels [0, 1], `roc_auc`: 0 < `n_invalid` < 2,000, CI [1, 1]), `test_all_resamples_invalid_raises` |
 | Fail loudly | `test_invalid_parameters_raise` (`n_resamples` 0, 10.0, True; confidence 0, 1; clusters of wrong length; float seed; `n` 0, True), `test_nan_estimate_raises` |
+
+## Step 5: seed summary and bundle seed
+
+### Conventions
+- CNN seeds 0, 1, 2 on the final configuration (Protocol v1.0 §4, D11).
+- Seed reporting: mean ± SD of EER and ROC-AUC across the seeds (Protocol v1.0 §5, D11).
+- Bundle seed: the seed with the median val-A EER; tie → lower seed number (Protocol v1.0 §5, D11).
+
+`seed_summary(values) -> SeedSummary` takes a mapping seed → metric value and returns a frozen
+dataclass with `mean, sd` (float), `n_seeds` (int) and `values`, the `(seed, value)` pairs sorted
+by seed. `select_bundle_seed(val_a_eer) -> int` takes a mapping seed → val-A EER and returns one
+seed. Both live in `src/evaluation/seeds.py`.
+
+### Method
+1. Input: a mapping of seed → value. Pairs are sorted by seed before use, so the insertion order
+   does not matter.
+2. `seed_summary`: `mean` = arithmetic mean; `sd` = sample SD (ddof = 1). Needs ≥ 2 seeds.
+3. `select_bundle_seed`: `m` = median of the values; among the seeds whose value equals `m`,
+   return the lowest seed. Needs an odd number of seeds (≥ 1).
+
+`ValueError` is raised for: an empty mapping or a non-mapping; a seed that is not an int (bools
+and floats rejected); a value that is not a finite number (NaN, ±∞, strings, bools rejected);
+fewer than 2 seeds in `seed_summary`; an even number of seeds in `select_bundle_seed`.
+
+### Why (team reasoning)
+- **(a) Rules as code before any result.** The bundle seed is chosen by a function written and
+  tested before any CNN is trained, so the choice cannot be adjusted after seeing the numbers
+  (Protocol §12, change control: no change after results are seen).
+- **(b) Median, not best.** Picking the seed with the lowest val-A EER would pick the luckiest run;
+  the median seed is the typical one, so the bundle is representative of the training recipe.
+- **(c) Tie → lower seed.** Two seeds can share the median value; the lower seed number makes the
+  choice deterministic.
+- **(d) Odd count required.** With an even count the median is the mean of the two middle values
+  and may belong to no seed, so there is no "median seed". The function raises instead of guessing.
+- **(e) Sample SD, a rough spread.** The 3 seeds are a sample of training runs, so the SD uses
+  ddof = 1. With 3 values it is only a rough spread of training randomness and is reported as
+  such, as a separate row next to the bootstrap CIs (Protocol §5).
+
+### Tests (`tests/evaluation/test_seeds.py`)
+Each case has its hand calculation as a comment.
+
+| Point | Test |
+|---|---|
+| (e) sample SD | `test_seed_summary_hand_case` ({0: 0.10, 1: 0.12, 2: 0.14}: mean 0.12, sd 0.02) |
+| (b) median | `test_select_bundle_seed_median` ({0: 0.30, 1: 0.10, 2: 0.20}: median 0.20 → seed 2) |
+| (c) tie | `test_select_bundle_seed_tie_at_median` ({0: 0.2, 1: 0.1, 2: 0.2}: median 0.2 shared by 0 and 2 → 0), `test_select_bundle_seed_all_equal` (all 0.1 → 0) |
+| Order independence | `test_order_independence` (reversed insertion order → same seed and summary) |
+| (d) odd count | `test_select_bundle_seed_even_count_raises` (2 and 4 seeds) |
+| Fail loudly | `test_seed_summary_one_seed_raises`, `test_invalid_input_raises` (empty, NaN, ±∞, string and bool values, bool and float seeds, a list instead of a mapping; both functions) |
