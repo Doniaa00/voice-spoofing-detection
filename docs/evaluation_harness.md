@@ -221,6 +221,12 @@ With few clusters the percentile interval is approximate and wide. DEEP-VOICE ha
 speakers (dataset_audit §8, limitation 4), so its resamples can only recombine 8 clusters. Its
 intervals are reported as approximate, with the number of clusters next to them.
 
+Near the boundary (EER or an error rate close to 0 or 1) the percentile interval can collapse,
+e.g. to [0, 0], because most resamples reach the same extreme value. This does not mean there is
+no uncertainty. Stage 11 therefore reports the error counts (for example FP and FN out of n) next
+to every interval, and a collapsed interval is labelled as such. Any n_invalid > 0 is also
+reported next to its interval.
+
 ### Tests (`tests/evaluation/test_bootstrap.py`)
 Each test has its reasoning as a comment.
 
